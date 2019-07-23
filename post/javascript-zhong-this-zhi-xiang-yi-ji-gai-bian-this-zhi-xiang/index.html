@@ -1,0 +1,366 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JavaScript中this指向以及改变this指向 | LonJin</title>
+<meta name="description" content="这只是一个网站" />
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1563873269783">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://lonjinup.github.io">
+  <img class="avatar" src="https://lonjinup.github.io/images/avatar.png?v=1563873269783" alt="">
+  </a>
+  <h1 class="site-title">
+    LonJin
+  </h1>
+  <p class="site-description">
+    这只是一个网站
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              JavaScript中this指向以及改变this指向
+            </h2>
+            <div class="post-info">
+              <span>
+                2018-07-01
+              </span>
+              <span>
+                2 min read
+              </span>
+              
+                <a href="https://lonjinup.github.io/tag/su-x11Ukj" class="post-tag">
+                  # JavaScript
+                </a>
+              
+            </div>
+            
+              <img class="post-feature-image" src="https://lonjinup.github.io/post-images/javascript-zhong-this-zhi-xiang-yi-ji-gai-bian-this-zhi-xiang.jpeg" alt="">
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h2 id="关于this指向">关于this指向</h2>
+<ul>
+<li>首先必须要说的是，<strong>this的指向在函数定义的时候是确定不了的，只有函数执行的时候才能确定this到底指向谁，实际上this的最终指向的是那个调用它的对象</strong>（这句话有些问题，后面会解释为什么会有问题，虽然网上大部分的文章都是这样说的，虽然在很多情况下那样去理解不会出什么问题，但是实际上那样理解是不准确的，所以在你理解this的时候会有种琢磨不透的感觉）</li>
+</ul>
+<h3 id="例子1">例子1</h3>
+<pre><code class="language-js">   function name(){
+        var a=&quot;A&quot;;
+        console.log(this.a);//undefined
+        console.log(this);//Window
+    };
+    name(); 
+</code></pre>
+<ul>
+<li>按照上面所说的<strong>this</strong>始终指向的是调用它的对象，这里的函数<strong>name</strong>实际上是被Window对象所调出来的。所以<strong>this.a=undefined</strong>;</li>
+</ul>
+<pre><code class="language-js">    function name(){
+        var a=&quot;A&quot;;
+        alert(this.a);//undefined
+        alert(this);//Window
+    };
+    name(); 
+</code></pre>
+<ul>
+<li>和上面代码一样，<strong>alert</strong> 也是Window一个属性，也是Window调出来的。</li>
+</ul>
+<h2 id="例子2">例子2</h2>
+<pre><code class="language-js"> var n={
+        name:&quot;LonJin&quot;,
+        fn:function(){
+            console.log(this.name)//LonJin
+        }
+    };
+    n.fn();
+</code></pre>
+<ul>
+<li>
+<p>这里的this指向的是对象<strong>n</strong>，因为你调用这个fn是通过<strong>n.fn()<strong>执行的，那自然指向就是对象</strong>n</strong>，这里再次强调一点，this的指向在函数创建的时候是决定不了的，在调用的时候才能决定，谁调用的就指向谁，一定要搞清楚这个。</p>
+</li>
+<li>
+<p>其实例子1和例子2说的并不够准确，下面这个例子就可以推翻上面的理论。</p>
+</li>
+</ul>
+<h2 id="例子3">例子3</h2>
+<pre><code class="language-js"> var n={
+        name:&quot;LonJin&quot;,
+        fn:function(){
+            console.log(this.name)//LonJin
+        }
+    };
+    window.n.fn();
+</code></pre>
+<ul>
+<li>
+<p>这段代码和上面的那段代码几乎是一样的，但是这里的this为什么不是指向window，如果按照上面的理论，最终this指向的是调用它的对象，这里先说个而外话，window是js中的全局对象，我们创建的变量实际上是给window添加属性，所以这里可以用<strong>window.n.fn()</strong>。</p>
+</li>
+<li>
+<p>再来看一段代码</p>
+</li>
+</ul>
+<pre><code class="language-js">    var n={
+        a:10,
+        b:{
+            a:12,
+            fn:function(){
+                console.log(this.a)//12
+            }
+        }
+    };
+    n.b.fn();
+</code></pre>
+<ul>
+<li>这里同样也是对象<strong>n</strong>点出来的，但是同样this并没有执行它，那你肯定会说我一开始说的那些不就都是错误的吗？其实也不是，只是一开始说的不准确，接下来我将补充一句话，我相信你就可以彻底的理解this的指向的问题。</li>
+</ul>
+<h2 id="彻底理解this指向">彻底理解this指向</h2>
+<ul>
+<li>
+<p>情况1：如果一个函数中有this，但是它没有被上一级的对象所调用，那么this指向的就是window，这里需要说明的是在js的严格版中this指向的不是window，但是我们这里不探讨严格版的问题，你想了解可以自行上网查找。</p>
+</li>
+<li>
+<p>情况2：如果一个函数中有this，这个函数有被上一级的对象所调用，那么this指向的就是上一级的对象。</p>
+</li>
+<li>
+<p>情况3：如果一个函数中有this，这个函数中包含多个对象，尽管这个函数是被最外层的对象所调用，this指向的也只是它上一级的对象，例子3可以证明，如果不相信，那么接下来我们继续看几个例子。</p>
+</li>
+</ul>
+<pre><code class="language-js">    var n={
+        a:10,
+        b:{
+            // a:12,
+            fn:function(){
+                console.log(this.a)//undefined
+            }
+        }
+    };
+    n.b.fn();
+</code></pre>
+<ul>
+<li>尽管对象b中没有属性a，这个this指向的也是对象b，因为this只会指向它的上一级对象，不管这个对象中有没有this要的东西。还有一种特殊的情况，请看例子4。</li>
+</ul>
+<p>##例子4</p>
+<pre><code class="language-js">    var n={
+        a:10,
+        b:{
+            a:12,
+            fn:function(){
+                console.log(this.a)//undefined
+                console.log(this);//window
+            }
+        }
+    };
+    var j=n.b.fn;
+    j();
+</code></pre>
+<ul>
+<li>在这里this指向window，这里就又不明白了，其实还是不理解<strong>this永远指向最后调用它的对象</strong>，也就是看它执行的时候是谁调用的它，例子4中虽然<strong>函数fn</strong>是被<strong>对象b</strong>所引用，但是在将<strong>fn</strong>赋值给变量<strong>j</strong>的时候并没有执行所以最终指向的是window，这里和例子3是不一样的，例子3是直接执行了<strong>fn</strong>。</li>
+</ul>
+<h3 id="当this遇到retrun时候">当this遇到retrun时候</h3>
+<pre><code class="language-js"> function fn(){
+       this.user=&quot;LonJin&quot;;
+       return {}
+   };
+   var a=new fn;
+   console.log(a.user);//underfind
+</code></pre>
+<ul>
+<li>再看一个</li>
+</ul>
+<pre><code class="language-js">  function fn(){
+       this.user=&quot;LonJin&quot;;
+       return function(){
+           
+       }
+   };
+   var a=new fn;
+   console.log(a.user);//undefined
+</code></pre>
+<ul>
+<li>继续看</li>
+</ul>
+<pre><code class="language-js">   function fn(){
+       this.user=&quot;LonJin&quot;;
+       return 1
+   };
+   var a=new fn;
+   console.log(a.user);//LonJin
+</code></pre>
+<pre><code class="language-js">   function fn(){
+       this.user=&quot;LonJin&quot;;
+       return undefined
+   };
+   var a=new fn;
+   console.log(a.user);//LonJin
+</code></pre>
+<ul>
+<li>
+<p>如果返回值是一个对象，那么this指向的就是那个返回的对象，如果返回值不是一个对象那么this还是指向函数的实例。</p>
+</li>
+<li>
+<p>还有一点就是虽然null也是对象，但是在这里this还是指向那个函数的实例，因为null比较特殊。</p>
+</li>
+</ul>
+<pre><code class="language-js">   function fn(){
+       this.user=&quot;LonJin&quot;;
+       return null
+   };
+   var a=new fn;
+   console.log(a.user);//LonJin
+</code></pre>
+<h3 id="补充">补充</h3>
+<ul>
+<li>在严格版中的默认的this不再是window，而是undefined。</li>
+</ul>
+<h2 id="如何改变this指向">如何改变this指向</h2>
+<pre><code class="language-js"> function fn(){
+       this.user=&quot;LonJin&quot;;
+   };
+   var a=new fn();
+   console.log(a.user);//LonJin
+</code></pre>
+<ul>
+<li>
+<p>为什么this会指向a？首先new关键字会创建一个空的对象，然后会自动调用一个函数apply方法，将this指向这个空对象，这样的话函数内部的this就会被这个空的对象替代。</p>
+</li>
+<li>
+<p>箭头函数在自己的作用域内不绑定 this，即没有自己的 this，如果要使用 this ，就会指向定义时所在的作用域的 this 值。</p>
+</li>
+</ul>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E5%85%B3%E4%BA%8Ethis%E6%8C%87%E5%90%91">关于this指向</a>
+<ul>
+<li><a href="#%E4%BE%8B%E5%AD%901">例子1</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BE%8B%E5%AD%902">例子2</a></li>
+<li><a href="#%E4%BE%8B%E5%AD%903">例子3</a></li>
+<li><a href="#%E5%BD%BB%E5%BA%95%E7%90%86%E8%A7%A3this%E6%8C%87%E5%90%91">彻底理解this指向</a>
+<ul>
+<li><a href="#%E5%BD%93this%E9%81%87%E5%88%B0retrun%E6%97%B6%E5%80%99">当this遇到retrun时候</a></li>
+<li><a href="#%E8%A1%A5%E5%85%85">补充</a></li>
+</ul>
+</li>
+<li><a href="#%E5%A6%82%E4%BD%95%E6%94%B9%E5%8F%98this%E6%8C%87%E5%90%91">如何改变this指向</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a> | 
+  <a class="rss" href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+
+  let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+  // This should probably be throttled.
+  // Especially because it triggers during smooth scrolling.
+  // https://lodash.com/docs/4.17.10#throttle
+  // You could do like...
+  // window.addEventListener("scroll", () => {
+  //    _.throttle(doThatStuff, 100);
+  // });
+  // Only not doing it here to keep this Pen dependency-free.
+
+  window.addEventListener("scroll", event => {
+    let fromTop = window.scrollY;
+
+    mainNavLinks.forEach((link, index) => {
+      let section = document.getElementById(decodeURI(link.hash).substring(1));
+      let nextSection = null
+      if (mainNavLinks[index + 1]) {
+        nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+      }
+      console.log('section.offsetHeight', section.offsetHeight);
+      if (section.offsetTop <= fromTop) {
+        if (nextSection) {
+          if (nextSection.offsetTop > fromTop) {
+            link.classList.add("current");
+          } else {
+            link.classList.remove("current");    
+          }
+        } else {
+          link.classList.add("current");
+        }
+      } else {
+        link.classList.remove("current");
+      }
+    });
+  });
+
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>
