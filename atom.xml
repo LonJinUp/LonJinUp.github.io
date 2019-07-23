@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://lonjinup.github.io</id>
     <title>LonJin</title>
-    <updated>2019-07-23T09:23:27.443Z</updated>
+    <updated>2019-07-23T09:25:11.101Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://lonjinup.github.io"/>
     <link rel="self" href="https://lonjinup.github.io/atom.xml"/>
@@ -10,6 +10,85 @@
     <logo>https://lonjinup.github.io/images/avatar.png</logo>
     <icon>https://lonjinup.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, LonJin</rights>
+    <entry>
+        <title type="html"><![CDATA[原型与原型链]]></title>
+        <id>https://lonjinup.github.io/post/yuan-xing-yu-yuan-xing-lian</id>
+        <link href="https://lonjinup.github.io/post/yuan-xing-yu-yuan-xing-lian">
+        </link>
+        <updated>2019-07-23T09:24:30.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="为什么需要原型及原型链">为什么需要原型及原型链？</h2>
+<ul>
+<li>demo</li>
+</ul>
+<pre><code class="language-js">    function Person(name,age){
+       
+       this.name=name;
+       this.age=age;
+       this.eat=function(){
+           console.log(age+&quot;岁的&quot;+name+&quot;在吃饭&quot;)
+       }
+   };
+
+   let Tom=new Person(&quot;Tom&quot;,24);
+   let Bob=new Person(&quot;Tom&quot;,24);
+   
+   console.log(Tom.eat===Bob.eat);  //flase
+</code></pre>
+<ul>
+<li>
+<p>可以看到对于同一个函数，new出来的实例，都会开出新的一块堆区,所以例子中Tom和Bob的<strong>eat</strong>是不同的。<br>
+虽然拥有自己的的东西(比如房子，车子)是很好的，但它也有不好的地方，毕竟一共就那么大的地方(内存)，你要<br>
+一直建立房子，会导致地方不足(内存不足)。</p>
+</li>
+<li>
+<p>所以要想个方法，建立共享库的的对象(例如把楼房建高),这样就可以在需要的时候调用一个类似共享库的对象(社区)，让实例能沿着某个线索找到它的归处。这个线索就是<strong>原型链(prototype)</strong></p>
+</li>
+</ul>
+<pre><code class="language-js">
+    function Person(name,age){
+        this.name=name;
+        this.age=age;
+    };
+    // 通过构造函数的 Person 的 prototype 属性找到 Person 的原型对象
+    Person.prototype.eat=function(){
+        console.log(&quot;吃饭&quot;)
+    };
+
+   let Tom=new Person(&quot;Tom&quot;,24);
+   let Bob=new Person(&quot;Tom&quot;,24);
+
+   console.log(Tom.eat===Bob.eat); //true
+
+</code></pre>
+<h2 id="prototype是什么">prototype是什么？</h2>
+<ul>
+<li>看图</li>
+</ul>
+<p><img src="https://s2.ax1x.com/2019/07/18/ZXsADU.png" alt="图解prototype"></p>
+<ul>
+<li>
+<p>js说，我好寂寞，因为js本源是空的，即为null。</p>
+</li>
+<li>
+<p>js说，要有神，所以它通过万能术 <strong>_ proto _</strong> 产生了No1号神，即:<strong>No1._ proto _=null</strong>。</p>
+</li>
+<li>
+<p>js说，神你要有自己的想法啊，所以神自己想了个办法，根据自己的原型<strong>prototype</strong>创建了对象；<strong>Object</strong>，即<strong>Object.prototype==No1;No1._ proto _=null</strong>。于是我们把<strong>prototype</strong>叫做原型，就好比<strong>Object</strong>的原型是神，男人的原型就是人类一样。同时 <strong>_ proto _</strong> 叫做原型链，毕竟有了 <strong>_ proto _</strong> ,对象、神、js之间才有了联系，这时候<strong>Object.prototype._ proto _=null</strong>。</p>
+</li>
+<li>
+<p>js说，神你要有更多的想法啊，我把万能术 <strong>_ proto  _</strong> 都借你用了。所以神根据 <strong>Object</strong>,使用 <strong>_ proto _</strong> 做了个机器No2,即：<strong>No2._ proto _=No1</strong>,并规定所有东西，通过 <strong>_ proto _</strong> 可以连接机器，再找到自己包括<strong>Object</strong>也是，于是<strong>Object成为了所以对象的原型</strong>，<strong>Object. _ proto  _ ._ proto _==No1</strong>,然后 <strong>String</strong>、<strong>Numer</strong>、<strong>Boolean</strong>、<strong>Array</strong>这些物种也是如此。</p>
+</li>
+</ul>
+<p>js说，神你的机器好厉害，你的机器能不能做出更多的机器啊？神咧嘴一笑:你通过万能术创造了我，我通过原型创造了对象，如此，那我造一个机器 <strong>Function</strong> ,<strong>function.prototype == No2, function._ proto_=No2</strong>,即：<strong>function。prototype == function. _ proto_</strong>;这样No2就成了造机器的机器，他负责管理<strong>String</strong>、<strong>Numer</strong>、<strong>Boolean</strong>、<strong>Array</strong>这几个。</p>
+<ul>
+<li>最后，说到底我们就很容易理解那幅图，并比较了解下面的公式了。</li>
+</ul>
+<pre><code class="language-js">    Object._proto_ = Function.prototype;
+    Function.prototype._proto_ = Object.prototype;
+    Object.prototype._proto = null
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[JavaScript中this指向以及改变this指向]]></title>
         <id>https://lonjinup.github.io/post/javascript-zhong-this-zhi-xiang-yi-ji-gai-bian-this-zhi-xiang</id>
