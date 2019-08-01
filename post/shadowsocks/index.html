@@ -1,0 +1,317 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>搭建shadowsocks服务 | LonJin</title>
+<meta name="description" content="这只是一个网站" />
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1564643330918">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://lonjinup.github.io">
+  <img class="avatar" src="https://lonjinup.github.io/images/avatar.png?v=1564643330918" alt="">
+  </a>
+  <h1 class="site-title">
+    LonJin
+  </h1>
+  <p class="site-description">
+    这只是一个网站
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              搭建shadowsocks服务
+            </h2>
+            <div class="post-info">
+              <span>
+                2019-08-01
+              </span>
+              <span>
+                1 min read
+              </span>
+              
+                <a href="https://lonjinup.github.io/tag/vWMtMYt9m" class="post-tag">
+                  # 工具/教程
+                </a>
+              
+            </div>
+            
+              <img class="post-feature-image" src="https://lonjinup.github.io/post-images/shadowsocks.png" alt="">
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="shadowsocks">shadowsocks</h1>
+<blockquote>
+<pre><code>之前一直是公司后端用公司服务器搭建的，网速慢的要死，准备买个星域的，但是网站老打不开，还是自己搭一个吧，价格也不贵，一个月折合人民币￥25，网速也不慢。
+</code></pre>
+</blockquote>
+<h2 id="购买服务器">购买服务器</h2>
+<ul>
+<li>国外的服务器比较多，像我们常见的就有搬瓦工，vultr，linode 亚马逊等，这里我选择<a href="https://app.cloudcone.com">cloudcone</a>。</li>
+</ul>
+<h3 id="注册">注册</h3>
+<ul>
+<li>这里选择<a href="https://app.cloudcone.com">cloudcone</a>进行账号注册。</li>
+</ul>
+<h3 id="充值">充值</h3>
+<ul>
+<li>这里支持支付宝充值，最低充值金额为 <strong>$5</strong>，找到充值入口<img src="https://lonjinup.github.io/post-images/1564638465290.png" alt=""></li>
+<li>输入金额支付宝支付<br>
+<img src="https://lonjinup.github.io/post-images/1564638814320.png" alt=""></li>
+</ul>
+<h3 id="购买">购买</h3>
+<ul>
+<li>首页点击新建<br>
+<img src="https://lonjinup.github.io/post-images/1564638680586.png" alt=""></li>
+<li>按图上配置即可，只需**$3.71**<br>
+<img src="https://lonjinup.github.io/post-images/1564639093205.png" alt=""></li>
+</ul>
+<blockquote>
+<pre><code>这时候购买完毕就可以开始搭建啦，服务器IP地址和密码等信息会下发到邮箱。
+</code></pre>
+</blockquote>
+<h2 id="搭建">搭建</h2>
+<h3 id="准备工具">准备工具</h3>
+<h4 id="xshell6"><a href="https://pan.baidu.com/s/1IQcvbkbNWfs44_PDxQhxtQ#list/path=%2F">Xshell6</a>，百度网盘下载。提取码<strong>y4tq</strong></h4>
+<h4 id="shadowsocks客户端">shadowsocks客户端</h4>
+<p><a href="https://github.com/shadowsocks/shadowsocks-windows">Windows客户端</a><br>
+<a href="https://github.com/shadowsocks/ShadowsocksX-NG">Mac客户端</a><br>
+<a href="https://github.com/shadowsocks/shadowsocks-android">Android客户端</a><br>
+iOS可以用美区ID下载<strong>Potatso Lite</strong>，美国账号可以去万能的tb购买。</p>
+<h3 id="服务器">服务器</h3>
+<h4 id="连接服务器">连接服务器</h4>
+<ul>
+<li>安装好<strong>Xshell</strong>，通过ip地址和密码连接服务器。这里就不截图了。</li>
+</ul>
+<h4 id="安装python-pip">安装python-pip</h4>
+<ul>
+<li>安装 python-pip<br>
+<code>yum -y install python-pip</code></li>
+</ul>
+<blockquote>
+<p>如果提示No package python-pip available.Error: Nothing to do因为没有此rpm包，此包包含在pel源里面,执行如下代码:</p>
+</blockquote>
+<p><code>rpm -ivh http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm</code></p>
+<ul>
+<li>安装成功后会提示Complete! 之后清除一下缓存<br>
+<code>yum clean al</code></li>
+</ul>
+<h4 id="安装shadowsocks">安装shadowsocks</h4>
+<p><code>pip install shadowsocks</code></p>
+<h4 id="配置信息">配置信息</h4>
+<ul>
+<li>新建文件<br>
+<code>vim /etc/shadowsocks.json</code></li>
+<li>输入配置信息</li>
+</ul>
+<pre><code>{
+  &quot;server&quot;: &quot;服务器IP&quot;,
+  &quot;port_password&quot;: {
+    &quot;端口&quot;: &quot;密码&quot;
+  },
+  &quot;local_address&quot;: &quot;127.0.0.1&quot;,
+  &quot;local_port&quot;: 1080,
+  &quot;timeout&quot;: 300,
+  &quot;method&quot;: &quot;aes-256-cfb&quot;
+}
+</code></pre>
+<ul>
+<li>编辑好后esc退出输入:wq!保存。</li>
+</ul>
+<h4 id="运行">运行</h4>
+<ul>
+<li>要在前台运行:<br>
+<code>ssserver -c /etc/shadowsocks.json</code></li>
+<li>要在后台运行：<br>
+<code>ssserver -c /etc/shadowsocks.json -d start</code><br>
+<code>ssserver -c /etc/shadowsocks.json -d stop</code></li>
+</ul>
+<h3 id="客户端连接">客户端连接</h3>
+<ul>
+<li>打开客户端，输入ip、端口、选择加盟方式、点击确定即可连接，快试试能不能打开<a href="https://www.google.com/search?ei=24VCXdm0Dtf1-gSdi6iQDg&amp;q=pronhub&amp;oq=pronhub&amp;gs_l=psy-ab.3..35i39.2258667.2261361..2261596...1.0..0.818.2559.2-5j0j1j0j1......0....1..gws-wiz.....10..0i71j0.v5vb1A7VS1c&amp;ved=0ahUKEwiZjvL3hOHjAhXXup4KHZ0FCuIQ4dUDCAo&amp;uact=5">Google</a>吧！</li>
+</ul>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#shadowsocks">shadowsocks</a>
+<ul>
+<li><a href="#%E8%B4%AD%E4%B9%B0%E6%9C%8D%E5%8A%A1%E5%99%A8">购买服务器</a>
+<ul>
+<li><a href="#%E6%B3%A8%E5%86%8C">注册</a></li>
+<li><a href="#%E5%85%85%E5%80%BC">充值</a></li>
+<li><a href="#%E8%B4%AD%E4%B9%B0">购买</a></li>
+</ul>
+</li>
+<li><a href="#%E6%90%AD%E5%BB%BA">搭建</a>
+<ul>
+<li><a href="#%E5%87%86%E5%A4%87%E5%B7%A5%E5%85%B7">准备工具</a>
+<ul>
+<li><a href="#xshell6">Xshell6</a></li>
+<li><a href="#shadowsocks%E5%AE%A2%E6%88%B7%E7%AB%AF">shadowsocks客户端</a></li>
+</ul>
+</li>
+<li><a href="#%E6%9C%8D%E5%8A%A1%E5%99%A8">服务器</a>
+<ul>
+<li><a href="#%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8">连接服务器</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85python-pip">安装python-pip</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85shadowsocks">安装shadowsocks</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF">配置信息</a></li>
+<li><a href="#%E8%BF%90%E8%A1%8C">运行</a></li>
+</ul>
+</li>
+<li><a href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%BF%9E%E6%8E%A5">客户端连接</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://lonjinup.github.io/post/yuan-xing-yu-yuan-xing-lian">
+              <h3 class="post-title">
+                JavaScript之原型and原型链
+              </h3>
+            </a>
+          </div>
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a> | 
+  <a class="rss" href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+
+  let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+  // This should probably be throttled.
+  // Especially because it triggers during smooth scrolling.
+  // https://lodash.com/docs/4.17.10#throttle
+  // You could do like...
+  // window.addEventListener("scroll", () => {
+  //    _.throttle(doThatStuff, 100);
+  // });
+  // Only not doing it here to keep this Pen dependency-free.
+
+  window.addEventListener("scroll", event => {
+    let fromTop = window.scrollY;
+
+    mainNavLinks.forEach((link, index) => {
+      let section = document.getElementById(decodeURI(link.hash).substring(1));
+      let nextSection = null
+      if (mainNavLinks[index + 1]) {
+        nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+      }
+      console.log('section.offsetHeight', section.offsetHeight);
+      if (section.offsetTop <= fromTop) {
+        if (nextSection) {
+          if (nextSection.offsetTop > fromTop) {
+            link.classList.add("current");
+          } else {
+            link.classList.remove("current");    
+          }
+        } else {
+          link.classList.add("current");
+        }
+      } else {
+        link.classList.remove("current");
+      }
+    });
+  });
+
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>
