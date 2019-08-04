@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>02-Vue组件 | 陇锦</title>
+<title>一个合格前端需要掌握的知识点 | 陇锦</title>
 <meta name="description" content="记录学习 记录生活" />
 <link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1564939000922">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -73,77 +73,57 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              02-Vue组件
+              一个合格前端需要掌握的知识点
             </h2>
             <div class="post-info">
               <span>
-                2019-08-05
+                2019-07-28
               </span>
               <span>
                 1 min read
               </span>
               
-                <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="post-tag">
-                  # VUE
-                </a>
-              
             </div>
-            
-              <img class="post-feature-image" src="https://cn.vuejs.org/images/logo.png" alt="">
             
             <div class="post-content-wrapper">
               <div class="post-content">
-                <h1 id="组件">组件</h1>
-<ul>
-<li>组件系统是 Vue 的另一个重要概念，因为它是一种抽象，允许我们使用小型、独立和通常可复用的组件构建大型应用。我们所写的页面都可以分割成一个个组件，比如头部，轮播，尾部等...</li>
-</ul>
-<h2 id="创建组件">创建组件</h2>
-<ul>
-<li>在Vue中，创建组件就是预定义了一个Vue的<strong>实例</strong>。</li>
-</ul>
-<pre><code class="language-Html">    &lt;script&gt;
-    //创建一个名字为todo-item的组件
-    Vue.component('todo-item',{
-        template:&quot;&lt;li&gt;这是一个实例&lt;/li&gt;&quot;
-    });
-    &lt;/script&gt;
+                <h1 id="前言">前言</h1>
+<pre><code>	大家肯定有时候和我一样，每次在各大论坛、公众号看到好文章就会点赞搜藏，但其实(大家懂)......
+	这次准备把我之前搜藏的一些好文章以及各种资源做个记录，方便每日学习。文章内容准备涉及到HTML、CSS、JavaScript、Vue、浏览器相关 、前端面试常见问题、各种好玩的插件。
+	同时自己也立一个flag，今年年底争取把JavaScript以及ES6语法掌握到位，同时再把VUE相关知识学习一下。最近也在巩固(重学)JavaScript，把之前落灰的📕《JavaScript权威指南》拿了出来，争取年底能读完吧，每日进步一点点。
 </code></pre>
-<ul>
-<li>如果这样使用只能渲染相同文本，所以可以通过定义一个<strong>prop</strong>可以接收从父组件传过来的数据</li>
-</ul>
-<pre><code class="language-Html">    &lt;div id=&quot;app&quot;&gt;
-            &lt;ol&gt;
-                &lt;todo-item v-for='item in list' v-bind:todo='item' v-bind:key='item.id'&gt;
-
-                &lt;/todo-item&gt;
-            &lt;/ol&gt;
-    &lt;/div&gt;
-    &lt;script&gt;
-        //定义组件
-        Vue.component('todo-item',{
-            props:['todo'],
-            template:&quot;&lt;li&gt;{{todo.text}}&lt;/li&gt;&quot;
-        });
-        var app=new Vue({
-            el:&quot;#app&quot;,
-            data:{
-                list:[
-                    {id:1,text:&quot;hellow world&quot;},
-                    {id:2,text:&quot;hellow&quot;},
-                    {id:3,text:&quot;hi&quot;},
-                    {id:4,text:&quot;world&quot;},
-                ]
-            }
-        })
-    &lt;/script&gt;
-</code></pre>
+<h2 id="html-css">HTML  CSS</h2>
+<p><a href="http://www.ruanyifeng.com/blog/2015/07/flex-grammar.html">CSS中flex布局</a></p>
+<p><a href="https://juejin.im/post/5d3946335188255ac45f7331">grid网格布局</a></p>
+<p><a href="https://juejin.im/post/5c939345e51d452c4323a65b">一些有趣的CSS魔法和布局（上）</a></p>
+<p><a href="https://juejin.im/post/5c93964e6fb9a070c5511160">一些有趣的CSS魔法和布局（下）</a></p>
+<p><a href="https://juejin.im/post/5d39d27cf265da1bc14b6f47">CSS开发必会的16个开发技巧</a></p>
+<p><a href="https://juejin.im/post/5d3eca78e51d4561cb5dde12">你未必知道的49个CSS知识点</a></p>
+<p><a href="https://juejin.im/post/5cdd178ee51d456e811d279b">2019年了，你还不会CSS动画？</a></p>
+<h2 id="javascript">JavaScript</h2>
+<p><a href="https://juejin.im/post/5b91d3be5188255c95380b5e">前端跨域相关知识</a></p>
+<h2 id="vue">VUE</h2>
+<p><a href="https://juejin.im/post/5ad10800f265da23826e681e">如何解释VUE的生命周期才能让面试官满意</a></p>
+<p><a href="https://juejin.im/post/5d229bfc5188252d707f3ac6">深入浅出Vue响应式原理（完整版）</a></p>
+<p><a href="https://juejin.im/post/5cde0b43f265da03867e78d3">Vue 组件间通信六种方式</a></p>
+<h2 id="浏览器">浏览器</h2>
+<h2 id="面试相关">面试相关</h2>
+<p><a href="https://juejin.im/post/5c6ad9fde51d453c356e37d1">如何横扫 Javascript 面试核心考点(基础版)</a></p>
+<h2 id="好玩插件应用">好玩插件|应用</h2>
+<p><a href="https://gridea.dev/">Gridea:一个静态博客写作客户端(支持github、coding)</a></p>
+<p><a href="https://juejin.im/post/5d21ff70f265da1bcc196468">MAC电脑好用软件</a></p>
 
               </div>
               <div class="toc-container">
                 <ul class="markdownIt-TOC">
-<li><a href="#%E7%BB%84%E4%BB%B6">组件</a>
+<li><a href="#%E5%89%8D%E8%A8%80">前言</a>
 <ul>
-<li><a href="#%E5%88%9B%E5%BB%BA%E7%BB%84%E4%BB%B6">创建组件</a></li>
+<li><a href="#html-css">HTML  CSS</a></li>
+<li><a href="#javascript">JavaScript</a></li>
+<li><a href="#vue">VUE</a></li>
+<li><a href="#%E6%B5%8F%E8%A7%88%E5%99%A8">浏览器</a></li>
+<li><a href="#%E9%9D%A2%E8%AF%95%E7%9B%B8%E5%85%B3">面试相关</a></li>
+<li><a href="#%E5%A5%BD%E7%8E%A9%E6%8F%92%E4%BB%B6%E5%BA%94%E7%94%A8">好玩插件|应用</a></li>
 </ul>
 </li>
 </ul>
@@ -156,9 +136,9 @@
         
           <div class="next-post">
             <div class="next">下一篇</div>
-            <a href="https://lonjinup.github.io/post/01-vue">
+            <a href="https://lonjinup.github.io/post/yuan-xing-yu-yuan-xing-lian">
               <h3 class="post-title">
-                01-Vue基础知识
+                JavaScript之原型and原型链
               </h3>
             </a>
           </div>
