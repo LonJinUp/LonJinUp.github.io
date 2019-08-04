@@ -1,0 +1,385 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>03-Vue计算属性 | 陇锦</title>
+<meta name="description" content="记录学习 记录生活" />
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1564938313771">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://lonjinup.github.io">
+  <img class="avatar" src="https://lonjinup.github.io/images/avatar.png?v=1564938313771" alt="">
+  </a>
+  <h1 class="site-title">
+    陇锦
+  </h1>
+  <p class="site-description">
+    记录学习 记录生活
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              03-Vue计算属性
+            </h2>
+            <div class="post-info">
+              <span>
+                2019-08-05
+              </span>
+              <span>
+                2 min read
+              </span>
+              
+                <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="post-tag">
+                  # VUE
+                </a>
+              
+            </div>
+            
+              <img class="post-feature-image" src="https://cn.vuejs.org/images/logo.png" alt="">
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="计算属性和侦听器">计算属性和侦听器</h1>
+<h2 id="概念">概念</h2>
+<ul>
+<li>模板内的表达式非常便利，但是设计它们的初衷是用于简单运算的。在模板中放入太多的逻辑会让模板过重且难以维护。例如</li>
+</ul>
+<pre><code class="language-Html">  &lt;div id=&quot;example&quot;&gt;
+    {{ message.split('').reverse().join('') }}
+  &lt;/div&gt;
+</code></pre>
+<ul>
+<li>
+<p>在这个地方，模板不再是简单的声明式逻辑。你必须看一段时间才能意识到，这里是想要显示变量 message 的翻转字符串。当你想要在模板中多次引用此处的翻转字符串时，就会更加难以处理。所以对于复杂的逻辑，就可以使用计算属性。</p>
+</li>
+<li>
+<p>简单的说:<br>
+1.计算属性其实就是 Vue 实例的一个属性<br>
+2.计算属性一般依赖传统的 Vue 实例属性<br>
+3.计算属性一般是通过运算得到的属性</p>
+</li>
+</ul>
+<pre><code class="language-Html">
+  &lt;body&gt;
+      &lt;div id=&quot;app&quot;&gt;{{reversedMessage}}&lt;/div&gt;
+  &lt;/body&gt;
+  &lt;script src='vue.js'&gt;&lt;/script&gt;
+  &lt;script&gt;
+      var app=new Vue({
+          el:&quot;#app&quot;,
+          data:{
+              msg:&quot;hellow world&quot;
+          },
+          //计算属性简单写法
+          computed:{
+              reversedMessage(){
+                  return this.msg.split('').reverse().join('')
+              }
+              //完整写法
+              // reversedMessage: {
+              //     get() { //获取值
+              //     return this.msg.split('').reverse().join('')
+              //     },
+              //     set(val) { // set方法：设置值
+              //     this.msg = val.split('').reverse().join('')
+              //     }
+              // }
+          },
+      })
+  &lt;/script&gt;
+
+</code></pre>
+<ul>
+<li>方法</li>
+</ul>
+<pre><code class="language-Html">
+  &lt;body&gt;
+      &lt;div id=&quot;app&quot;&gt;{{reversedMessage()}}&lt;/div&gt;
+  &lt;/body&gt;
+  &lt;script src='vue.js'&gt;&lt;/script&gt;
+  &lt;script&gt;
+      var app=new Vue({
+          el:&quot;#app&quot;,
+          data:{
+              msg:&quot;hellow world&quot;
+          },
+          //方法
+          methods:{
+              reversedMessage:function(){
+                  return this.msg.split('').reverse().join('')
+              }
+          }
+      })
+  &lt;/script&gt;
+
+</code></pre>
+<ul>
+<li>
+<p>计算属性是基于它们的依赖进行缓存的，只有在它<strong>相关的依赖发生改变时才会重新求值</strong>，即计算属性会对计算出来的结果进行缓存，这就意味着只要 <strong>message</strong>还没有发生改变，多次访问<strong>reversedMessage</strong>计算属性会立即返回之前的计算结果，而不必再次执行函数方法是每次重新渲染时，调用方法将总会再次执行函数，开销比较大</p>
+</li>
+<li>
+<p>假设我们有一个性能开销比较大的计算属性A它需要遍历一个巨大的数组并做大量的计算。然后我们可能有其他的计算属性依赖于A.如果没有缓存,我们将不可避免的多次执行A的getter！如果你不希望有缓存，请用方法来替代</p>
+</li>
+</ul>
+<h3 id="计算属性vs侦听属性">计算属性vs侦听属性</h3>
+<ul>
+<li>Vue 提供了一种更通用的方式来观察和响应 Vue 实例上的数据变动:<strong>侦听属性(watch)</strong></li>
+</ul>
+<pre><code class="language-html">  &lt;body&gt;
+      &lt;!-- 侦听器 --&gt;
+      &lt;div id='app2'&gt;
+          &lt;p&gt;FullName: {{fullName}}&lt;/p&gt;
+          &lt;p&gt;FirstName: &lt;input type=&quot;text&quot; v-model=&quot;firstName&quot;&gt;&lt;/p&gt;
+      &lt;/div&gt;
+  &lt;/body&gt;
+  &lt;script src='vue.js'&gt;&lt;/script&gt;
+  &lt;script&gt;
+      var app2=new Vue({
+          el: '#app2',
+          data: {
+              firstName: 'first',
+              lastName: 'last',
+              fullName: ''
+          },
+          watch: {
+              firstName(newName, oldName) {
+                  this.fullName = newName + ' ' + this.lastName;
+              }
+          }
+      })
+  &lt;/script&gt;
+</code></pre>
+<ul>
+<li>watch 中的对象在 data 中已经定义了,当我们输入<strong>firstName</strong>后， watch监听每次修改变化的新值，然后计算输出fullName。也就是上面的代码中，<strong>fullName</strong> 一开始被渲染出来的时候是空值。</li>
+</ul>
+<p><img src="https://s2.ax1x.com/2019/05/08/EyjCAU.png" alt="watch"></p>
+<h4 id="watch的高级用法">watch的高级用法</h4>
+<ul>
+<li>handler方法和immediate属性:如上所述，一开始被渲染出来的时候，fullName是空值,如果想要一开始就让最初绑定的值执行该怎么办？我们只需要给firstName绑定一个<strong>handler</strong>方法，之前我们写的watch方法其实默认写的就是这个handler，Vue.js会去处理这个逻辑，最终编译出来其实就只这个handler，设置<strong>immediate:true</strong>代表如果在 wacth 里声明了<strong>firstName</strong>之后，就会立即先去执行里面的<strong>handler</strong>方法，如果为<strong>false</strong>就跟我们以前的效果一样，不会在绑定的时候就执行.</li>
+</ul>
+<pre><code class="language-html">
+  &lt;body&gt;
+      &lt;!-- 侦听器 --&gt;
+      &lt;div id='app2'&gt;
+          &lt;p&gt;FullName: {{fullName}}&lt;/p&gt;
+          &lt;p&gt;FirstName: &lt;input type=&quot;text&quot; v-model=&quot;firstName&quot;&gt;&lt;/p&gt;
+      &lt;/div&gt;
+  &lt;/body&gt;
+  &lt;script src='vue.js'&gt;&lt;/script&gt;
+  &lt;script&gt;
+    var app2=new Vue({
+        el: '#app2',
+        data: {
+            firstName: 'first',
+            lastName: 'last',
+            fullName: ''
+        },
+        watch: {
+            firstName:{
+                handler(NewNmae,OldName){
+                    this.fullName = NewNmae + ' ' + this.lastName;
+                },
+                 // 代表在wacth里声明了firstName这个方法之后立即先去执行handler方法
+                 immediate: true
+            }
+        }
+    })
+  &lt;/script&gt;
+
+</code></pre>
+<ul>
+<li>
+<p>结果如下<br>
+<img src="https://s2.ax1x.com/2019/05/08/Eyv9KI.png" alt="watch"></p>
+</li>
+<li>
+<p>deep属性默认值为false,代表是否深度监听</p>
+</li>
+</ul>
+<h4 id="注销watch">注销watch</h4>
+<ul>
+<li>为什么要注销<strong>watch?<strong>因为我们的组件是经常要被销毁的，比如我们跳一个路由，从一个页面跳到另外一个页面，那么原来的页面的</strong>watch</strong>其实就没用了，这时候我们应该注销掉原来页面的<strong>watch</strong>的，不然的话可能会导致内置溢出。好在我们平时<strong>watch</strong>都是写在组件的选项中的，他会随着组件的销毁而销毁。</li>
+</ul>
+<pre><code class="language-JavaScript">  const app = new Vue({
+      template: '&lt;div id=&quot;root&quot;&gt;{{text}}&lt;/div&gt;',
+      data: {
+        text: 0
+      },
+      watch: {
+        text(newVal, oldVal){
+          console.log(`${newVal} : ${oldVal}`);
+        }
+      }
+  });
+</code></pre>
+<ul>
+<li>但是，如果我们使用下面这样的方式写 watch，那么就要手动注销了，这种注销其实也很简单</li>
+</ul>
+<pre><code class="language-JavaScript">  const unWatch = app.$watch('text', (newVal, oldVal) =&gt; {
+  console.log(`${newVal} : ${oldVal}`);
+  })
+  unWatch(); // 手动注销watch
+</code></pre>
+<ul>
+<li><strong>app.$watch</strong>调用后会返回一个值，就是unWatch方法，你要注销<strong>watch</strong>只要调用<strong>unWatch</strong>方法就可以了。</li>
+</ul>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#%E8%AE%A1%E7%AE%97%E5%B1%9E%E6%80%A7%E5%92%8C%E4%BE%A6%E5%90%AC%E5%99%A8">计算属性和侦听器</a>
+<ul>
+<li><a href="#%E6%A6%82%E5%BF%B5">概念</a>
+<ul>
+<li><a href="#%E8%AE%A1%E7%AE%97%E5%B1%9E%E6%80%A7vs%E4%BE%A6%E5%90%AC%E5%B1%9E%E6%80%A7">计算属性vs侦听属性</a>
+<ul>
+<li><a href="#watch%E7%9A%84%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95">watch的高级用法</a></li>
+<li><a href="#%E6%B3%A8%E9%94%80watch">注销watch</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a> | 
+  <a class="rss" href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+
+  let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+  // This should probably be throttled.
+  // Especially because it triggers during smooth scrolling.
+  // https://lodash.com/docs/4.17.10#throttle
+  // You could do like...
+  // window.addEventListener("scroll", () => {
+  //    _.throttle(doThatStuff, 100);
+  // });
+  // Only not doing it here to keep this Pen dependency-free.
+
+  window.addEventListener("scroll", event => {
+    let fromTop = window.scrollY;
+
+    mainNavLinks.forEach((link, index) => {
+      let section = document.getElementById(decodeURI(link.hash).substring(1));
+      let nextSection = null
+      if (mainNavLinks[index + 1]) {
+        nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+      }
+      console.log('section.offsetHeight', section.offsetHeight);
+      if (section.offsetTop <= fromTop) {
+        if (nextSection) {
+          if (nextSection.offsetTop > fromTop) {
+            link.classList.add("current");
+          } else {
+            link.classList.remove("current");    
+          }
+        } else {
+          link.classList.add("current");
+        }
+      } else {
+        link.classList.remove("current");
+      }
+    });
+  });
+
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

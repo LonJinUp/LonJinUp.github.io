@@ -1,0 +1,448 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>04-Vue中class和style绑定 | 陇锦</title>
+<meta name="description" content="记录学习 记录生活" />
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1564938313771">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://lonjinup.github.io">
+  <img class="avatar" src="https://lonjinup.github.io/images/avatar.png?v=1564938313771" alt="">
+  </a>
+  <h1 class="site-title">
+    陇锦
+  </h1>
+  <p class="site-description">
+    记录学习 记录生活
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              04-Vue中class和style绑定
+            </h2>
+            <div class="post-info">
+              <span>
+                2019-08-05
+              </span>
+              <span>
+                3 min read
+              </span>
+              
+                <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="post-tag">
+                  # VUE
+                </a>
+              
+            </div>
+            
+              <img class="post-feature-image" src="https://cn.vuejs.org/images/logo.png" alt="">
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="class-与-style-绑定">Class 与 Style 绑定</h1>
+<ul>
+<li>操作元素的 class 列表和内联样式是数据绑定的一个常见需求。因为它们都是属性，所以我们可以用<strong>v-bind</strong>处理它们：只需要通过表达式计算出字符串结果即可。不过，字符串拼接麻烦且易错。因此，在将 v-bind 用于 class 和 style 时，Vue.js 做了专门的增强。表达式结果的类型除了字符串之外，还可以是对象或数组。</li>
+</ul>
+<h2 id="绑定class">绑定class</h2>
+<h3 id="对象语法">对象语法</h3>
+<ul>
+<li>我们可以给<strong>v-bind:class</strong>一个对象，动态切换class</li>
+</ul>
+<pre><code class="language-html">    &lt;body&gt;
+        &lt;div id='app' v-bind:class=&quot;{active:isActive}&quot;&gt;vue&lt;/div&gt;
+    &lt;/body&gt;
+    &lt;script src='vue.js'&gt;&lt;/script&gt;
+    &lt;script&gt;
+        var app=new Vue({
+            el:&quot;#app&quot;,
+            data:{
+                isActive:true
+            }
+        })
+    &lt;/script&gt;
+</code></pre>
+<ul>
+<li>你可以在对象中传入更多属性来动态切换多个 class。此外，v-bind:class 指令也可以与普通的 class 属性共存。</li>
+</ul>
+<pre><code class="language-html">    &lt;body&gt;
+        &lt;div id='app' v-bind:class=&quot;{active:isActive,active2:isFalse}&quot; class=&quot;name&quot;&gt;dddd&lt;/div&gt;
+    &lt;/body&gt;
+    &lt;script src='vue.js'&gt;&lt;/script&gt;
+    &lt;script&gt;
+        var app=new Vue({
+            el:&quot;#app&quot;,
+            data:{
+                isActive:true,
+                isFalse:true
+            }
+        })
+    &lt;/script&gt;
+</code></pre>
+<ul>
+<li>绑定的数据对象不必内联定义在模板里</li>
+</ul>
+<pre><code class="language-html">    &lt;body&gt;
+        &lt;div id='app' v-bind:class=&quot;classObject&quot; class=&quot;name&quot;&gt;dddd&lt;/div&gt;
+    &lt;/body&gt;
+    &lt;script src='vue.js'&gt;&lt;/script&gt;
+    &lt;script&gt;
+        var app=new Vue({
+            el:&quot;#app&quot;,
+            data:{
+                classObject: {
+                    active: true,
+                    'text-danger':false
+                }
+            }
+        })
+    &lt;/script&gt;
+</code></pre>
+<ul>
+<li>还可以绑定到一个计算属性中</li>
+</ul>
+<pre><code class="language-html">    &lt;body&gt;
+        &lt;div id='app2' v-bind:class='classObject'&gt;222&lt;/div&gt;
+    &lt;/body&gt;
+    &lt;script src='vue.js'&gt;&lt;/script&gt;
+    &lt;script&gt;
+        let app2=new Vue({
+            el:&quot;#app2&quot;,
+            data:{
+                isActive: true,
+                error: null
+            },
+            computed:{
+                classObject:function(){
+                    return {
+                        active:this.isActive &amp;&amp; !this.error,
+                        'text-danger':this.error &amp;&amp; this.error.type === 'fatal'
+                    }
+                }
+            },
+        })
+    &lt;/script&gt;
+</code></pre>
+<h3 id="数组语法">数组语法</h3>
+<ul>
+<li>我们可以把一个数组传给 v-bind:class，以应用一个 class 列表：</li>
+</ul>
+<pre><code class="language-html">    &lt;body&gt;
+        &lt;div id='app3' v-bind:class='[activeClass,errorClass]'&gt;&lt;/div&gt;
+    &lt;/body&gt;
+    &lt;script src='vue.js'&gt;&lt;/script&gt;
+    &lt;script&gt;
+         //数组语法
+        var app3=new Vue({
+            el:&quot;#app3&quot;,
+            data:{
+                activeClass: 'active',
+                errorClass: 'text-danger'
+            }
+        })
+    &lt;/script&gt;
+</code></pre>
+<ul>
+<li>如果想通过条件切换列表中的class，可以用三元表达式:</li>
+</ul>
+<pre><code class="language-html">    &lt;body&gt;
+        &lt;div id='app4' v-bind:class='[isActive?activeClass:&quot;&quot;, errorClass]'&gt;&lt;/div&gt;
+    &lt;/body&gt;
+    &lt;script src='vue.js'&gt;&lt;/script&gt;
+    &lt;script&gt;
+        var app4=new Vue({
+            el:&quot;#app4&quot;,
+            data:{
+                activeClass: 'active',
+                errorClass: 'text-danger',
+                isActive:false
+            }
+        });
+    &lt;/script&gt;
+</code></pre>
+<ul>
+<li>如果这样写觉得比较繁琐，也可以使用对象语法</li>
+</ul>
+<pre><code class="language-html">    &lt;body&gt;
+        &lt;div id='app4' v-bind:class='[{isActive:activeClass}, errorClass]'&gt;&lt;/div&gt;
+    &lt;/body&gt;
+    &lt;script src='vue.js'&gt;&lt;/script&gt;
+    &lt;script&gt;
+        var app4=new Vue({
+            el:&quot;#app4&quot;,
+            data:{
+                activeClass: 'active',
+                errorClass: 'text-danger',
+                isActive:false
+            }
+        });
+    &lt;/script&gt;
+</code></pre>
+<h3 id="在组件中">在组件中</h3>
+<ul>
+<li>
+<p>当在一个自定义组件上使用 class 属性时，这些类将被添加到该组件的根元素上面。这个元素上已经存在的类不会被覆盖。</p>
+</li>
+<li>
+<p>如果你申明一个组件</p>
+</li>
+</ul>
+<pre><code class="language-JavaScript">    Vue.component('my-component', {
+      template: '&lt;p class=&quot;foo bar&quot;&gt;Hi&lt;/p&gt;'
+    })
+</code></pre>
+<ul>
+<li>然后使用组件时候再添加一些样式</li>
+</ul>
+<pre><code class="language-html">    &lt;my-component class='box color'&gt;&lt;/my-component&gt;
+</code></pre>
+<ul>
+<li>这时候渲染出来的结果就是</li>
+</ul>
+<pre><code class="language-html">    &lt;my-component class='box color foo bar'&gt;&lt;/my-component&gt;
+</code></pre>
+<ul>
+<li>对于绑定数据的class也一样</li>
+</ul>
+<pre><code class="language-html">    &lt;my-component v-bind:class='{active:isActive}'&gt;&lt;/my-component&gt;
+</code></pre>
+<ul>
+<li>当<strong>isActive</strong>为<strong>true</strong>的时候：</li>
+</ul>
+<pre><code class="language-html">    &lt;my-component class='active foo bar'&gt;&lt;/my-component&gt;
+</code></pre>
+<h2 id="绑定内联样式">绑定内联样式</h2>
+<ul>
+<li><strong>v-bind:style</strong>的对象语法十分直观——看着非常像 CSS，但其实是一个 JavaScript 对象。CSS 属性名可以用驼峰式 (camelCase) 或短横线分隔 (font-size，记得用<strong>引号</strong>括起来) 来命名</li>
+</ul>
+<pre><code class="language-html">&lt;body&gt;
+    &lt;!-- 横线 --&gt;
+    &lt;div id='app5' v-bind:style=&quot;{ color: activeColor, 'font-size': fontSize + 'px' }&quot;&gt;&lt;/div&gt;
+    &lt;!-- 驼峰 --&gt;
+    &lt;div id='app5' v-bind:style=&quot;{ color: activeColor, fontSize: fontSize + 'px' }&quot;&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;script&gt;
+    var app5=new Vue({
+        el:&quot;#app5&quot;,
+        data: {
+            activeColor: 'red',
+            fontSize: 30
+        }
+    });
+&lt;/script&gt;
+</code></pre>
+<h3 id="对象语法-2">对象语法</h3>
+<ul>
+<li>如果样式较多，可以绑定到一个对象上</li>
+</ul>
+<pre><code class="language-html">&lt;body&gt;
+    &lt;div id='app6' v-bind:style='styleObj'&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;script&gt;
+    var app6=new Vue({
+        el:&quot;#app5&quot;,
+        data: {
+           styleObj:{
+              color:'green',
+              //驼峰
+              fontSize:20+'px',
+              //横杠
+              // 'font-size':20+'px'
+            }
+        }
+    });
+&lt;/script&gt;
+</code></pre>
+<h3 id="数组语法-2">数组语法</h3>
+<ul>
+<li>数组语法可以将多个样式对象应用到同一个元素上</li>
+</ul>
+<pre><code class="language-html">&lt;body&gt;
+    &lt;div id='app7' v-bind:style=&quot;[styleObj,styleObj2]&quot;&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;script&gt;
+    //数组语法
+        var app7=new Vue({
+            el:&quot;#app7&quot;,
+            data:{
+                styleObj:{
+                    color:'green',
+                    //驼峰
+                    fontSize:20+'px',
+                    //横杠
+                    // 'font-size':20+'px'
+                },
+                styleObj2:{
+                    border:'none',
+                },
+            }
+        });
+&lt;/script&gt;
+</code></pre>
+<h3 id="自动添加前缀">自动添加前缀</h3>
+<ul>
+<li>当<strong>v-bind:style</strong>使用需要添加浏览器引擎前缀的 CSS 属性时，如transform，Vue.js 会自动侦测并添加相应的前缀。</li>
+</ul>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#class-%E4%B8%8E-style-%E7%BB%91%E5%AE%9A">Class 与 Style 绑定</a>
+<ul>
+<li><a href="#%E7%BB%91%E5%AE%9Aclass">绑定class</a>
+<ul>
+<li><a href="#%E5%AF%B9%E8%B1%A1%E8%AF%AD%E6%B3%95">对象语法</a></li>
+<li><a href="#%E6%95%B0%E7%BB%84%E8%AF%AD%E6%B3%95">数组语法</a></li>
+<li><a href="#%E5%9C%A8%E7%BB%84%E4%BB%B6%E4%B8%AD">在组件中</a></li>
+</ul>
+</li>
+<li><a href="#%E7%BB%91%E5%AE%9A%E5%86%85%E8%81%94%E6%A0%B7%E5%BC%8F">绑定内联样式</a>
+<ul>
+<li><a href="#%E5%AF%B9%E8%B1%A1%E8%AF%AD%E6%B3%95-2">对象语法</a></li>
+<li><a href="#%E6%95%B0%E7%BB%84%E8%AF%AD%E6%B3%95-2">数组语法</a></li>
+<li><a href="#%E8%87%AA%E5%8A%A8%E6%B7%BB%E5%8A%A0%E5%89%8D%E7%BC%80">自动添加前缀</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a> | 
+  <a class="rss" href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+
+  let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+  // This should probably be throttled.
+  // Especially because it triggers during smooth scrolling.
+  // https://lodash.com/docs/4.17.10#throttle
+  // You could do like...
+  // window.addEventListener("scroll", () => {
+  //    _.throttle(doThatStuff, 100);
+  // });
+  // Only not doing it here to keep this Pen dependency-free.
+
+  window.addEventListener("scroll", event => {
+    let fromTop = window.scrollY;
+
+    mainNavLinks.forEach((link, index) => {
+      let section = document.getElementById(decodeURI(link.hash).substring(1));
+      let nextSection = null
+      if (mainNavLinks[index + 1]) {
+        nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+      }
+      console.log('section.offsetHeight', section.offsetHeight);
+      if (section.offsetTop <= fromTop) {
+        if (nextSection) {
+          if (nextSection.offsetTop > fromTop) {
+            link.classList.add("current");
+          } else {
+            link.classList.remove("current");    
+          }
+        } else {
+          link.classList.add("current");
+        }
+      } else {
+        link.classList.remove("current");
+      }
+    });
+  });
+
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

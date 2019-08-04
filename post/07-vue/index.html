@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>关于 | 陇锦</title>
+<title>07-Vue中事件处理 | 陇锦</title>
 <meta name="description" content="记录学习 记录生活" />
 <link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1564938313771">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -73,25 +73,150 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              关于
+              07-Vue中事件处理
             </h2>
             <div class="post-info">
               <span>
-                2019-01-25
+                2019-08-05
               </span>
               <span>
                 1 min read
               </span>
               
+                <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="post-tag">
+                  # VUE
+                </a>
+              
             </div>
+            
+              <img class="post-feature-image" src="https://cn.vuejs.org/images/logo.png" alt="">
             
             <div class="post-content-wrapper">
               <div class="post-content">
-                <p>记录一下学习笔记以及成长经历...</p>
+                <h1 id="事件处理">事件处理</h1>
+<h2 id="监听事件">监听事件</h2>
+<ul>
+<li>可以用<em>v-on</em>指令监听 DOM 事件，并在触发时运行一些 JavaScript 代码。</li>
+</ul>
+<pre><code class="language-html">&lt;body&gt;
+    &lt;div id='app'&gt;
+        &lt;div v-on:click='number+=1'&gt;click me&lt;/div&gt;
+        &lt;div&gt;{{number}}&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;script src='vue.js'&gt;&lt;/script&gt;
+&lt;script&gt;
+    var app=new Vue({
+        el:&quot;#app&quot;,
+        data:{
+            number:1
+        }
+    })
+&lt;/script&gt;
+</code></pre>
+<h2 id="事件处理方法">事件处理方法</h2>
+<ul>
+<li>然而许多事件处理逻辑会更为复杂，所以直接把 JavaScript 代码写在 v-on 指令中是不可行的。因此 v-on 还可以接收一个需要调用的方法名称。</li>
+</ul>
+<pre><code class="language-html">&lt;body&gt;
+    &lt;div id='app2'&gt;
+        &lt;div @click='alertFun' class=&quot;aaa&quot;&gt;click me&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;script src='vue.js'&gt;&lt;/script&gt;
+&lt;script&gt;
+     var app2=new Vue({
+        el:&quot;#app2&quot;,
+        data:{
+            hello:&quot;hello world&quot;,
+        },
+        methods:{
+            alertFun:function(e){
+                alert(this.hello+&quot;!&quot;);
+                console.log(e);
+                if(e){
+                    alert(e.target.tagName)
+                }
+            }
+        }
+    })
+&lt;/script&gt;
+</code></pre>
+<h2 id="内联处理器方法">内联处理器方法</h2>
+<ul>
+<li>除了直接绑定到一个方法，也可以在内联 JavaScript 语句中调用方法：</li>
+</ul>
+<pre><code class="language-html">&lt;body&gt;
+     &lt;div id='app3'&gt;
+        &lt;div @click='alertMsg(&quot;hello world&quot;)'&gt;click me&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;script src='vue.js'&gt;&lt;/script&gt;
+&lt;script&gt;
+    let app3=new Vue({
+        el:&quot;#app3&quot;,
+        methods:{
+            alertMsg:function(msg){
+                alert(msg)
+            },
+        }
+    })
+&lt;/script&gt;
+</code></pre>
+<h2 id="事件修饰符">事件修饰符</h2>
+<ul>
+<li>
+<p>vue在<strong>v-on</strong>提供了事件修饰符</p>
+<ul>
+<li>.stop</li>
+<li>.prevent</li>
+<li>.capture</li>
+<li>.self</li>
+<li>.once</li>
+<li>.passive</li>
+<li>.once</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-html">
+    &lt;!-- 阻止单击事件继续传播 --&gt;
+    &lt;a v-on:click.stop=&quot;doThis&quot;&gt;&lt;/a&gt;
+
+    &lt;!-- 提交事件不再重载页面 --&gt;
+    &lt;form v-on:submit.prevent=&quot;onSubmit&quot;&gt;&lt;/form&gt;
+
+    &lt;!-- 修饰符可以串联 --&gt;
+    &lt;a v-on:click.stop.prevent=&quot;doThat&quot;&gt;&lt;/a&gt;
+
+    &lt;!-- 只有修饰符 --&gt;
+    &lt;form v-on:submit.prevent&gt;&lt;/form&gt;
+
+    &lt;!-- 添加事件监听器时使用事件捕获模式 --&gt;
+    &lt;!-- 即元素自身触发的事件先在此处理，然后才交由内部元素进行处理 --&gt;
+    &lt;div v-on:click.capture=&quot;doThis&quot;&gt;...&lt;/div&gt;
+
+    &lt;!-- 只当在 event.target 是当前元素自身时触发处理函数 --&gt;
+    &lt;!-- 即事件不是从内部元素触发的 --&gt;
+    &lt;div v-on:click.self=&quot;doThat&quot;&gt;...&lt;/div&gt;
+
+    &lt;!-- 点击事件将只会触发一次 --&gt;
+    &lt;a v-on:click.once=&quot;doThis&quot;&gt;&lt;/a&gt;
+
+</code></pre>
 
               </div>
               <div class="toc-container">
-                
+                <ul class="markdownIt-TOC">
+<li><a href="#%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86">事件处理</a>
+<ul>
+<li><a href="#%E7%9B%91%E5%90%AC%E4%BA%8B%E4%BB%B6">监听事件</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95">事件处理方法</a></li>
+<li><a href="#%E5%86%85%E8%81%94%E5%A4%84%E7%90%86%E5%99%A8%E6%96%B9%E6%B3%95">内联处理器方法</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E4%BF%AE%E9%A5%B0%E7%AC%A6">事件修饰符</a></li>
+</ul>
+</li>
+</ul>
+
               </div>
             </div>
           </article>
