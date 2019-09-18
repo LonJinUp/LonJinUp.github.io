@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>02-Vue组件 | 陇锦</title>
+<title>ES6数组中的方法 | 陇锦</title>
 <meta name="description" content="记录学习 记录生活" />
 <link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1568823859819">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -73,77 +73,123 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              02-Vue组件
+              ES6数组中的方法
             </h2>
             <div class="post-info">
               <span>
-                2019-08-05
+                2019-09-19
               </span>
               <span>
                 1 min read
               </span>
               
-                <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="post-tag">
-                  # VUE
-                </a>
-              
             </div>
-            
-              <img class="post-feature-image" src="https://cn.vuejs.org/images/logo.png" alt="">
             
             <div class="post-content-wrapper">
               <div class="post-content">
-                <h1 id="组件">组件</h1>
+                <h1 id="数组方法">数组方法</h1>
+<h2 id="数组方法-2">数组方法</h2>
 <ul>
-<li>组件系统是 Vue 的另一个重要概念，因为它是一种抽象，允许我们使用小型、独立和通常可复用的组件构建大型应用。我们所写的页面都可以分割成一个个组件，比如头部，轮播，尾部等...</li>
+<li>数组方法有 <strong>forEach</strong>, <strong>map</strong> , <strong>filter</strong>, <strong>find</strong>, <strong>every</strong>, <strong>some</strong>, <strong>reduce</strong>.</li>
 </ul>
-<h2 id="创建组件">创建组件</h2>
-<ul>
-<li>在Vue中，创建组件就是预定义了一个Vue的<strong>实例</strong>。</li>
-</ul>
-<pre><code class="language-Html">    &lt;script&gt;
-    //创建一个名字为todo-item的组件
-    Vue.component('todo-item',{
-        template:&quot;&lt;li&gt;这是一个实例&lt;/li&gt;&quot;
-    });
-    &lt;/script&gt;
-</code></pre>
-<ul>
-<li>如果这样使用只能渲染相同文本，所以可以通过定义一个<strong>prop</strong>可以接收从父组件传过来的数据</li>
-</ul>
-<pre><code class="language-Html">    &lt;div id=&quot;app&quot;&gt;
-            &lt;ol&gt;
-                &lt;todo-item v-for='item in list' v-bind:todo='item' v-bind:key='item.id'&gt;
+<h3 id="foreach">forEach</h3>
+<pre><code class="language-Js">    //ES5遍历
+    var colors=['red','green','yellow'];
 
-                &lt;/todo-item&gt;
-            &lt;/ol&gt;
-    &lt;/div&gt;
-    &lt;script&gt;
-        //定义组件
-        Vue.component('todo-item',{
-            props:['todo'],
-            template:&quot;&lt;li&gt;{{todo.text}}&lt;/li&gt;&quot;
-        });
-        var app=new Vue({
-            el:&quot;#app&quot;,
-            data:{
-                list:[
-                    {id:1,text:&quot;hellow world&quot;},
-                    {id:2,text:&quot;hellow&quot;},
-                    {id:3,text:&quot;hi&quot;},
-                    {id:4,text:&quot;world&quot;},
-                ]
-            }
-        })
-    &lt;/script&gt;
+    for(var i=0;i&lt;colors.length;i++){
+        console.log(colors[i])
+    }
+
+    //ES6遍历
+    colors.forEach(function(color){
+        console.log(color)
+    })
 </code></pre>
+<ul>
+<li>迭代器函数首先把数组每个值依次循环，直到最后一个。forEach是通过<strong>回调函数</strong>来提供参数的。回调函数也是一种闭包，所以每个回调函数都有自己的<strong>私有作用域</strong>，互不影响，内部变量不会及时释放。如果在闭包中<strong>return</strong>的话，也只是在当前函数中返回，而且在forEach中其他闭包函数中还是存在的，所以会出现<strong>return</strong>中是没办法结束循环的。</li>
+</ul>
+<pre><code class="language-js">    let arr=[1,2,3];
+    arr.forEach(function(value,key,arr){
+        console.log(value);  //--&gt;1,2,3
+        //console.log(key);  //--&gt;0,1,2
+        //console.log(arr); //--&gt;arr
+    });
+</code></pre>
+<ul>
+<li>
+<p>可以看出他在函数中有三个参数，<strong>value</strong> , <strong>key</strong>, <strong>arr</strong>.</p>
+</li>
+<li>
+<p>其中函数也可以写在外部</p>
+</li>
+</ul>
+<pre><code class="language-js">    let arr=[1,2,3];
+    function arr(value,key,arr){
+         console.log(value);  //--&gt;1,2,3
+        //console.log(key);  //--&gt;0,1,2
+        //console.log(arr); //--&gt;arr
+    }
+    arr.forEach(arr)
+
+</code></pre>
+<h3 id="map">map</h3>
+<ul>
+<li>场景1 假定有一个数值数组(A),将A数组中的值以双倍的形式放到B数组中</li>
+</ul>
+<pre><code class="language-js">    var numbers=[1,2,3];
+    var numbersA=[];
+
+    // ES5
+    for (var i=0; i&lt;numbers.length; i++){
+        numbersA.push(numbers[i]*2)
+    };
+    console.log(numbersA);
+
+    //ES6 map
+
+    var numbersA=numbers.map(function(number){
+        return number*2
+    });
+
+    console.log(numbersA);
+
+    //forEach
+    numbersA.forEach(function(number){
+        console.log(number)
+    })
+
+</code></pre>
+<ul>
+<li>场景2 假定有一个对象数组（A），将A数组中对像某个属性的值存储到B数组中</li>
+</ul>
+<pre><code class="language-js">    var cars=[
+        {model:&quot;buick&quot;,price:&quot;cheap&quot;},
+        {model:&quot;bmw&quot;,price:&quot;expensive&quot;},
+    ];
+
+    var prices=cars.map(function(car){
+        return cars.price
+    });
+
+    console.log(prices)
+</code></pre>
+<ul>
+<li>原理：把数组中的值放入迭代器函数中，然后<strong>return</strong>结果出来，map需要返回值，如果不给<strong>return</strong>，默认返回的是undefined。map返回的是<strong>新数组</strong>。</li>
+</ul>
+<h3 id="假定有一个对象数组a获取数组中指定类型的对象">假定有一个对象数组（A），获取数组中指定类型的对象</h3>
 
               </div>
               <div class="toc-container">
                 <ul class="markdownIt-TOC">
-<li><a href="#%E7%BB%84%E4%BB%B6">组件</a>
+<li><a href="#%E6%95%B0%E7%BB%84%E6%96%B9%E6%B3%95">数组方法</a>
 <ul>
-<li><a href="#%E5%88%9B%E5%BB%BA%E7%BB%84%E4%BB%B6">创建组件</a></li>
+<li><a href="#%E6%95%B0%E7%BB%84%E6%96%B9%E6%B3%95-2">数组方法</a>
+<ul>
+<li><a href="#foreach">forEach</a></li>
+<li><a href="#map">map</a></li>
+<li><a href="#%E5%81%87%E5%AE%9A%E6%9C%89%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1%E6%95%B0%E7%BB%84a%E8%8E%B7%E5%8F%96%E6%95%B0%E7%BB%84%E4%B8%AD%E6%8C%87%E5%AE%9A%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%AF%B9%E8%B1%A1">假定有一个对象数组（A），获取数组中指定类型的对象</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -156,9 +202,9 @@
         
           <div class="next-post">
             <div class="next">下一篇</div>
-            <a href="https://lonjinup.github.io/post/01-vue">
+            <a href="https://lonjinup.github.io/post/08-vue">
               <h3 class="post-title">
-                01-Vue基础知识
+                08-Vue中表单输入绑定
               </h3>
             </a>
           </div>
