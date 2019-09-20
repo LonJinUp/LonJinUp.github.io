@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://lonjinup.github.io</id>
     <title>陇锦</title>
-    <updated>2019-09-18T16:24:36.642Z</updated>
+    <updated>2019-09-20T16:58:53.333Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://lonjinup.github.io"/>
     <link rel="self" href="https://lonjinup.github.io/atom.xml"/>
@@ -105,7 +105,75 @@
 <ul>
 <li>原理：把数组中的值放入迭代器函数中，然后<strong>return</strong>结果出来，map需要返回值，如果不给<strong>return</strong>，默认返回的是undefined。map返回的是<strong>新数组</strong>。</li>
 </ul>
-<h3 id="假定有一个对象数组a获取数组中指定类型的对象">假定有一个对象数组（A），获取数组中指定类型的对象</h3>
+<h3 id="filter">filter</h3>
+<ul>
+<li>场景1 假定有一个对象数组（A），获取数组中指定类型的对象放到B数组中</li>
+</ul>
+<pre><code class="language-js">   let products=[{name:'cucumber',type:'vegetable'},{name:'banana',type:'fruit'},{name:'celery',type:'vegetable'},{name:'orange',type:'fruit'},];
+
+    //ES5
+    let filteredProducts=[];
+
+    for (var i=0;i&lt;products.length;i++){
+
+        if(products[i].type==&quot;fruit&quot;){
+
+            filteredProducts.push(products[i])
+        }
+    };
+    console.log(filteredProducts);
+
+    //ES6
+
+    let filter2=products.filter(function(product){
+
+        return product.type==&quot;vegetable&quot;
+
+    });
+</code></pre>
+<ul>
+<li>
+<p>原理：把数组中的值放入迭代器函数中，如果与匹配的内容相等，<strong>return</strong>true,把不匹配的过滤出去。</p>
+</li>
+<li>
+<p>场景2 假定有一个对象数组A，过滤多个满足条件对象</p>
+</li>
+</ul>
+<pre><code class="language-js">    let product2=[{name:'cucumber',type:'vegetable',price:5},{name:'banana',type:'fruit',price:5},{name:'celery',type:'vegetable',price:12},{name:'orange',type:'fruit',price:5},];
+
+    let newProduct=product2.filter(function(product){
+
+        return product.type===&quot;vegetable&quot; &amp;&amp; product.price &gt; 0  &amp;&amp; product.price &lt; 10 
+
+    });
+    console.log(newProduct);
+</code></pre>
+<ul>
+<li>场景3 假定有两个数组AB，根据A中id值，过滤掉B数组中不符合的数据。</li>
+</ul>
+<pre><code class="language-js"> let post={id:4,title:&quot;javascript&quot;};
+
+    let comments=[
+        {postId:4,content:&quot;vue&quot;},
+        {postId:3,content:&quot;vue2.0&quot;},
+        {postId:2,content:&quot;vue3.0&quot;},
+        {postId:2,content:&quot;Node.js&quot;}
+    ];
+
+    function commentForPost(post,comments){
+
+        return comments.filter(function(comment){
+            return comment.postId==post.id
+        });
+
+    };
+
+    console.log(commentForPost(post,comments));
+
+    ```
+
+
+</code></pre>
 ]]></content>
     </entry>
     <entry>
