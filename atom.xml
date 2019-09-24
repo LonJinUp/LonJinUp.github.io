@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://lonjinup.github.io</id>
     <title>陇锦</title>
-    <updated>2019-09-20T16:58:53.333Z</updated>
+    <updated>2019-09-24T16:15:15.306Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://lonjinup.github.io"/>
     <link rel="self" href="https://lonjinup.github.io/atom.xml"/>
@@ -109,7 +109,12 @@
 <ul>
 <li>场景1 假定有一个对象数组（A），获取数组中指定类型的对象放到B数组中</li>
 </ul>
-<pre><code class="language-js">   let products=[{name:'cucumber',type:'vegetable'},{name:'banana',type:'fruit'},{name:'celery',type:'vegetable'},{name:'orange',type:'fruit'},];
+<pre><code class="language-js">   let products=[
+       {name:'cucumber',type:'vegetable'},
+       {name:'banana',type:'fruit'},
+       {name:'celery',type:'vegetable'},
+       {name:'orange',type:'fruit'},
+    ];
 
     //ES5
     let filteredProducts=[];
@@ -139,7 +144,12 @@
 <p>场景2 假定有一个对象数组A，过滤多个满足条件对象</p>
 </li>
 </ul>
-<pre><code class="language-js">    let product2=[{name:'cucumber',type:'vegetable',price:5},{name:'banana',type:'fruit',price:5},{name:'celery',type:'vegetable',price:12},{name:'orange',type:'fruit',price:5},];
+<pre><code class="language-js">    let product2=[
+        {name:'cucumber',type:'vegetable',price:5},
+        {name:'banana',type:'fruit',price:5},
+        {name:'celery',type:'vegetable',price:12},
+        {name:'orange',type:'fruit',price:5},
+    ];
 
     let newProduct=product2.filter(function(product){
 
@@ -169,10 +179,225 @@
     };
 
     console.log(commentForPost(post,comments));
+</code></pre>
+<h3 id="find">find</h3>
+<ul>
+<li>场景1 假定有一个对象数组A，找到符合条件的对象</li>
+</ul>
+<pre><code class="language-js">
+    let users=[
+        {name:&quot;jill&quot;},
+        {name:&quot;tome&quot;},
+        {name:&quot;bill&quot;}
+    ];
 
-    ```
+    let user;
+
+    //ES5
+    for(var i=0;i&lt;users.length;i++){
+
+        if(users[i].name==&quot;tome&quot;){
+
+            user=users[i];
+            break;//找到不会执行后面的
+        }
+    };
+
+    //ES6
+
+    user=users.find(function(user){
+
+        return user.name==&quot;tome&quot;;
+    })
+    
+</code></pre>
+<ul>
+<li>场景2 假定有一个对象数组A，根据指定对象的条件找到数组中符合条件的对象</li>
+</ul>
+<pre><code class="language-js">    let posts=[
+            {id:3,title:&quot;node.js&quot;},
+            {id:4,title:&quot;vue.js&quot;}
+    ];
+
+    let comment={id:3,content:&quot;hello word&quot;};
+
+    function postForComment(posts,comment){
+
+        return posts.find(function(post){
+
+            return post.id==comment.id;
+
+        })
+    };
+</code></pre>
+<h3 id="every-一假即假-some-一真即真">every (一假即假 ) some (一真即真)</h3>
+<ul>
+<li>场景1 计算对象数组中每个电脑的操作系统是否可用，大于16位操作系统表示可用，否则不可用</li>
+</ul>
+<pre><code class="language-js">    let computers=[
+        {name:&quot;Apple&quot;,ram:16},
+        {name:&quot;IBM&quot;,ram:4},
+        {name:&quot;Acer&quot;,ram:32},
+    ];
+
+    var everyComputers=true;
+
+    var someComputers=false;
+
+    //ES5
+
+    for(var i=0;i&lt;computers.length;i++){
+
+        var computer=computers[i];
+        console.log(computer.ram)
+        if(computer.ram &lt; 16){
+          
+            everyComputers=false
+        }else{
+            someComputers=true
+        }
+    };
+
+    //ES6
+   var every=computers.every(function(computer){
+
+        return computer.ram&gt;16
+
+    });
+
+    console.log(every);
+
+     var some=computers.some(function(computer){
+
+        return computer.ram&gt;16
+
+    });
+
+    console.log(some);
+
+</code></pre>
+<ul>
+<li>场景2 假定有一个注册页面，判断所有input内容长度是否大于0</li>
+</ul>
+<pre><code class="language-js">    function Filed(value){
+
+        this.value=value;
+
+    };
+    
+    Filed.prototype.validate=function(){
+
+        return this.value.length&gt;0;
+    }
+
+    
+    var username=new Filed(&quot;&quot;);
+
+    var telephone=new Filed(&quot;18282828282828&quot;);
+
+    var email=new Filed(&quot;LonJin_up@163.com&quot;);
+
+    console.log(username.validate());
+
+    console.log(telephone.validate());
+
+    var fields=[username,telephone,email];
+
+    var formIsValid=fields.every(function(field){
+
+        return field.validate()
+    });
+
+    if(formIsValid){
+
+        console.log(&quot;注册成功&quot;)
+
+    }else{
+
+        console.log(&quot;注册失败&quot;) 
+    }
+</code></pre>
+<h3 id="reduce">reduce</h3>
+<ul>
+<li>场景1，计算数组中所有值的总和</li>
+</ul>
+<pre><code class="language-js"> //ES5
+    var numbers=[10,20,30];
+
+    var sum=0;
+
+    for (var i=0; i &lt; numbers.length; i++){
+
+        sum+=numbers[i];
+
+    }
+
+    console.log(sum);
 
 
+    //ES6
+    var sumValue=numbers.reduce(function(sum2,number2){
+
+        console.log(sum2);//第一个参数需要初始化，所以打印出来第一个是0
+
+        return sum2+number2
+
+    },0);
+
+    console.log(sumValue);
+</code></pre>
+<ul>
+<li>场景2 将数组中对象的某个属性抽离到另外一个数组中</li>
+</ul>
+<pre><code class="language-js">    var primaryColor=[
+
+        {color:'red'},
+        {color:'yellow'},
+        {color:'blue'},
+
+    ];
+
+    var color=primaryColor.reduce(function(previous,primaryColor){
+
+        previous.push(primaryColor.color);
+
+        return previous
+
+    },[]);
+
+    console.log(color)
+</code></pre>
+<ul>
+<li>场景3 判断字符串中括号是否对称</li>
+</ul>
+<pre><code class="language-js">    function balanceParens(string){
+
+        return !string.split(&quot;&quot;).reduce(function(previous,char){
+
+
+            if(previous&lt;0){
+
+                return previous
+
+            }
+
+            if (char==&quot;(&quot;){
+
+                return ++previous
+
+            }
+
+            if (char==&quot;)&quot;){
+                return --previous
+            }
+
+            return previous
+
+        },0);
+
+    }
+
+    console.log(balanceParens(&quot;(((())))&quot;))
 </code></pre>
 ]]></content>
     </entry>
