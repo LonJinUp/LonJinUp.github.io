@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>03-Vue计算属性 | 陇锦</title>
 <meta name="description" content="记录学习 记录生活" />
-<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1574698734249">
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1575651169182">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://lonjinup.github.io">
-  <img class="avatar" src="https://lonjinup.github.io/images/avatar.png?v=1574698734249" alt="">
+  <img class="avatar" src="https://lonjinup.github.io/images/avatar.png?v=1575651169182" alt="">
   </a>
   <h1 class="site-title">
     陇锦
@@ -80,7 +80,7 @@
                 2019-08-05
               </span>
               <span>
-                2 min read
+                6 min read
               </span>
               
                 <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="post-tag">
@@ -206,7 +206,7 @@
 <ul>
 <li>watch 中的对象在 data 中已经定义了,当我们输入<strong>firstName</strong>后， watch监听每次修改变化的新值，然后计算输出fullName。也就是上面的代码中，<strong>fullName</strong> 一开始被渲染出来的时候是空值。</li>
 </ul>
-<p><img src="https://s2.ax1x.com/2019/05/08/EyjCAU.png" alt="watch"></p>
+<figure data-type="image" tabindex="1"><img src="https://s2.ax1x.com/2019/05/08/EyjCAU.png" alt="watch"></figure>
 <h4 id="watch的高级用法">watch的高级用法</h4>
 <ul>
 <li>handler方法和immediate属性:如上所述，一开始被渲染出来的时候，fullName是空值,如果想要一开始就让最初绑定的值执行该怎么办？我们只需要给firstName绑定一个<strong>handler</strong>方法，之前我们写的watch方法其实默认写的就是这个handler，Vue.js会去处理这个逻辑，最终编译出来其实就只这个handler，设置<strong>immediate:true</strong>代表如果在 wacth 里声明了<strong>firstName</strong>之后，就会立即先去执行里面的<strong>handler</strong>方法，如果为<strong>false</strong>就跟我们以前的效果一样，不会在绑定的时候就执行.</li>
