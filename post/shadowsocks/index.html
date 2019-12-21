@@ -1,106 +1,99 @@
-<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" >
-
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>搭建shadowsocks服务 | 陇锦</title>
-<meta name="description" content="记录学习 记录生活">
-
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1576947874253">
-
+<meta name="description" content="记录学习 记录生活" />
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1576947982742">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
 
-
-  
-    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
-  
-
-  
-
 <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
 
-
-<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
 
   </head>
   <body>
-  
-    <nav class="navbar border fixed split-nav">
-  <div class="nav-brand">
-    <h3><a href="https://lonjinup.github.io">陇锦</a></h3>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://lonjinup.github.io">
+  <img class="avatar" src="https://lonjinup.github.io/images/avatar.png?v=1576947982742" alt="">
+  </a>
+  <h1 class="site-title">
+    陇锦
+  </h1>
+  <p class="site-description">
+    记录学习 记录生活
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
   </div>
-  <div class="collapsible">
-    <input id="collapsible1" type="checkbox" name="collapsible1">
-    <button>
-      <label for="collapsible1">
-        <div class="bar1"></div>
-        <div class="bar2"></div>
-        <div class="bar3"></div>
-      </label>
-    </button>
-    <div class="collapsible-body">
-      <ul class="inline">
-        
-          <li>
-            
-              <a href="/" class="menu">
-                首页
-              </a>
-            
-          </li>
-        
-          <li>
-            
-              <a href="/archives" class="menu">
-                归档
-              </a>
-            
-          </li>
-        
-          <li>
-            
-              <a href="/tags" class="menu">
-                标签
-              </a>
-            
-          </li>
-        
-          <li>
-            
-              <a href="/post/about" class="menu">
-                关于
-              </a>
-            
-          </li>
-        
-      </ul>
-    </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   </div>
-</nav>
+</div>
 
-    <div id="top" class="row site">
-      <div class="sm-12 md-8 col">
-        <div class="paper">
-          <article class="article">
-            <h1>搭建shadowsocks服务</h1>
-            <p class="article-meta">
-              2019-08-01
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              搭建shadowsocks服务
+            </h2>
+            <div class="post-info">
+              <span>
+                2019-08-01
+              </span>
+              <span>
+                3 min read
+              </span>
               
-                <a href="https://lonjinup.github.io/tag/vWMtMYt9m" class="badge warning">
-                  工具/教程
+                <a href="https://lonjinup.github.io/tag/vWMtMYt9m" class="post-tag">
+                  # 工具/教程
                 </a>
               
-            </p>
+            </div>
             
-              <img src="https://lonjinup.github.io/post-images/shadowsocks.png" alt="搭建shadowsocks服务">
+              <img class="post-feature-image" src="https://lonjinup.github.io/post-images/shadowsocks.png" alt="">
             
-            <div class="post-content">
-              <h1 id="shadowsocks">shadowsocks</h1>
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="shadowsocks">shadowsocks</h1>
 <pre><code>之前一直是公司后端用公司服务器搭建的，网速慢的要死，准备买个星域的，但是网站老打不开，还是自己搭一个吧，价格也不贵，一个月折合人民币￥25，网速也不慢。
 </code></pre>
 <h2 id="一-购买服务器">一、购买服务器</h2>
@@ -195,195 +188,134 @@ iOS可以用美区ID下载<strong>Potatso Lite</strong>，美国账号可以去�
 <li>打开客户端，输入ip、端口、选择加盟方式、点击确定即可连接，快试试能不能打开<a href="https://www.google.com/search?ei=24VCXdm0Dtf1-gSdi6iQDg&amp;q=pronhub&amp;oq=pronhub&amp;gs_l=psy-ab.3..35i39.2258667.2261361..2261596...1.0..0.818.2559.2-5j0j1j0j1......0....1..gws-wiz.....10..0i71j0.v5vb1A7VS1c&amp;ved=0ahUKEwiZjvL3hOHjAhXXup4KHZ0FCuIQ4dUDCAo&amp;uact=5">Google</a>吧！</li>
 </ul>
 
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#shadowsocks">shadowsocks</a>
+<ul>
+<li><a href="#%E4%B8%80-%E8%B4%AD%E4%B9%B0%E6%9C%8D%E5%8A%A1%E5%99%A8">一、购买服务器</a>
+<ul>
+<li><a href="#%E6%B3%A8%E5%86%8C">注册</a></li>
+<li><a href="#%E5%85%85%E5%80%BC">充值</a></li>
+<li><a href="#%E8%B4%AD%E4%B9%B0">购买</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BA%8C-%E6%90%AD%E5%BB%BA">二、搭建</a>
+<ul>
+<li><a href="#%E5%87%86%E5%A4%87%E5%B7%A5%E5%85%B7">准备工具</a>
+<ul>
+<li><a href="#xshell6">Xshell6</a></li>
+<li><a href="#shadowsocks%E5%AE%A2%E6%88%B7%E7%AB%AF">shadowsocks客户端</a></li>
+</ul>
+</li>
+<li><a href="#%E6%9C%8D%E5%8A%A1%E5%99%A8">服务器</a>
+<ul>
+<li><a href="#%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8">连接服务器</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85python-pip">安装python-pip</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85shadowsocks">安装shadowsocks</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF">配置信息</a></li>
+<li><a href="#%E8%BF%90%E8%A1%8C">运行</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E4%B8%89%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%BF%9E%E6%8E%A5">三.客户端连接</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
             </div>
           </article>
         </div>
-        <div class="paper" data-aos="fade-in">
-          
-            <div class="next-post">
-              <div class="next">
-                下一篇
-              </div>
-              <a href="https://lonjinup.github.io/post/yi-ge-he-ge-qian-duan-xu-yao-zhang-wo-de-zhi-shi-dian">
-                <h3 class="post-title">
-                  一个合格前端需要掌握的知识点
-                </h3>
-              </a>
-            </div>
-          
-        </div>
-        
-          
-            <div class="paper" data-aos="fade-in">
-              <div id="gitalk-container"></div>
-            </div>
-          
 
-          
         
-      </div>
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://lonjinup.github.io/post/yi-ge-he-ge-qian-duan-xu-yao-zhang-wo-de-zhi-shi-dian">
+              <h3 class="post-title">
+                一个合格前端需要掌握的知识点
+              </h3>
+            </a>
+          </div>
+        
 
-      <div class="sm-12 md-4 col sidebar">
-  <div class="paper info-container">
-    <img src="https://lonjinup.github.io/images/avatar.png?v=1576947874253" class="no-responsive avatar">
-    <div class="text-muted">记录学习 记录生活</div>
-    <div class="social-container">
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    </div>
-  </div>
-  <div class="paper">
-    <div class="sidebar-title">
-      最新文章
-    </div>
-    <div class="row">
-      <ul>
         
           
-            <li>
-              <a href="https://lonjinup.github.io/post/es6-zhong-mo-ban-zi-fu-chuan">ES6中模板字符串</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/letconst-yu-var-de-qu-bie">let,const与var的区别</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/es6-shu-zu-zhong-de-fang-fa">ES6数组中的方法</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/08-vue">08-Vue中表单输入绑定</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/07-vue">07-Vue中事件处理</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/06-vue">06-Vue中列表渲染</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/05-vue">05-Vue中条件渲染</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/04-vue">04-Vue中class和style绑定</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/03-vue">03-Vue计算属性</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/02-vue">02-Vue组件</a>
-            </li>
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-      </ul>
-    </div>
-  </div>
-  <div class="paper">
-    <div class="sidebar-title">
-      标签列表
-    </div>
-    <div class="row">
-      
-        <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="badge ">
-          VUE
-        </a>
-      
-        <a href="https://lonjinup.github.io/tag/vWMtMYt9m" class="badge ">
-          工具/教程
-        </a>
-      
-        <a href="https://lonjinup.github.io/tag/su-x11Ukj" class="badge success">
-          JavaScript
-        </a>
-      
-    </div>
-  </div>
-  <div class="paper">
-    Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a> | <a class="rss" href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a>
-  </div>
-</div>
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
 
+<div id="gitalk-container"></div>
 
-    </div>
+<script>
 
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
 
-<script type="application/javascript">
-
-AOS.init();
-
-hljs.initHighlightingOnLoad()
+  gitalk.render('gitalk-container')
 
 </script>
 
+          
 
+          
+        
 
-  
-    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-    <script>
+        <div class="site-footer">
+  Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a> | 
+  <a class="rss" href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a>
+</div>
 
-      var gitalk = new Gitalk({
-        clientID: 'db2f457cc3883b93aadf',
-        clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
-        repo: 'lonjinup.github.io',
-        owner: 'LonJinUp',
-        admin: ['LonJinUp'],
-        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
-        distractionFreeMode: false  // Facebook-like distraction free mode
-      })
+<script>
+  hljs.initHighlightingOnLoad()
 
-      gitalk.render('gitalk-container')
+  let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
 
-    </script>
-  
+  // This should probably be throttled.
+  // Especially because it triggers during smooth scrolling.
+  // https://lodash.com/docs/4.17.10#throttle
+  // You could do like...
+  // window.addEventListener("scroll", () => {
+  //    _.throttle(doThatStuff, 100);
+  // });
+  // Only not doing it here to keep this Pen dependency-free.
 
-  
+  window.addEventListener("scroll", event => {
+    let fromTop = window.scrollY;
 
+    mainNavLinks.forEach((link, index) => {
+      let section = document.getElementById(decodeURI(link.hash).substring(1));
+      let nextSection = null
+      if (mainNavLinks[index + 1]) {
+        nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+      }
+      console.log('section.offsetHeight', section.offsetHeight);
+      if (section.offsetTop <= fromTop) {
+        if (nextSection) {
+          if (nextSection.offsetTop > fromTop) {
+            link.classList.add("current");
+          } else {
+            link.classList.remove("current");    
+          }
+        } else {
+          link.classList.add("current");
+        }
+      } else {
+        link.classList.remove("current");
+      }
+    });
+  });
 
+</script>
 
-
+      </div>
+    </div>
   </body>
 </html>
