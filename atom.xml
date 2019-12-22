@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://lonjinup.github.io</id>
     <title>陇锦</title>
-    <updated>2019-12-21T17:06:59.339Z</updated>
+    <updated>2019-12-22T16:03:53.927Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://lonjinup.github.io"/>
     <link rel="self" href="https://lonjinup.github.io/atom.xml"/>
@@ -10,6 +10,156 @@
     <logo>https://lonjinup.github.io/images/avatar.png</logo>
     <icon>https://lonjinup.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, 陇锦</rights>
+    <entry>
+        <title type="html"><![CDATA[ES6中箭头函数]]></title>
+        <id>https://lonjinup.github.io/post/es6-zhong-jian-tou-han-shu</id>
+        <link href="https://lonjinup.github.io/post/es6-zhong-jian-tou-han-shu">
+        </link>
+        <updated>2019-12-22T16:03:07.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="箭头函数">箭头函数</h1>
+<ul>
+<li>解决问题：<br>
+1.缩减代码<br>
+2.改变 <strong>this</strong> 指向</li>
+</ul>
+<h2 id="普通写法vs箭头函数vs">普通写法vs箭头函数vs</h2>
+<pre><code class="language-js">    //普通写法
+    const number=function(number){
+        return number*2
+    };
+
+    //箭头函数
+    const number2=(number)=&gt;{
+        return number*2
+    };
+
+    console.log(number2(2)) //--&gt;4
+</code></pre>
+<h2 id="箭头函数升级版本">箭头函数升级版本</h2>
+<ul>
+<li>升级版本:必须写到一行，<strong>return</strong> 可以省略。</li>
+</ul>
+<pre><code class="language-js">     const number3=(number)=&gt; number*2;
+
+     console.log(number2(2)) //--&gt;4
+</code></pre>
+<ul>
+<li>还可以继续简化(单个参数量)</li>
+</ul>
+<pre><code class="language-js">     const number3=number=&gt; number*2;
+
+     console.log(number2(2)) //--&gt;4
+
+     //或者可以这样
+    const number3=(number=&gt; number*2);
+</code></pre>
+<ul>
+<li>多个参数：参数必须加括号</li>
+</ul>
+<pre><code class="language-js">    const number5=(number,number2)=&gt; number+number2
+
+    console.log(number5(2,1)) //--&gt; 3
+</code></pre>
+<ul>
+<li>多条语句：后面必须加括号</li>
+</ul>
+<pre><code class="language-js">    const number5=(number,number2)=&gt;{
+        
+        sum=number+number2;
+
+        return sum
+
+    }
+
+    console.log(number5(2,1)) //--&gt; 3
+</code></pre>
+<h2 id="改变this指向">改变<strong>this</strong>指向</h2>
+<pre><code class="language-js">
+  // 改变this指向
+
+    const team={
+
+        name:['tom','bob'],
+        teamName:'ES6',
+        teamSummary:function(){
+            
+            return this.name.map(function (items) {
+
+                //当前this已经没有明确指向了
+
+                return `${items}属于${this.teamName}分类下`
+
+            })
+        }
+    };
+
+    console.log(team.teamSummary())//this.teamName显示undefined;
+
+</code></pre>
+<ul>
+<li>如果想显示teamName</li>
+</ul>
+<pre><code class="language-javascript">    
+    //方法1(提前声明一个this)
+
+    const team={
+
+        name:['tom','bob'],
+        teamName:'ES6',
+        teamSummary:function(){
+
+            let that=this;//声明一个this
+            
+            return this.name.map(function (items) {
+
+                return `${items}属于${that.teamName}分类下`
+
+            })
+        }
+    };
+
+    console.log(team.teamSummary())//正常显示
+
+    //方法2（bind()方法）
+
+    const team2={
+
+        name:['tom','bob'],
+        teamName:'ES6',
+        teamSummary:function(){
+            
+            return this.name.map(function (items) {
+
+                return `${items}属于${that.teamName}分类下`
+
+            }.bind(this))//把this绑定给函数
+        }
+    };
+
+    //方法3（箭头函数）
+
+    const team={
+    
+            name:['tom','bob'],
+    
+            teamName:'ES6',
+    
+            teamSummary:function(){
+    
+                return this.name.map((items)=&gt; {
+    
+                    //当前this已经没有明确指向了,如果要明确，就得在上一个return之前先声明一个this；
+    
+                    return `${items}属于${this.teamName}分类下`
+    
+                })
+            }
+        };
+        
+
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[ES6中模板字符串]]></title>
         <id>https://lonjinup.github.io/post/es6-zhong-mo-ban-zi-fu-chuan</id>

@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>08-Vue中表单输入绑定 | 陇锦</title>
+<title>ES6中箭头函数 | 陇锦</title>
 <meta name="description" content="记录学习 记录生活" />
 <link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1577030625932">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -73,148 +73,175 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              08-Vue中表单输入绑定
+              ES6中箭头函数
             </h2>
             <div class="post-info">
               <span>
-                2019-08-05
+                2019-12-23
               </span>
               <span>
-                4 min read
+                2 min read
               </span>
               
-                <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="post-tag">
-                  # VUE
+                <a href="https://lonjinup.github.io/tag/su-x11Ukj" class="post-tag">
+                  # JavaScript
                 </a>
               
             </div>
             
-              <img class="post-feature-image" src="https://cn.vuejs.org/images/logo.png" alt="">
-            
             <div class="post-content-wrapper">
               <div class="post-content">
-                <h1 id="表单输入绑定">表单输入绑定</h1>
-<h2 id="基础用法-v-model">基础用法 <strong>v-model</strong></h2>
+                <h1 id="箭头函数">箭头函数</h1>
 <ul>
-<li>
-<p><strong>v-model</strong> 指令在表单input、textarea及select元素上创建双向数据绑定。它会根据控件类型自动选取正确的方法来更新元素。</p>
-</li>
-<li>
-<p>v-model会忽略掉所有表单元素的<strong>vaule checked selected</strong> 特性的初始值而总是将 Vue 实例的数据作为数据来源。你应该通过 JavaScript 在组件的 data 选项中声明初始值。</p>
-</li>
+<li>解决问题：<br>
+1.缩减代码<br>
+2.改变 <strong>this</strong> 指向</li>
 </ul>
-<pre><code class="language-html">&lt;body&gt;
-    &lt;div id='app'&gt;
-        &lt;input type=&quot;text&quot; v-model='message'&gt;
-        &lt;span&gt;{{message}}&lt;/span&gt;
-    &lt;/div&gt;
-&lt;/body&gt;
-&lt;script src='vue.js'&gt;&lt;/script&gt;
-&lt;script&gt;
-    var app=new Vue({
-        el:&quot;#app&quot;,
-        data:{
-            message:''
-        },
-    })
-&lt;/script&gt;
+<h2 id="普通写法vs箭头函数vs">普通写法vs箭头函数vs</h2>
+<pre><code class="language-js">    //普通写法
+    const number=function(number){
+        return number*2
+    };
+
+    //箭头函数
+    const number2=(number)=&gt;{
+        return number*2
+    };
+
+    console.log(number2(2)) //--&gt;4
+</code></pre>
+<h2 id="箭头函数升级版本">箭头函数升级版本</h2>
+<ul>
+<li>升级版本:必须写到一行，<strong>return</strong> 可以省略。</li>
+</ul>
+<pre><code class="language-js">     const number3=(number)=&gt; number*2;
+
+     console.log(number2(2)) //--&gt;4
 </code></pre>
 <ul>
-<li>单选绑定</li>
+<li>还可以继续简化(单个参数量)</li>
 </ul>
-<pre><code class="language-html">&lt;body&gt;
-    &lt;div id=&quot;app2&quot;&gt;
-        &lt;input type=&quot;checkbox&quot; v-model='checked'&gt;
-        &lt;label for=&quot;checkbox&quot;&gt;{{ checked }}&lt;/label&gt;
-    &lt;/div&gt;
-&lt;/body&gt;
-&lt;script src='vue.js'&gt;&lt;/script&gt;
-&lt;script&gt;
-    var app2=new Vue({
-        el:&quot;#app2&quot;,
-        data:{
-            checked:true
-        },
-    })
-&lt;/script&gt;
+<pre><code class="language-js">     const number3=number=&gt; number*2;
+
+     console.log(number2(2)) //--&gt;4
+
+     //或者可以这样
+    const number3=(number=&gt; number*2);
 </code></pre>
 <ul>
-<li>多选</li>
+<li>多个参数：参数必须加括号</li>
 </ul>
-<pre><code class="language-html">&lt;body&gt;
-    &lt;div id='app3'&gt;
-        &lt;input type=&quot;checkbox&quot; name=&quot;&quot; id=&quot;西瓜&quot; value=&quot;西瓜&quot; v-model='checkedNames'&gt;
-        &lt;label for=&quot;西瓜&quot;&gt;西瓜&lt;/label&gt;
-        &lt;input type=&quot;checkbox&quot; name=&quot;&quot; id=&quot;香蕉&quot; value=&quot;香蕉&quot; v-model='checkedNames'&gt;
-        &lt;label for=&quot;香蕉&quot;&gt;香蕉&lt;/label&gt;
-        &lt;input type=&quot;checkbox&quot; name=&quot;&quot; id=&quot;水果&quot; value=&quot;水果&quot; v-model='checkedNames'&gt;
-        &lt;label for=&quot;水果&quot;&gt;水果&lt;/label&gt;
-        &lt;input type=&quot;checkbox&quot; name=&quot;&quot; id=&quot;喜欢&quot; value=&quot;喜欢&quot; v-model='checkedNames'&gt;
-        &lt;label for=&quot;喜欢&quot;&gt;喜欢&lt;/label&gt;
-        &lt;p&gt;{{checkedNames}}&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/body&gt;
-&lt;script src='vue.js'&gt;&lt;/script&gt;
-&lt;script&gt;
-    var app3=new Vue({
-        el:&quot;#app3&quot;,
-        data:{
-            checkedNames: []
+<pre><code class="language-js">    const number5=(number,number2)=&gt; number+number2
+
+    console.log(number5(2,1)) //--&gt; 3
+</code></pre>
+<ul>
+<li>多条语句：后面必须加括号</li>
+</ul>
+<pre><code class="language-js">    const number5=(number,number2)=&gt;{
+        
+        sum=number+number2;
+
+        return sum
+
+    }
+
+    console.log(number5(2,1)) //--&gt; 3
+</code></pre>
+<h2 id="改变this指向">改变<strong>this</strong>指向</h2>
+<pre><code class="language-js">
+  // 改变this指向
+
+    const team={
+
+        name:['tom','bob'],
+        teamName:'ES6',
+        teamSummary:function(){
+            
+            return this.name.map(function (items) {
+
+                //当前this已经没有明确指向了
+
+                return `${items}属于${this.teamName}分类下`
+
+            })
         }
-    })
-&lt;/script&gt;
+    };
+
+    console.log(team.teamSummary())//this.teamName显示undefined;
+
 </code></pre>
 <ul>
-<li>单选按钮</li>
+<li>如果想显示teamName</li>
 </ul>
-<pre><code class="language-html">&lt;body&gt;
-    &lt;div id='app4'&gt;
-        &lt;input type=&quot;radio&quot; id='one' value=&quot;one&quot; v-model='picked'&gt;
-        &lt;label for=&quot;one&quot;&gt;one&lt;/label&gt;
-        &lt;input type=&quot;radio&quot; id='two' value=&quot;two&quot; v-model='picked'&gt;
-        &lt;label for=&quot;two&quot;&gt;two&lt;/label&gt;
-        &lt;p&gt;{{picked}}&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/body&gt;
-&lt;script src='vue.js'&gt;&lt;/script&gt;
-&lt;script&gt;
-     var app4=new Vue({
-        el:'#app4',
-        data:{
-            picked:''
+<pre><code class="language-javascript">    
+    //方法1(提前声明一个this)
+
+    const team={
+
+        name:['tom','bob'],
+        teamName:'ES6',
+        teamSummary:function(){
+
+            let that=this;//声明一个this
+            
+            return this.name.map(function (items) {
+
+                return `${items}属于${that.teamName}分类下`
+
+            })
         }
-    })
-&lt;/script&gt;
-</code></pre>
-<ul>
-<li>选择框</li>
-</ul>
-<pre><code class="language-html">&lt;body&gt;
-    &lt;div id='app4'&gt;
-        &lt;input type=&quot;radio&quot; id='one' value=&quot;one&quot; v-model='picked'&gt;
-        &lt;label for=&quot;one&quot;&gt;one&lt;/label&gt;
-        &lt;input type=&quot;radio&quot; id='two' value=&quot;two&quot; v-model='picked'&gt;
-        &lt;label for=&quot;two&quot;&gt;two&lt;/label&gt;
-        &lt;p&gt;{{picked}}&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/body&gt;
-&lt;script src='vue.js'&gt;&lt;/script&gt;
-&lt;script&gt;
-     var app4=new Vue({
-        el:'#app4',
-        data:{
-            picked:''
+    };
+
+    console.log(team.teamSummary())//正常显示
+
+    //方法2（bind()方法）
+
+    const team2={
+
+        name:['tom','bob'],
+        teamName:'ES6',
+        teamSummary:function(){
+            
+            return this.name.map(function (items) {
+
+                return `${items}属于${that.teamName}分类下`
+
+            }.bind(this))//把this绑定给函数
         }
-    })
-&lt;/script&gt;
+    };
+
+    //方法3（箭头函数）
+
+    const team={
+    
+            name:['tom','bob'],
+    
+            teamName:'ES6',
+    
+            teamSummary:function(){
+    
+                return this.name.map((items)=&gt; {
+    
+                    //当前this已经没有明确指向了,如果要明确，就得在上一个return之前先声明一个this；
+    
+                    return `${items}属于${this.teamName}分类下`
+    
+                })
+            }
+        };
+        
+
 </code></pre>
 
               </div>
               <div class="toc-container">
                 <ul class="markdownIt-TOC">
-<li><a href="#%E8%A1%A8%E5%8D%95%E8%BE%93%E5%85%A5%E7%BB%91%E5%AE%9A">表单输入绑定</a>
+<li><a href="#%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0">箭头函数</a>
 <ul>
-<li><a href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-v-model">基础用法 <strong>v-model</strong></a></li>
+<li><a href="#%E6%99%AE%E9%80%9A%E5%86%99%E6%B3%95vs%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0vs">普通写法vs箭头函数vs</a></li>
+<li><a href="#%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0%E5%8D%87%E7%BA%A7%E7%89%88%E6%9C%AC">箭头函数升级版本</a></li>
+<li><a href="#%E6%94%B9%E5%8F%98this%E6%8C%87%E5%90%91">改变<strong>this</strong>指向</a></li>
 </ul>
 </li>
 </ul>
@@ -227,9 +254,9 @@
         
           <div class="next-post">
             <div class="next">下一篇</div>
-            <a href="https://lonjinup.github.io/post/07-vue">
+            <a href="https://lonjinup.github.io/post/es6-zhong-mo-ban-zi-fu-chuan">
               <h3 class="post-title">
-                07-Vue中事件处理
+                ES6中模板字符串
               </h3>
             </a>
           </div>
