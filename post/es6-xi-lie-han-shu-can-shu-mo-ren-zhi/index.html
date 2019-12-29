@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>【ES6系列】箭头函数 | 陇锦</title>
+<title>【ES6系列】函数参数默认值 | 陇锦</title>
 <meta name="description" content="记录学习 记录生活" />
 <link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1577629994884">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -73,14 +73,14 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              【ES6系列】箭头函数
+              【ES6系列】函数参数默认值
             </h2>
             <div class="post-info">
               <span>
-                2019-12-23
+                2019-12-29
               </span>
               <span>
-                2 min read
+                1 min read
               </span>
               
                 <a href="https://lonjinup.github.io/tag/ulDZ9tfIn" class="post-tag">
@@ -91,157 +91,53 @@
             
             <div class="post-content-wrapper">
               <div class="post-content">
-                <h1 id="箭头函数">箭头函数</h1>
+                <h1 id="函数参数默认值">函数参数默认值</h1>
 <ul>
-<li>解决问题：<br>
-1.缩减代码<br>
-2.改变 <strong>this</strong> 指向</li>
+<li>优点：优化代码</li>
 </ul>
-<h2 id="普通写法vs箭头函数vs">普通写法vs箭头函数vs</h2>
-<pre><code class="language-js">    //普通写法
-    const number=function(number){
-        return number*2
-    };
-
-    //箭头函数
-    const number2=(number)=&gt;{
-        return number*2
-    };
-
-    console.log(number2(2)) //--&gt;4
-</code></pre>
-<h2 id="箭头函数升级版本">箭头函数升级版本</h2>
+<h2 id="案例1">案例1</h2>
 <ul>
-<li>升级版本:必须写到一行，<strong>return</strong> 可以省略。</li>
+<li>比如要写一个ajax方法，此时我定义了两个参数，一个url，一个methods，如果我只传递了url，此时是会报错的。</li>
 </ul>
-<pre><code class="language-js">     const number3=(number)=&gt; number*2;
-
-     console.log(number2(2)) //--&gt;4
-</code></pre>
-<ul>
-<li>还可以继续简化(单个参数量)</li>
-</ul>
-<pre><code class="language-js">     const number3=number=&gt; number*2;
-
-     console.log(number2(2)) //--&gt;4
-
-     //或者可以这样
-    const number3=(number=&gt; number*2);
-</code></pre>
-<ul>
-<li>多个参数：参数必须加括号</li>
-</ul>
-<pre><code class="language-js">    const number5=(number,number2)=&gt; number+number2
-
-    console.log(number5(2,1)) //--&gt; 3
-</code></pre>
-<ul>
-<li>多条语句：后面必须加括号</li>
-</ul>
-<pre><code class="language-js">    const number5=(number,number2)=&gt;{
-        
-        sum=number+number2;
-
-        return sum
-
-    }
-
-    console.log(number5(2,1)) //--&gt; 3
-</code></pre>
-<h2 id="改变this指向">改变<strong>this</strong>指向</h2>
 <pre><code class="language-js">
-  // 改变this指向
-
-    const team={
-
-        name:['tom','bob'],
-        teamName:'ES6',
-        teamSummary:function(){
-            
-            return this.name.map(function (items) {
-
-                //当前this已经没有明确指向了
-
-                return `${items}属于${this.teamName}分类下`
-
-            })
-        }
+    function ajaxRequest(url,methods) {
+    
     };
 
-    console.log(team.teamSummary())//this.teamName显示undefined;
-
+    console.log(ajaxRequest(&quot;google.com&quot;)) //undefined
 </code></pre>
 <ul>
-<li>如果想显示teamName</li>
+<li>如果不想有报错，此时就得做一些处理。</li>
 </ul>
-<pre><code class="language-javascript">    
-    //方法1(提前声明一个this)
-
-    const team={
-
-        name:['tom','bob'],
-        teamName:'ES6',
-        teamSummary:function(){
-
-            let that=this;//声明一个this
-            
-            return this.name.map(function (items) {
-
-                return `${items}属于${that.teamName}分类下`
-
-            })
+<pre><code class="language-js">
+    function ajaxRequest(url,methods) {
+       if(!methods){
+          methods='GET'
         }
+        return methods
+     };
+   
+       console.log(ajaxRequest(&quot;google.com&quot;))
+       console.log(ajaxRequest(&quot;google.com&quot;,'post'))
+</code></pre>
+<ul>
+<li>而在ES6中，则可以定义函数默认值,如果没有传，直接会使用默认值。</li>
+</ul>
+<pre><code class="language-js">
+    function ajaxRequest(url,methods='GET') {
+       return methods
     };
 
-    console.log(team.teamSummary())//正常显示
-
-    //方法2（bind()方法）
-
-    const team2={
-
-        name:['tom','bob'],
-        teamName:'ES6',
-        teamSummary:function(){
-            
-            return this.name.map(function (items) {
-
-                return `${items}属于${that.teamName}分类下`
-
-            }.bind(this))//把this绑定给函数
-        }
-    };
-
-    //方法3（箭头函数）
-
-    const team={
-    
-            name:['tom','bob'],
-    
-            teamName:'ES6',
-    
-            teamSummary:function(){
-    
-                return this.name.map((items)=&gt; {
-    
-                    //当前this已经没有明确指向了,如果要明确，就得在上一个return之前先声明一个this；
-    
-                    return `${items}属于${this.teamName}分类下`
-    
-                })
-            }
-        };
-        
-
+    console.log(ajaxRequest(&quot;google.com&quot;))
+    console.log(ajaxRequest(&quot;google.com&quot;,'post'))
 </code></pre>
 
               </div>
               <div class="toc-container">
                 <ul class="markdownIt-TOC">
-<li><a href="#%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0">箭头函数</a>
+<li><a href="#%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%E9%BB%98%E8%AE%A4%E5%80%BC">函数参数默认值</a>
 <ul>
-<li><a href="#%E6%99%AE%E9%80%9A%E5%86%99%E6%B3%95vs%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0vs">普通写法vs箭头函数vs</a></li>
-<li><a href="#%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0%E5%8D%87%E7%BA%A7%E7%89%88%E6%9C%AC">箭头函数升级版本</a></li>
-<li><a href="#%E6%94%B9%E5%8F%98this%E6%8C%87%E5%90%91">改变<strong>this</strong>指向</a></li>
+<li><a href="#%E6%A1%88%E4%BE%8B1">案例1</a></li>
 </ul>
 </li>
 </ul>
@@ -254,9 +150,9 @@
         
           <div class="next-post">
             <div class="next">下一篇</div>
-            <a href="https://lonjinup.github.io/post/es6-zhong-mo-ban-zi-fu-chuan">
+            <a href="https://lonjinup.github.io/post/es6-xi-lie-zeng-qiang-dui-xiang-zi-mian-liang">
               <h3 class="post-title">
-                【ES6系列】模板字符串
+                【ES6系列】增强对象字面量
               </h3>
             </a>
           </div>
