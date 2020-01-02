@@ -2,14 +2,98 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://lonjinup.github.io</id>
     <title>陇锦</title>
-    <updated>2019-12-29T14:33:21.128Z</updated>
+    <updated>2020-01-02T15:40:37.921Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://lonjinup.github.io"/>
     <link rel="self" href="https://lonjinup.github.io/atom.xml"/>
     <subtitle>记录学习 记录生活</subtitle>
     <logo>https://lonjinup.github.io/images/avatar.png</logo>
     <icon>https://lonjinup.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2019, 陇锦</rights>
+    <rights>All rights reserved 2020, 陇锦</rights>
+    <entry>
+        <title type="html"><![CDATA[【ES6】展开运算符]]></title>
+        <id>https://lonjinup.github.io/post/es6-zhan-kai-yun-suan-fu</id>
+        <link href="https://lonjinup.github.io/post/es6-zhan-kai-yun-suan-fu">
+        </link>
+        <updated>2020-01-02T15:39:45.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="展开运算符">展开运算符</h1>
+<h2 id="普通写法与展开运算符">普通写法与展开运算符</h2>
+<ul>
+<li>普通数组相加</li>
+</ul>
+<pre><code class="language-js">      function addNumbers(numbers) {
+         return numbers.reduce((sum,number)=&gt;{
+             return sum+number
+         },0)
+       };
+      
+      const  numbers=[1,2,3,4,5];
+      console.log(addNumbers(numbers))  //15
+</code></pre>
+<ul>
+<li>如果传入的是单个数字</li>
+</ul>
+<pre><code class="language-js">
+    function addNumbers(a,b,c,d,e) {
+        let numbers=[a,b,c,d,e];
+        return numbers.reduce((sum,number)=&gt;{
+            return sum+number
+        },0)
+    };
+
+    console.log(addNumbers(1,2,3,4,5)) //15
+
+</code></pre>
+<ul>
+<li>展开运算符</li>
+</ul>
+<pre><code class="language-js">
+    function addNumbers(...numbers) {
+
+        return numbers.reduce((sum,number)=&gt;{
+            return sum+number
+        },0)
+    };
+
+    console.log(addNumbers(1,2,3,4,5)) //15
+</code></pre>
+<h2 id="展开运算符的应用">展开运算符的应用</h2>
+<ul>
+<li>可替代数组push等操作</li>
+</ul>
+<pre><code class="language-js">
+    var defaultColor=['red','green'];
+    var favoriteColor=['orange','yellow'];
+
+    defaultColor=defaultColor.concat(favoriteColor);
+
+    console.log(defaultColor); //[&quot;red&quot;, &quot;green&quot;, &quot;orange&quot;, &quot;yellow&quot;]
+
+    //同理也可以直接传两个数组
+    console.log([...defaultColor,...favoriteColor])
+
+    //之前的数组也可以合并
+
+     var fallcolors=['fire red','fall orange'];
+     
+    console.log(['blue',...fallcolors,...defaultColor,...favoriteColor])
+
+</code></pre>
+<h2 id="小案例">小案例</h2>
+<ul>
+<li>判断某个值是否在某个数组中，如果没有，就添加进去</li>
+</ul>
+<pre><code class="language-js">
+     function shopList(...items) {
+         if(items.indexOf('milk')&lt;0){
+             return ['milk',...items]
+         }
+      };
+    
+      console.log(shopList('orange','bread','eggs'))
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[【ES6系列】函数参数默认值]]></title>
         <id>https://lonjinup.github.io/post/es6-xi-lie-han-shu-can-shu-mo-ren-zhi</id>

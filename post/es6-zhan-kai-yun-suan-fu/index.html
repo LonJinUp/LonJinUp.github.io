@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>JavaScript之原型and原型链 | 陇锦</title>
+<title>【ES6】展开运算符 | 陇锦</title>
 <meta name="description" content="记录学习 记录生活" />
 <link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1577979630594">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -73,105 +73,109 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              JavaScript之原型and原型链
+              【ES6】展开运算符
             </h2>
             <div class="post-info">
               <span>
-                2019-07-23
+                2020-01-02
               </span>
               <span>
-                3 min read
+                2 min read
               </span>
               
-                <a href="https://lonjinup.github.io/tag/su-x11Ukj" class="post-tag">
-                  # JavaScript
+                <a href="https://lonjinup.github.io/tag/ulDZ9tfIn" class="post-tag">
+                  # ES6
                 </a>
               
             </div>
             
-              <img class="post-feature-image" src="https://lonjinup.github.io/post-images/yuan-xing-yu-yuan-xing-lian.jpeg" alt="">
-            
             <div class="post-content-wrapper">
               <div class="post-content">
-                <h2 id="为什么需要原型及原型链">为什么需要原型及原型链？</h2>
+                <h1 id="展开运算符">展开运算符</h1>
+<h2 id="普通写法与展开运算符">普通写法与展开运算符</h2>
 <ul>
-<li>demo</li>
+<li>普通数组相加</li>
 </ul>
-<pre><code class="language-js">    function Person(name,age){
-       
-       this.name=name;
-       this.age=age;
-       this.eat=function(){
-           console.log(age+&quot;岁的&quot;+name+&quot;在吃饭&quot;)
-       }
-   };
-
-   let Tom=new Person(&quot;Tom&quot;,24);
-   let Bob=new Person(&quot;Tom&quot;,24);
-   
-   console.log(Tom.eat===Bob.eat);  //flase
+<pre><code class="language-js">      function addNumbers(numbers) {
+         return numbers.reduce((sum,number)=&gt;{
+             return sum+number
+         },0)
+       };
+      
+      const  numbers=[1,2,3,4,5];
+      console.log(addNumbers(numbers))  //15
 </code></pre>
 <ul>
-<li>
-<p>可以看到对于同一个函数，new出来的实例，都会开出新的一块堆区,所以例子中Tom和Bob的<strong>eat</strong>是不同的。<br>
-虽然拥有自己的的东西(比如房子，车子)是很好的，但它也有不好的地方，毕竟一共就那么大的地方(内存)，你要<br>
-一直建立房子，会导致地方不足(内存不足)。</p>
-</li>
-<li>
-<p>所以要想个方法，建立共享库的的对象(例如把楼房建高),这样就可以在需要的时候调用一个类似共享库的对象(社区)，让实例能沿着某个线索找到它的归处。这个线索就是<strong>原型链(prototype)</strong></p>
-</li>
+<li>如果传入的是单个数字</li>
 </ul>
 <pre><code class="language-js">
-    function Person(name,age){
-        this.name=name;
-        this.age=age;
-    };
-    // 通过构造函数的 Person 的 prototype 属性找到 Person 的原型对象
-    Person.prototype.eat=function(){
-        console.log(&quot;吃饭&quot;)
+    function addNumbers(a,b,c,d,e) {
+        let numbers=[a,b,c,d,e];
+        return numbers.reduce((sum,number)=&gt;{
+            return sum+number
+        },0)
     };
 
-   let Tom=new Person(&quot;Tom&quot;,24);
-   let Bob=new Person(&quot;Tom&quot;,24);
-
-   console.log(Tom.eat===Bob.eat); //true
+    console.log(addNumbers(1,2,3,4,5)) //15
 
 </code></pre>
-<h2 id="prototype是什么">prototype是什么？</h2>
 <ul>
-<li>看图</li>
+<li>展开运算符</li>
 </ul>
-<figure data-type="image" tabindex="1"><img src="https://s2.ax1x.com/2019/07/18/ZXsADU.png" alt="图解prototype" loading="lazy"></figure>
+<pre><code class="language-js">
+    function addNumbers(...numbers) {
+
+        return numbers.reduce((sum,number)=&gt;{
+            return sum+number
+        },0)
+    };
+
+    console.log(addNumbers(1,2,3,4,5)) //15
+</code></pre>
+<h2 id="展开运算符的应用">展开运算符的应用</h2>
 <ul>
-<li>
-<p>js说，我好寂寞，因为js本源是空的，即为null。</p>
-</li>
-<li>
-<p>js说，要有神，所以它通过万能术 <strong>_ proto _</strong> 产生了No1号神，即:<strong>No1._ proto _=null</strong>。</p>
-</li>
-<li>
-<p>js说，神你要有自己的想法啊，所以神自己想了个办法，根据自己的原型<strong>prototype</strong>创建了对象；<strong>Object</strong>，即<strong>Object.prototype==No1;No1._ proto _=null</strong>。于是我们把<strong>prototype</strong>叫做原型，就好比<strong>Object</strong>的原型是神，男人的原型就是人类一样。同时 <strong>_ proto _</strong> 叫做原型链，毕竟有了 <strong>_ proto _</strong> ,对象、神、js之间才有了联系，这时候<strong>Object.prototype._ proto _=null</strong>。</p>
-</li>
-<li>
-<p>js说，神你要有更多的想法啊，我把万能术 <strong>_ proto  _</strong> 都借你用了。所以神根据 <strong>Object</strong>,使用 <strong>_ proto _</strong> 做了个机器No2,即：<strong>No2._ proto _=No1</strong>,并规定所有东西，通过 <strong>_ proto _</strong> 可以连接机器，再找到自己包括<strong>Object</strong>也是，于是<strong>Object成为了所以对象的原型</strong>，<strong>Object. _ proto  _ ._ proto _==No1</strong>,然后 <strong>String</strong>、<strong>Numer</strong>、<strong>Boolean</strong>、<strong>Array</strong>这些物种也是如此。</p>
-</li>
+<li>可替代数组push等操作</li>
 </ul>
-<p>js说，神你的机器好厉害，你的机器能不能做出更多的机器啊？神咧嘴一笑:你通过万能术创造了我，我通过原型创造了对象，如此，那我造一个机器 <strong>Function</strong> ,<strong>function.prototype == No2, function._ proto_=No2</strong>,即：<strong>function。prototype == function. _ proto_</strong>;这样No2就成了造机器的机器，他负责管理<strong>String</strong>、<strong>Numer</strong>、<strong>Boolean</strong>、<strong>Array</strong>这几个。</p>
+<pre><code class="language-js">
+    var defaultColor=['red','green'];
+    var favoriteColor=['orange','yellow'];
+
+    defaultColor=defaultColor.concat(favoriteColor);
+
+    console.log(defaultColor); //[&quot;red&quot;, &quot;green&quot;, &quot;orange&quot;, &quot;yellow&quot;]
+
+    //同理也可以直接传两个数组
+    console.log([...defaultColor,...favoriteColor])
+
+    //之前的数组也可以合并
+
+     var fallcolors=['fire red','fall orange'];
+     
+    console.log(['blue',...fallcolors,...defaultColor,...favoriteColor])
+
+</code></pre>
+<h2 id="小案例">小案例</h2>
 <ul>
-<li>最后，说到底我们就很容易理解那幅图，并比较了解下面的公式了。</li>
+<li>判断某个值是否在某个数组中，如果没有，就添加进去</li>
 </ul>
-<pre><code class="language-js">    Object._proto_ = Function.prototype;
-    Function.prototype._proto_ = Object.prototype;
-    Object.prototype._proto = null
+<pre><code class="language-js">
+     function shopList(...items) {
+         if(items.indexOf('milk')&lt;0){
+             return ['milk',...items]
+         }
+      };
+    
+      console.log(shopList('orange','bread','eggs'))
 </code></pre>
 
               </div>
               <div class="toc-container">
                 <ul class="markdownIt-TOC">
-<li>
+<li><a href="#%E5%B1%95%E5%BC%80%E8%BF%90%E7%AE%97%E7%AC%A6">展开运算符</a>
 <ul>
-<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%8E%9F%E5%9E%8B%E5%8F%8A%E5%8E%9F%E5%9E%8B%E9%93%BE">为什么需要原型及原型链？</a></li>
-<li><a href="#prototype%E6%98%AF%E4%BB%80%E4%B9%88">prototype是什么？</a></li>
+<li><a href="#%E6%99%AE%E9%80%9A%E5%86%99%E6%B3%95%E4%B8%8E%E5%B1%95%E5%BC%80%E8%BF%90%E7%AE%97%E7%AC%A6">普通写法与展开运算符</a></li>
+<li><a href="#%E5%B1%95%E5%BC%80%E8%BF%90%E7%AE%97%E7%AC%A6%E7%9A%84%E5%BA%94%E7%94%A8">展开运算符的应用</a></li>
+<li><a href="#%E5%B0%8F%E6%A1%88%E4%BE%8B">小案例</a></li>
 </ul>
 </li>
 </ul>
@@ -184,9 +188,9 @@
         
           <div class="next-post">
             <div class="next">下一篇</div>
-            <a href="https://lonjinup.github.io/post/javascript-zhong-this-zhi-xiang-yi-ji-gai-bian-this-zhi-xiang">
+            <a href="https://lonjinup.github.io/post/es6-xi-lie-han-shu-can-shu-mo-ren-zhi">
               <h3 class="post-title">
-                JavaScript中this指向以及改变this指向
+                【ES6系列】函数参数默认值
               </h3>
             </a>
           </div>
