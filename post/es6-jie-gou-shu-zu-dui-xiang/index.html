@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>【ES6】展开运算符 | 陇锦</title>
+<title>【ES6】解构(数组-对象) | 陇锦</title>
 <meta name="description" content="记录学习 记录生活" />
 <link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1578585718297">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -73,14 +73,14 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              【ES6】展开运算符
+              【ES6】解构(数组-对象)
             </h2>
             <div class="post-info">
               <span>
-                2020-01-02
+                2020-01-10
               </span>
               <span>
-                2 min read
+                3 min read
               </span>
               
                 <a href="https://lonjinup.github.io/tag/ulDZ9tfIn" class="post-tag">
@@ -91,91 +91,225 @@
             
             <div class="post-content-wrapper">
               <div class="post-content">
-                <h1 id="展开运算符">展开运算符</h1>
-<h2 id="普通写法与展开运算符">普通写法与展开运算符</h2>
+                <h1 id="解构">解构</h1>
+<blockquote>
+<p>主要应用于两种类型，一种是数组，一种是对象。</p>
+</blockquote>
+<h2 id="对象解构">对象解构</h2>
 <ul>
-<li>普通数组相加</li>
-</ul>
-<pre><code class="language-js">      function addNumbers(numbers) {
-         return numbers.reduce((sum,number)=&gt;{
-             return sum+number
-         },0)
-       };
-      
-      const  numbers=[1,2,3,4,5];
-      console.log(addNumbers(numbers))  //15
-</code></pre>
-<ul>
-<li>如果传入的是单个数字</li>
+<li>看一个例子,如果要取到对象中的某个值，我们需要这样操作</li>
 </ul>
 <pre><code class="language-js">
-    function addNumbers(a,b,c,d,e) {
-        let numbers=[a,b,c,d,e];
-        return numbers.reduce((sum,number)=&gt;{
-            return sum+number
-        },0)
+    var expense={
+        type:'es6',
+        amount:'45'
     };
 
-    console.log(addNumbers(1,2,3,4,5)) //15
+    var type=expense.type;
+
+    var amount=expense.amount;
+
+    console.log(type,amount); //es6,45
 
 </code></pre>
 <ul>
-<li>展开运算符</li>
+<li>使用解构的话，我们可以这么写</li>
 </ul>
 <pre><code class="language-js">
-    function addNumbers(...numbers) {
-
-        return numbers.reduce((sum,number)=&gt;{
-            return sum+number
-        },0)
+    var expense={
+        type:'es6',
+        amount:'45'
     };
 
-    console.log(addNumbers(1,2,3,4,5)) //15
-</code></pre>
-<h2 id="展开运算符的应用">展开运算符的应用</h2>
-<ul>
-<li>可替代数组push等操作</li>
-</ul>
-<pre><code class="language-js">
-    var defaultColor=['red','green'];
-    var favoriteColor=['orange','yellow'];
-
-    defaultColor=defaultColor.concat(favoriteColor);
-
-    console.log(defaultColor); //[&quot;red&quot;, &quot;green&quot;, &quot;orange&quot;, &quot;yellow&quot;]
-
-    //同理也可以直接传两个数组
-    console.log([...defaultColor,...favoriteColor])
-
-    //之前的数组也可以合并
-
-     var fallcolors=['fire red','fall orange'];
-     
-    console.log(['blue',...fallcolors,...defaultColor,...favoriteColor])
+    const {type,amount}=expense;
+    console.log(type,amount);//es6,45
 
 </code></pre>
-<h2 id="小案例">小案例</h2>
 <ul>
-<li>判断某个值是否在某个数组中，如果没有，就添加进去</li>
+<li>如果对象中没有该属性，则会返回</li>
 </ul>
 <pre><code class="language-js">
-     function shopList(...items) {
-         if(items.indexOf('milk')&lt;0){
-             return ['milk',...items]
-         }
-      };
+    var expense={
+        type:'es6',
+        amount:'45'
+    };
+
+     const {type,amount,abc}=expense;
+     console.log(type,amount,abc);//es6 45 undefined
+</code></pre>
+<h3 id="小案例">小案例</h3>
+<blockquote>
+<p>获取对象中定义的某些值</p>
+</blockquote>
+<ul>
+<li>ES5实现</li>
+</ul>
+<pre><code class="language-js">    var saveFiled={
+        extension:'jpg',
+        name:'es6',
+        size:'1024'
+    };
+
+    function fileSammary(file) {
+        return `${file.name}.${file.extension}的大小是${file.size}`
+    };
+
+    console.log(fileSammary(saveFiled));//es6.jpg的大小是1024
+</code></pre>
+<ul>
+<li>ES6实现</li>
+</ul>
+<pre><code class="language-js">
+    var saveFiled={
+        extension:'jpg',
+        name:'es6',
+        size:'1024'
+    };
+
+    function fileSammary({name,extension,size}){
+            return `${name}.${extension}的大小是${size}`
+    };
+
+    console.log(fileSammary(saveFiled));//es6.jpg的大小是1024
+</code></pre>
+<h2 id="数组的解构">数组的解构</h2>
+<ul>
+<li>直接上例子，获取数组的值</li>
+</ul>
+<pre><code class="language-js">
+    const names=['tom','bob','nike'];
+
+    const [name1,name2,name3]=names;
+
+    console.log(name1,name2,name3)//tom bob nike
+</code></pre>
+<ul>
+<li>如果想要获取数组中的长度，直接在花括号中输入 <strong>length</strong>；</li>
+</ul>
+<pre><code class="language-js">
+     const names=['tom','bob','nike'];
     
-      console.log(shopList('orange','bread','eggs'))
+     const {length}=names;
+    
+     console.log(length)//3
+</code></pre>
+<h3 id="展开运算符进行解构">展开运算符进行解构</h3>
+<pre><code class="language-js">
+    const names=['tom','bob','nike'];
+
+    const [name,...rest]=names;
+
+    console.log(name)  //tom;
+    console.log(rest) // [&quot;bob&quot;, &quot;nike&quot;]
+
+</code></pre>
+<p>还可以这么操作</p>
+<pre><code class="language-js">
+    let a,b;
+   
+    [a,b]=[100,200];
+
+    console.log(a,b);
+</code></pre>
+<h3 id="对象数组解构">对象数组解构</h3>
+<blockquote>
+<p>获取对象数组中的某个属性</p>
+</blockquote>
+<ul>
+<li>ES5</li>
+</ul>
+<pre><code class="language-js">    const people=[
+        {names:&quot;tom&quot;,age:20},
+        {names:&quot;bob&quot;,age:10},
+        {names:&quot;nike&quot;,age:24},
+    ];
+
+     var age=people[0].age;
+     console.log(age);//20
+</code></pre>
+<ul>
+<li>ES6</li>
+</ul>
+<pre><code class="language-js">
+    const people=[
+        {names:&quot;tom&quot;,age:20},
+        {names:&quot;bob&quot;,age:10},
+        {names:&quot;nike&quot;,age:24},
+    ];
+
+     //二次解构
+     const [{age}]=people;
+    
+     console.log(age)//20
+</code></pre>
+<h2 id="使用场景">使用场景</h2>
+<blockquote>
+<p>将数组转化为对象</p>
+</blockquote>
+<pre><code class="language-js">    const point=[
+        [4,5],
+        [10,1],
+        [0,10]
+    ];
+
+    //期望数据格式
+
+    // [
+    //     {x:4,y:5},
+    //     {x:10,y:1},
+    //     {x:0,y:10}
+    // ]
+
+    let newPoint=point.map(pair=&gt;{
+        const x=pair[0];
+        const y=pair[1];
+
+        return {x,y}
+    })
+
+    console.log(newPoint)
+</code></pre>
+<ul>
+<li>还可以进行优化一下</li>
+</ul>
+<pre><code class="language-js">
+    let newPoint=point.map(pair=&gt;{
+       
+         const [x,y]=pair;
+
+         return {x,y}
+    });
+
+    console.log(newPoint)
+</code></pre>
+<ul>
+<li>再一步优化</li>
+</ul>
+<pre><code class="language-js">
+   let newPoint=point.map(([x,y])=&gt;{
+       return {x:x,y:y}
+   })
+
+   console.log(newPoint);
 </code></pre>
 
               </div>
               <div class="toc-container">
                 <ul class="markdownIt-TOC">
-<li><a href="#%E5%B1%95%E5%BC%80%E8%BF%90%E7%AE%97%E7%AC%A6">展开运算符</a>
+<li><a href="#%E8%A7%A3%E6%9E%84">解构</a>
 <ul>
-<li><a href="#%E6%99%AE%E9%80%9A%E5%86%99%E6%B3%95%E4%B8%8E%E5%B1%95%E5%BC%80%E8%BF%90%E7%AE%97%E7%AC%A6">普通写法与展开运算符</a></li>
-<li><a href="#%E5%B1%95%E5%BC%80%E8%BF%90%E7%AE%97%E7%AC%A6%E7%9A%84%E5%BA%94%E7%94%A8">展开运算符的应用</a></li>
+<li><a href="#%E5%AF%B9%E8%B1%A1%E8%A7%A3%E6%9E%84">对象解构</a>
+<ul>
 <li><a href="#%E5%B0%8F%E6%A1%88%E4%BE%8B">小案例</a></li>
+</ul>
+</li>
+<li><a href="#%E6%95%B0%E7%BB%84%E7%9A%84%E8%A7%A3%E6%9E%84">数组的解构</a>
+<ul>
+<li><a href="#%E5%B1%95%E5%BC%80%E8%BF%90%E7%AE%97%E7%AC%A6%E8%BF%9B%E8%A1%8C%E8%A7%A3%E6%9E%84">展开运算符进行解构</a></li>
+<li><a href="#%E5%AF%B9%E8%B1%A1%E6%95%B0%E7%BB%84%E8%A7%A3%E6%9E%84">对象数组解构</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF">使用场景</a></li>
 </ul>
 </li>
 </ul>
@@ -188,9 +322,9 @@
         
           <div class="next-post">
             <div class="next">下一篇</div>
-            <a href="https://lonjinup.github.io/post/es6-xi-lie-han-shu-can-shu-mo-ren-zhi">
+            <a href="https://lonjinup.github.io/post/es6-zhan-kai-yun-suan-fu">
               <h3 class="post-title">
-                【ES6系列】函数参数默认值
+                【ES6】展开运算符
               </h3>
             </a>
           </div>
