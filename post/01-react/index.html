@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>JavaScript之原型and原型链 | 陇锦</title>
+<title>【01】React环境搭建以及文件目录介绍 | 陇锦</title>
 <meta name="description" content="记录学习 记录生活" />
 <link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1579362461494">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -73,96 +73,80 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              JavaScript之原型and原型链
+              【01】React环境搭建以及文件目录介绍
             </h2>
             <div class="post-info">
               <span>
-                2019-07-23
+                2020-01-18
               </span>
               <span>
                 3 min read
               </span>
               
-                <a href="https://lonjinup.github.io/tag/su-x11Ukj" class="post-tag">
-                  # JavaScript
+                <a href="https://lonjinup.github.io/tag/D-FxeeuIa" class="post-tag">
+                  # React
                 </a>
               
             </div>
             
-              <img class="post-feature-image" src="https://lonjinup.github.io/post-images/yuan-xing-yu-yuan-xing-lian.jpeg" alt="">
-            
             <div class="post-content-wrapper">
               <div class="post-content">
-                <h2 id="为什么需要原型及原型链">为什么需要原型及原型链？</h2>
+                <blockquote>
+<p>打算学习一下React，记录一下学习遇到的问题。</p>
+</blockquote>
+<h2 id="搭建环境">搭建环境</h2>
+<h3 id="环境">环境</h3>
+<h4 id="安装node">安装Node</h4>
 <ul>
-<li>demo</li>
+<li>到 <a href="https://nodejs.org/zh-cn/">Node官网</a>下载，下载完直接根据提示完成安装。window电脑打开<strong>CMD</strong>，Mac<br>
+电脑打开<strong>终端</strong>，输入<strong>node -v</strong>可以查看版本号，说明安装成功了。</li>
 </ul>
-<pre><code class="language-js">    function Person(name,age){
-       
-       this.name=name;
-       this.age=age;
-       this.eat=function(){
-           console.log(age+&quot;岁的&quot;+name+&quot;在吃饭&quot;)
-       }
-   };
-
-   let Tom=new Person(&quot;Tom&quot;,24);
-   let Bob=new Person(&quot;Tom&quot;,24);
-   
-   console.log(Tom.eat===Bob.eat);  //flase
+<pre><code class="language-js">  node -v
+</code></pre>
+<h4 id="react脚手架">React脚手架</h4>
+<ul>
+<li>打开终端，输入下面命令就开始安装了。</li>
+</ul>
+<pre><code class="language-js">    npm install -g create-react-app
 </code></pre>
 <ul>
-<li>
-<p>可以看到对于同一个函数，new出来的实例，都会开出新的一块堆区,所以例子中Tom和Bob的<strong>eat</strong>是不同的。<br>
-虽然拥有自己的的东西(比如房子，车子)是很好的，但它也有不好的地方，毕竟一共就那么大的地方(内存)，你要<br>
-一直建立房子，会导致地方不足(内存不足)。</p>
-</li>
-<li>
-<p>所以要想个方法，建立共享库的的对象(例如把楼房建高),这样就可以在需要的时候调用一个类似共享库的对象(社区)，让实例能沿着某个线索找到它的归处。这个线索就是<strong>原型链(prototype)</strong></p>
-</li>
+<li>如果你是Mac，需要在前面加<strong>sudo</strong>，然后按提示输入密码进行安装。不然会提示你没有权限。</li>
 </ul>
+<pre><code class="language-js">    sudo npm install -g create-react-app
+</code></pre>
+<h2 id="创建我的第一个项目">创建我的第一个项目</h2>
+<ul>
+<li>进入到你想创建项目的文件夹</li>
+</ul>
+<pre><code class="language-js">    create-react-app demo01   //用脚手架创建React项目,后面是项目名字
+    cd demo01   //等创建完成后，进入项目目录
+    npm start   //预览项目，如果能正常打开，说明项目创建成功
+</code></pre>
+<ul>
+<li>创建成功会自动打开浏览器，能正常显示React图标，就说明创建成功了！</li>
+</ul>
+<h2 id="目录讲解">目录讲解</h2>
 <pre><code class="language-js">
-    function Person(name,age){
-        this.name=name;
-        this.age=age;
-    };
-    // 通过构造函数的 Person 的 prototype 属性找到 Person 的原型对象
-    Person.prototype.eat=function(){
-        console.log(&quot;吃饭&quot;)
-    };
+--- README.md (项目说明文件，工作中可以写项目描述，项目说明等)
 
-   let Tom=new Person(&quot;Tom&quot;,24);
-   let Bob=new Person(&quot;Tom&quot;,24);
+--- package.json (这个文件是webpack配置和项目包管理文件，项目中依赖的第三方包和一些常用命令配置都在这个里边进行配置目前位置，我们不需要改动。)
 
-   console.log(Tom.eat===Bob.eat); //true
+--- package-lock.json (锁定安装时的版本号，并且需要上传到git，以保证其他人再npm install 时大家的依赖能保证一致。)
 
-</code></pre>
-<h2 id="prototype是什么">prototype是什么？</h2>
-<ul>
-<li>看图</li>
-</ul>
-<figure data-type="image" tabindex="1"><img src="https://s2.ax1x.com/2019/07/18/ZXsADU.png" alt="图解prototype" loading="lazy"></figure>
-<ul>
-<li>
-<p>js说，我好寂寞，因为js本源是空的，即为null。</p>
-</li>
-<li>
-<p>js说，要有神，所以它通过万能术 <strong>_ proto _</strong> 产生了No1号神，即:<strong>No1._ proto _=null</strong>。</p>
-</li>
-<li>
-<p>js说，神你要有自己的想法啊，所以神自己想了个办法，根据自己的原型<strong>prototype</strong>创建了对象；<strong>Object</strong>，即<strong>Object.prototype==No1;No1._ proto _=null</strong>。于是我们把<strong>prototype</strong>叫做原型，就好比<strong>Object</strong>的原型是神，男人的原型就是人类一样。同时 <strong>_ proto _</strong> 叫做原型链，毕竟有了 <strong>_ proto _</strong> ,对象、神、js之间才有了联系，这时候<strong>Object.prototype._ proto _=null</strong>。</p>
-</li>
-<li>
-<p>js说，神你要有更多的想法啊，我把万能术 <strong>_ proto  _</strong> 都借你用了。所以神根据 <strong>Object</strong>,使用 <strong>_ proto _</strong> 做了个机器No2,即：<strong>No2._ proto _=No1</strong>,并规定所有东西，通过 <strong>_ proto _</strong> 可以连接机器，再找到自己包括<strong>Object</strong>也是，于是<strong>Object成为了所以对象的原型</strong>，<strong>Object. _ proto  _ ._ proto _==No1</strong>,然后 <strong>String</strong>、<strong>Numer</strong>、<strong>Boolean</strong>、<strong>Array</strong>这些物种也是如此。</p>
-</li>
-</ul>
-<p>js说，神你的机器好厉害，你的机器能不能做出更多的机器啊？神咧嘴一笑:你通过万能术创造了我，我通过原型创造了对象，如此，那我造一个机器 <strong>Function</strong> ,<strong>function.prototype == No2, function._ proto_=No2</strong>,即：<strong>function。prototype == function. _ proto_</strong>;这样No2就成了造机器的机器，他负责管理<strong>String</strong>、<strong>Numer</strong>、<strong>Boolean</strong>、<strong>Array</strong>这几个。</p>
-<ul>
-<li>最后，说到底我们就很容易理解那幅图，并比较了解下面的公式了。</li>
-</ul>
-<pre><code class="language-js">    Object._proto_ = Function.prototype;
-    Function.prototype._proto_ = Object.prototype;
-    Object.prototype._proto = null
+--- gitignore (这个是git的选择性上传的配置文件，比如一会要介绍的node_modules文件夹，就需要配置不上传。)
+
+--- node_modules (这个文件夹就是我们项目的依赖包，到目前位置，脚手架已经都给我们下载好了，你不需要单独安装什么。)
+
+--- public (公共文件)
+------- favicon.ico （网站标签小图标）
+------- index.html (模版文件,其中&lt;noscript&gt;&lt;/noscript&gt;标签是容错处理，如果当前JavaScript没有跑通的情况下就会显示里面的内容)
+------- manifest.json （移动端配置文件）
+
+--- src (开放的源代码，我们平时操作做最多的目录)
+------- index.js (项目入口文件)
+------- ndex.css （这个是index.js里的CSS文件。）
+------- app.js （这个文件相当于一个方法模块，也是一个简单的模块化编程。）
+------- serviceWorker.js （这个是用于写移动端开发的，PWA必须用到这个文件，有了这个文件，就相当于有了离线浏览的功能。）
 </code></pre>
 
               </div>
@@ -170,8 +154,18 @@
                 <ul class="markdownIt-TOC">
 <li>
 <ul>
-<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%8E%9F%E5%9E%8B%E5%8F%8A%E5%8E%9F%E5%9E%8B%E9%93%BE">为什么需要原型及原型链？</a></li>
-<li><a href="#prototype%E6%98%AF%E4%BB%80%E4%B9%88">prototype是什么？</a></li>
+<li><a href="#%E6%90%AD%E5%BB%BA%E7%8E%AF%E5%A2%83">搭建环境</a>
+<ul>
+<li><a href="#%E7%8E%AF%E5%A2%83">环境</a>
+<ul>
+<li><a href="#%E5%AE%89%E8%A3%85node">安装Node</a></li>
+<li><a href="#react%E8%84%9A%E6%89%8B%E6%9E%B6">React脚手架</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E5%88%9B%E5%BB%BA%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E9%A1%B9%E7%9B%AE">创建我的第一个项目</a></li>
+<li><a href="#%E7%9B%AE%E5%BD%95%E8%AE%B2%E8%A7%A3">目录讲解</a></li>
 </ul>
 </li>
 </ul>
@@ -184,9 +178,9 @@
         
           <div class="next-post">
             <div class="next">下一篇</div>
-            <a href="https://lonjinup.github.io/post/javascript-zhong-this-zhi-xiang-yi-ji-gai-bian-this-zhi-xiang">
+            <a href="https://lonjinup.github.io/post/es6-jie-gou-shu-zu-dui-xiang">
               <h3 class="post-title">
-                JavaScript中this指向以及改变this指向
+                【ES6】解构(数组-对象)
               </h3>
             </a>
           </div>
