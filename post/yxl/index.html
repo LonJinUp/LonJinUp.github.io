@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>JavaScript之原型and原型链 | 陇锦</title>
+<title>彻底理解原型 原型链 | 陇锦</title>
 <meta name="description" content="记录学习 记录生活">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -87,9 +87,9 @@
       <div class="sm-12 md-8 col">
         <div class="paper">
           <article class="article">
-            <h1>JavaScript之原型and原型链</h1>
+            <h1>彻底理解原型 原型链</h1>
             <p class="article-meta">
-              2019-07-23
+              2020-09-18
               
                 <a href="https://lonjinup.github.io/tag/su-x11Ukj" class="badge warning">
                   JavaScript
@@ -97,39 +97,106 @@
               
             </p>
             
-              <img src="https://lonjinup.github.io/post-images/yuan-xing-yu-yuan-xing-lian.jpeg" alt="JavaScript之原型and原型链">
-            
             <div class="post-content">
-              <h2 id="为什么需要原型及原型链">为什么需要原型及原型链？</h2>
+              <blockquote>
+<p>原型和原型链也是经常被面试问到的问题，其实原型，原型链涉及问题较多，本文也延展了几个面试中常问的知识点，文章不长，耐心看完肯定会有收获。</p>
+</blockquote>
+<h2 id="创建对象的几种方法">创建对象的几种方法</h2>
 <ul>
-<li>demo</li>
+<li>字面量创建</li>
 </ul>
-<pre><code class="language-js">    function Person(name,age){
-       
+<pre><code class="language-js">    var n={name:1};
+    var n2=new Object({name:1});
+</code></pre>
+<ul>
+<li>构造函数创建</li>
+</ul>
+<pre><code class="language-js">   var M=function(){
+       this.name=1
+   };
+   var n=new M()
+</code></pre>
+<ul>
+<li>Object.create创建</li>
+</ul>
+<pre><code class="language-js">    var P={name:1};
+    var n=Object.create(P)
+</code></pre>
+<ul>
+<li>打印一下结果</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://s1.ax1x.com/2020/09/17/wRLLtJ.png" alt="wRLLtJ.png" loading="lazy"></figure>
+<ul>
+<li>其他创建对象的方法就不一一列举了，有兴趣的可参考<a href="https://juejin.im/post/6844904159339085832">《创建对象的几种方式》</a></li>
+</ul>
+<h2 id="原型-构造函数-实例-原型链">原型、构造函数、实例、原型链</h2>
+<ul>
+<li>先看图</li>
+</ul>
+<figure data-type="image" tabindex="2"><img src="https://s1.ax1x.com/2020/09/17/w2zC4g.png" alt="w2zC4g.png" loading="lazy"></figure>
+<ul>
+<li>再上代码：</li>
+</ul>
+<pre><code class="language-js">    //字面量创建
+    var o1={name:'tom'}
+    var o2=new Object({name:'bob'});
+
+    //构造函数
+    var M=function(name){
+        this.name=name
+    }
+    var o3=new M('tom');
+
+    //object.create
+    var p={name:'tom'};
+    var o4=Object.create(p)
+</code></pre>
+<ul>
+<li>
+<p>任何一个函数，只要被<strong>new</strong>了以后，就是构造函数，而<strong>new</strong>出来的被称之为<strong>实例</strong>。任何函数都可以当作构造函数。</p>
+</li>
+<li>
+<p>函数中都有一个<strong>prototype</strong>属性，申明一个函数时候就会有个<strong>prototype</strong>属性，这个属性会初始化一个空对象，也就是原型对象。</p>
+</li>
+<li>
+<p>原型对象中会有一个构造器:<strong>constructor</strong>，它默认会指向你申明的那个函数。结合上面写的创建对象的例子以及结合关系图验证一下：</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="3"><img src="https://s1.ax1x.com/2020/09/17/wWp3Zt.png" alt="wWp3Zt.png" loading="lazy"></figure>
+<ul>
+<li>
+<p>可以看到结果：M.prototype.constructor==M结果为<strong>true</strong>,也就验证了上面关系图。</p>
+</li>
+<li>
+<p>再次验证一下实例与他们的关系：</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="4"><a href="https://imgchr.com/i/wW9dfO"><img src="https://s1.ax1x.com/2020/09/17/wW9dfO.png" alt="wW9dfO.png" loading="lazy"></a></figure>
+<h3 id="原型对象存在的作用">原型对象存在的作用</h3>
+<ul>
+<li>先上例子</li>
+</ul>
+<pre><code class="language-js">   function Person(name,age){
        this.name=name;
        this.age=age;
        this.eat=function(){
            console.log(age+&quot;岁的&quot;+name+&quot;在吃饭&quot;)
        }
    };
-
    let Tom=new Person(&quot;Tom&quot;,24);
    let Bob=new Person(&quot;Tom&quot;,24);
-   
    console.log(Tom.eat===Bob.eat);  //flase
 </code></pre>
 <ul>
 <li>
 <p>可以看到对于同一个函数，new出来的实例，都会开出新的一块堆区,所以例子中Tom和Bob的<strong>eat</strong>是不同的。<br>
-虽然拥有自己的的东西(比如房子，车子)是很好的，但它也有不好的地方，毕竟一共就那么大的地方(内存)，你要<br>
-一直建立房子，会导致地方不足(内存不足)。</p>
+虽然拥有自己的的东西(比如房子，车子)是很好的，但它也有不好的地方，毕竟一共就那么大的地方(内存)，你要  一直建立房子，会导致地方不足(内存不足)。</p>
 </li>
 <li>
-<p>所以要想个方法，建立共享库的的对象(例如把楼房建高),这样就可以在需要的时候调用一个类似共享库的对象(社区)，让实例能沿着某个线索找到它的归处。这个线索就是<strong>原型链(prototype)</strong></p>
+<p>所以要想个方法，建立共享库的的对象(例如把楼房建高),这样就可以在需要的时候调用一个类似共享库的对象(社区)，让实例能沿着某个线索找到它的归处。</p>
 </li>
 </ul>
-<pre><code class="language-js">
-    function Person(name,age){
+<pre><code class="language-js">    function Person(name,age){
         this.name=name;
         this.age=age;
     };
@@ -142,35 +209,51 @@
    let Bob=new Person(&quot;Tom&quot;,24);
 
    console.log(Tom.eat===Bob.eat); //true
-
 </code></pre>
-<h2 id="prototype是什么">prototype是什么？</h2>
 <ul>
-<li>看图</li>
+<li>当我们访问一个对象的属性时，如果这个对象内部不存在这个属性，那么它就会去它的原型对象里找这个属性，这个原型对象又 会有自己的原型，于是就这样一直找下去，也就是原型链的概念。原型链的镜头就是<strong>Object.prototype</strong></li>
 </ul>
-<figure data-type="image" tabindex="1"><img src="https://s2.ax1x.com/2019/07/18/ZXsADU.png" alt="图解prototype" loading="lazy"></figure>
+<h2 id="instanceof的原理">instanceof的原理</h2>
 <ul>
-<li>
-<p>js说，我好寂寞，因为js本源是空的，即为null。</p>
-</li>
-<li>
-<p>js说，要有神，所以它通过万能术 <strong>_ proto _</strong> 产生了No1号神，即:<strong>No1._ proto _=null</strong>。</p>
-</li>
-<li>
-<p>js说，神你要有自己的想法啊，所以神自己想了个办法，根据自己的原型<strong>prototype</strong>创建了对象；<strong>Object</strong>，即<strong>Object.prototype==No1;No1._ proto _=null</strong>。于是我们把<strong>prototype</strong>叫做原型，就好比<strong>Object</strong>的原型是神，男人的原型就是人类一样。同时 <strong>_ proto _</strong> 叫做原型链，毕竟有了 <strong>_ proto _</strong> ,对象、神、js之间才有了联系，这时候<strong>Object.prototype._ proto _=null</strong>。</p>
-</li>
-<li>
-<p>js说，神你要有更多的想法啊，我把万能术 <strong>_ proto  _</strong> 都借你用了。所以神根据 <strong>Object</strong>,使用 <strong>_ proto _</strong> 做了个机器No2,即：<strong>No2._ proto _=No1</strong>,并规定所有东西，通过 <strong>_ proto _</strong> 可以连接机器，再找到自己包括<strong>Object</strong>也是，于是<strong>Object成为了所以对象的原型</strong>，<strong>Object. _ proto  _ ._ proto _==No1</strong>,然后 <strong>String</strong>、<strong>Numer</strong>、<strong>Boolean</strong>、<strong>Array</strong>这些物种也是如此。</p>
-</li>
+<li>instanceof 可以正确的判断对象的类型，因为内部机制是通过判断对象的原型链中是不是能找到类型的 prototype</li>
 </ul>
-<p>js说，神你的机器好厉害，你的机器能不能做出更多的机器啊？神咧嘴一笑:你通过万能术创造了我，我通过原型创造了对象，如此，那我造一个机器 <strong>Function</strong> ,<strong>function.prototype == No2, function._ proto_=No2</strong>,即：<strong>function。prototype == function. _ proto_</strong>;这样No2就成了造机器的机器，他负责管理<strong>String</strong>、<strong>Numer</strong>、<strong>Boolean</strong>、<strong>Array</strong>这几个。</p>
-<ul>
-<li>最后，说到底我们就很容易理解那幅图，并比较了解下面的公式了。</li>
-</ul>
-<pre><code class="language-js">    Object._proto_ = Function.prototype;
-    Function.prototype._proto_ = Object.prototype;
-    Object.prototype._proto = null
+<figure data-type="image" tabindex="5"><img src="https://s1.ax1x.com/2020/09/17/wWAKt1.png" alt="wWAKt1.png" loading="lazy"></figure>
+<pre><code class="language-js">    console.log([] instanceof Array);                    // true
+    console.log(function(){} instanceof Function);       // true
+    console.log({} instanceof Object);                   // true  
 </code></pre>
+<h2 id="new运算符中都干了什么">new运算符中都干了什么</h2>
+<ul>
+<li>
+<p>创建一个简单空对象</p>
+</li>
+<li>
+<p>链接该对象到另一个对象（原型链）</p>
+</li>
+<li>
+<p>将步骤1新创建的对象作为this的上下文</p>
+</li>
+<li>
+<p>如果该函数没有返回对象，则返回this</p>
+</li>
+<li>
+<p>如果return则返回return的值</p>
+</li>
+</ul>
+<pre><code class="language-js">    var new2=function(func){
+        var o=Object.create(func.prototype);
+        var k=func.call(o);
+        if(typeof k =='object'){
+            return k
+        }else{
+            return o
+        }
+    }
+</code></pre>
+<h2 id="总结">总结</h2>
+<blockquote>
+<p>如有错误，欢迎指正，如果对你有帮助，记得点赞收藏！</p>
+</blockquote>
 
             </div>
           </article>
@@ -181,9 +264,9 @@
               <div class="next">
                 下一篇
               </div>
-              <a href="https://lonjinup.github.io/post/javascript-zhong-this-zhi-xiang-yi-ji-gai-bian-this-zhi-xiang">
+              <a href="https://lonjinup.github.io/post/jsrenwu">
                 <h3 class="post-title">
-                  JavaScript中this指向以及改变this指向
+                  js的执行机制(宏任务，微任务)
                 </h3>
               </a>
             </div>
@@ -324,23 +407,23 @@
     </div>
     <div class="row">
       
-        <a href="https://lonjinup.github.io/tag/su-x11Ukj" class="badge ">
+        <a href="https://lonjinup.github.io/tag/su-x11Ukj" class="badge success">
           JavaScript
         </a>
       
-        <a href="https://lonjinup.github.io/tag/ulDZ9tfIn" class="badge warning">
+        <a href="https://lonjinup.github.io/tag/ulDZ9tfIn" class="badge secondary">
           ES6
         </a>
       
-        <a href="https://lonjinup.github.io/tag/D-FxeeuIa" class="badge secondary">
+        <a href="https://lonjinup.github.io/tag/D-FxeeuIa" class="badge ">
           React
         </a>
       
-        <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="badge warning">
+        <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="badge secondary">
           VUE
         </a>
       
-        <a href="https://lonjinup.github.io/tag/vWMtMYt9m" class="badge secondary">
+        <a href="https://lonjinup.github.io/tag/vWMtMYt9m" class="badge ">
           工具/教程
         </a>
       
