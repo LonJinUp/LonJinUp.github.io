@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>【ES6】class类 | 陇锦</title>
+<title>陇锦</title>
 <meta name="description" content="记录学习 记录生活">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -15,12 +15,6 @@
 <link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
 
 
-  
-    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
-  
-
-  
-
 <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
 
 
@@ -29,7 +23,6 @@
 
   </head>
   <body>
-  
     <nav class="navbar border fixed split-nav">
   <div class="nav-brand">
     <h3><a href="https://lonjinup.github.io">陇锦</a></h3>
@@ -83,172 +76,49 @@
   </div>
 </nav>
 
+
     <div id="top" class="row site">
       <div class="sm-12 md-8 col">
         <div class="paper">
-          <article class="article">
-            <h1>【ES6】class类</h1>
-            <p class="article-meta">
-              2020-05-22
-              
-                <a href="https://lonjinup.github.io/tag/ulDZ9tfIn" class="badge ">
-                  ES6
-                </a>
-              
-            </p>
-            
-              <img src="https://lonjinup.github.io/post-images/es6-class-lei.jpg" alt="【ES6】class类">
-            
-            <div class="post-content">
-              <h2 id="class">class</h2>
-<h3 id="es5中创建对象以及继承">ES5中创建对象以及继承</h3>
-<pre><code class="language-js">    function Car(options){
-        this.title=options.title;
-    };
-
-    Car.prototype.drive=function(){
-        return 'run'
-    };
-
-    const car =new Car({title:'BMW'});
-
-    console.log(car); 
-
-    console.log(car.drive());
-
-</code></pre>
-<h4 id="继承">继承</h4>
-<pre><code class="language-js">   function Toyota(options){
-       
-         this.color=options.color;
-    };
-
-    const toyota=new Toyota({color:'RED',title:'hello'});
-
-    console.log(toyota.title)//undefined
-
-   
-
-</code></pre>
-<ul>
-<li>因为title没有定义，所以拿不到,需要借助<strong>Call</strong></li>
-</ul>
-<pre><code class="language-js">
-    function Toyota(options){
-       Car.call(this,options)
-       this.color=options.color;
-   };
-   const toyota=new Toyota({color:'RED',title:'hello'});
-
-   console.log(toyota)；
-
-
-</code></pre>
-<ul>
-<li>如果想继承上面中drive方法</li>
-</ul>
-<pre><code class="language-js">
-    function Toyota(options){
-       Car.call(this,options)
-       this.color=options.color;
-    };
-
-   Toyota.prototype=Object.create(Car.prototype);
-   
-   Toyota.prototype.constructor=Toyota;
-
-   const toyota=new Toyota({color:'RED',title:'hello'});
-
-   console.log(toyota.drive());
-
-</code></pre>
-<h3 id="es6中创建对象以及继承">ES6中创建对象以及继承</h3>
-<pre><code class="language-js">    class Car{
-        //构造函数
-        constructor({title}){
-            this.title=title
-        }
-       drive(){
-           return 'runing'
-       }
-    };
-
-    const car=new Car({title:'bmw'});
-
-    console.log(car)
-</code></pre>
-<h3 id="继承-2">继承</h3>
-<pre><code class="language-js">   class Toyota{
-       constructor(e){
-           
-            this.color=e.color
-       };
-
-   };
-
-   const toyota=new Toyota({color:&quot;red&quot;,title:'hello'});
-   console.log(toyota);
-
-</code></pre>
-<ul>
-<li>但接收不到title</li>
-</ul>
-<pre><code class="language-js">   class Toyota{
-       constructor(e){
-            super(e);//接收器
-            this.color=e.color
-       };
-
-   }
-   const toyota=new Toyota({color:&quot;red&quot;,title:'hello'});
-   console.log(toyota);//Uncaught SyntaxError: 'super' keyword unexpected here
-
-</code></pre>
-<ul>
-<li>上面因为因为没有父级，没有告诉它继承于谁</li>
-</ul>
-<pre><code class="language-js">    class Toyota extends Car{
-       constructor(e){
-            super(e);//接收器
-            this.color=e.color
-       };
- 
-    }；
-
-   const toyota=new Toyota({color:&quot;red&quot;,title:'hello'});
-   
-   console.log(toyota)
-
-</code></pre>
-
-            </div>
-          </article>
-        </div>
-        <div class="paper" data-aos="fade-in">
           
-            <div class="next-post">
-              <div class="next">
-                下一篇
-              </div>
-              <a href="https://lonjinup.github.io/post/01-react">
-                <h3 class="post-title">
-                  【01】React环境搭建以及文件目录介绍
-                </h3>
-              </a>
-            </div>
-          
+  <article class="article">
+    <h2 class="article-title">
+      <a href="https://lonjinup.github.io/post/javascript-zhong-this-zhi-xiang-yi-ji-gai-bian-this-zhi-xiang">JavaScript中this指向以及改变this指向</a>
+    </h2>
+    <p class="article-meta">
+      2019-07-23
+      
+        <a href="https://lonjinup.github.io/tag/su-x11Ukj" class="badge secondary">
+          JavaScript
+        </a>
+      
+    </p>
+    <p class="text-lead">
+      
+    </p>
+    <div class="row">
+      <a href="https://lonjinup.github.io/post/javascript-zhong-this-zhi-xiang-yi-ji-gai-bian-this-zhi-xiang" class="readmore-link">
+        <button>
+          Read More
+        </button>
+      </a>
+    </div>
+  </article>
+
+
         </div>
         
-          
-            <div class="paper" data-aos="fade-in">
-              <div id="gitalk-container"></div>
-            </div>
-          
+        <div class="row flex-edges">
+  
+    <a href="https://lonjinup.github.io/" class="paper-btn">
+      上一页
+    </a>
+  
+  
+</div>
 
-          
-        
       </div>
-
+      
       <div class="sm-12 md-4 col sidebar">
   <div class="paper info-container">
     <img src="https://lonjinup.github.io/images/avatar.png?v=1600709865480" class="no-responsive avatar">
@@ -381,19 +251,19 @@
           JavaScript
         </a>
       
-        <a href="https://lonjinup.github.io/tag/ulDZ9tfIn" class="badge success">
+        <a href="https://lonjinup.github.io/tag/ulDZ9tfIn" class="badge ">
           ES6
         </a>
       
-        <a href="https://lonjinup.github.io/tag/D-FxeeuIa" class="badge ">
+        <a href="https://lonjinup.github.io/tag/D-FxeeuIa" class="badge warning">
           React
         </a>
       
-        <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="badge secondary">
+        <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="badge ">
           VUE
         </a>
       
-        <a href="https://lonjinup.github.io/tag/vWMtMYt9m" class="badge secondary">
+        <a href="https://lonjinup.github.io/tag/vWMtMYt9m" class="badge ">
           工具/教程
         </a>
       
@@ -404,9 +274,7 @@
   </div>
 </div>
 
-
     </div>
-
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 
 <script type="application/javascript">
@@ -416,29 +284,6 @@ AOS.init();
 hljs.initHighlightingOnLoad()
 
 </script>
-
-
-
-  
-    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-    <script>
-
-      var gitalk = new Gitalk({
-        clientID: 'db2f457cc3883b93aadf',
-        clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
-        repo: 'lonjinup.github.io',
-        owner: 'LonJinUp',
-        admin: ['LonJinUp'],
-        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
-        distractionFreeMode: false  // Facebook-like distraction free mode
-      })
-
-      gitalk.render('gitalk-container')
-
-    </script>
-  
-
-  
 
 
 
