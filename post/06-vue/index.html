@@ -7,10 +7,9 @@
 <meta name="description" content="记录学习 记录生活">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1600837209285">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1600851950057">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
 
@@ -21,90 +20,86 @@
 
   
 
-<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
 
 <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-178778387-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-178778387-1');
-</script>
 
 
   </head>
   <body>
-  
-    <nav class="navbar border fixed split-nav">
-  <div class="nav-brand">
-    <h3><a href="https://lonjinup.github.io">陇锦</a></h3>
-  </div>
-  <div class="collapsible">
-    <input id="collapsible1" type="checkbox" name="collapsible1">
-    <button>
-      <label for="collapsible1">
-        <div class="bar1"></div>
-        <div class="bar2"></div>
-        <div class="bar3"></div>
-      </label>
-    </button>
-    <div class="collapsible-body">
-      <ul class="inline">
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://lonjinup.github.io">
+        <img src="https://lonjinup.github.io/images/avatar.png?v=1600851950057" class="site-logo">
+        <h1 class="site-title">陇锦</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
         
-          <li>
-            
-              <a href="/" class="menu">
-                首页
-              </a>
-            
-          </li>
+          <a href="/" class="site-nav">
+            首页
+          </a>
         
-          <li>
-            
-              <a href="/archives" class="menu">
-                归档
-              </a>
-            
-          </li>
+      
         
-          <li>
-            
-              <a href="/tags" class="menu">
-                标签
-              </a>
-            
-          </li>
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
         
-          <li>
-            
-              <a href="/post/about" class="menu">
-                关于
-              </a>
-            
-          </li>
+      
         
-      </ul>
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
     </div>
   </div>
-</nav>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记录学习 记录生活
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a> | <a class="rss" href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
 
-    <div id="top" class="row site">
-      <div class="sm-12 md-8 col">
-        <div class="paper">
-          <article class="article">
-            <h1>06-Vue中列表渲染</h1>
-            <p class="article-meta">
-              2019-08-05
-              
-                <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="badge warning">
-                  VUE
-                </a>
-              
-            </p>
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">06-Vue中列表渲染</h2>
+            <div class="post-date">2019-08-05</div>
             
             <div class="post-content">
               <h1 id="列表渲染">列表渲染</h1>
@@ -345,193 +340,38 @@ filter()  <strong>对数组中的每一项运行给定函数，该函数会返�
 </code></pre>
 
             </div>
-          </article>
-        </div>
-        <div class="paper" data-aos="fade-in">
-          
-            <div class="next-post">
-              <div class="next">
-                下一篇
+            
+              <div class="tag-container">
+                
+                  <a href="https://lonjinup.github.io/Y15gD7toT" class="tag">
+                    VUE
+                  </a>
+                
               </div>
-              <a href="https://lonjinup.github.io/post/05-vue">
-                <h3 class="post-title">
-                  05-Vue中条件渲染
-                </h3>
-              </a>
-            </div>
-          
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://lonjinup.github.io/post/05-vue">
+                  <h3 class="post-title">
+                    05-Vue中条件渲染
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
         </div>
-        
-          
-            <div class="paper" data-aos="fade-in">
-              <div id="gitalk-container"></div>
-            </div>
-          
-
-          
-        
       </div>
-
-      <div class="sm-12 md-4 col sidebar">
-  <div class="paper info-container">
-    <img src="https://lonjinup.github.io/images/avatar.png?v=1600837209285" class="no-responsive avatar">
-    <div class="text-muted">记录学习 记录生活</div>
-    <div class="social-container">
-      
-        
-      
-        
-      
-        
-      
-        
-          <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
-            <i class="fab fa-zhihu"></i>
-          </a>
-        
-      
-        
-      
-    </div>
-  </div>
-  <div class="paper">
-    <div class="sidebar-title">
-      最新文章
-    </div>
-    <div class="row">
-      <ul>
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/jsjc">面向对象中的继承</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/promise"> 异步编程方案之Promise</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/yxl">彻底理解原型 原型链</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/jsrenwu">js的执行机制(宏任务，微任务)</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/es6-class-lei">【ES6】class类</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/01-react">【01】React环境搭建以及文件目录介绍</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/es6-jie-gou-shu-zu-dui-xiang">【ES6】解构(数组-对象)</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/es6-zhan-kai-yun-suan-fu">【ES6】展开运算符</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/es6-xi-lie-han-shu-can-shu-mo-ren-zhi">【ES6系列】函数参数默认值</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/es6-xi-lie-zeng-qiang-dui-xiang-zi-mian-liang">【ES6系列】增强对象字面量</a>
-            </li>
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-      </ul>
-    </div>
-  </div>
-  <div class="paper">
-    <div class="sidebar-title">
-      标签列表
-    </div>
-    <div class="row">
-      
-        <a href="https://lonjinup.github.io/tag/su-x11Ukj" class="badge ">
-          JavaScript
-        </a>
-      
-        <a href="https://lonjinup.github.io/tag/ulDZ9tfIn" class="badge secondary">
-          ES6
-        </a>
-      
-        <a href="https://lonjinup.github.io/tag/D-FxeeuIa" class="badge ">
-          React
-        </a>
-      
-        <a href="https://lonjinup.github.io/tag/Y15gD7toT" class="badge secondary">
-          VUE
-        </a>
-      
-        <a href="https://lonjinup.github.io/tag/vWMtMYt9m" class="badge secondary">
-          工具/教程
-        </a>
-      
-    </div>
-  </div>
-  <div class="paper">
-    Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a> | <a class="rss" href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a>
-  </div>
-</div>
-
-
     </div>
 
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
@@ -541,6 +381,13 @@ filter()  <strong>对数组中的每一项运行给定函数，该函数会返�
 AOS.init();
 
 hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
 
 </script>
 

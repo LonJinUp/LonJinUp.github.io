@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>关于 | 陇锦</title>
+<title>工具/教程 | 陇锦</title>
 <meta name="description" content="记录学习 记录生活">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -13,12 +13,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
 
-
-  
-    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
-  
-
-  
 
 
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -97,38 +91,33 @@
 
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
-          <div class="post-detail">
-            <h2 class="post-title">关于</h2>
-            <div class="post-date">2019-01-25</div>
-            
-            <div class="post-content">
-              <h2 id="个人介绍">👦个人介绍</h2>
-<ul>
-<li>96年前端切图仔，坐标北京。</li>
-</ul>
-<h2 id="联系方式">📞联系方式</h2>
-<ul>
-<li>Email：LonJin_up@163.com</li>
-<li>WeChat：ljsw8686</li>
-</ul>
-<h2 id="写作目的">💪写作目的</h2>
-<ul>
-<li>方便自己快速查阅知识点，顺便督促自己每周进步一点点...</li>
-</ul>
-
-            </div>
-            
-            
-
-            
+          <h2 class="current-tag">标签: 工具/教程</h2>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://lonjinup.github.io/post/shadowsocks">
+                  <h2 class="post-title">搭建shadowsocks服务</h2>
+                </a>
+                <div class="post-date">
+                  2019-08-01
+                </div>
+                <div class="post-abstract">
+                  
+                </div>
+              </div>
               
-                <div id="gitalk-container" data-aos="fade-in"></div>
+                <a class="right" href="https://lonjinup.github.io/post/shadowsocks">
+                  <div class="feature-container" style="background-image: url('https://lonjinup.github.io/post-images/shadowsocks.png')">
+                  </div>
+                </a>
               
+            </article>
+          
 
-              
-            
-
-          </div>
+          <div class="pagination-container">
+  
+  
+</div>
 
         </div>
       </div>
@@ -150,29 +139,6 @@ var app = new Vue({
 })
 
 </script>
-
-
-
-  
-    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-    <script>
-
-      var gitalk = new Gitalk({
-        clientID: 'db2f457cc3883b93aadf',
-        clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
-        repo: 'lonjinup.github.io',
-        owner: 'LonJinUp',
-        admin: ['LonJinUp'],
-        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
-        distractionFreeMode: false  // Facebook-like distraction free mode
-      })
-
-      gitalk.render('gitalk-container')
-
-    </script>
-  
-
-  
 
 
 
