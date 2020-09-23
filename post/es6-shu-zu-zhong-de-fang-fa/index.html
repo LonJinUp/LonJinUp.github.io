@@ -7,9 +7,10 @@
 <meta name="description" content="记录学习 记录生活">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1600855867032">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1600855712152">
+<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
 
@@ -20,86 +21,90 @@
 
   
 
-
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
 
 <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-178778387-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-178778387-1');
+</script>
 
 
   </head>
   <body>
-    <div id="app" class="main">
-
-      <div class="sidebar" :class="{ 'full-height': menuVisible }">
-  <div class="top-container" data-aos="fade-right">
-    <div class="top-header-container">
-      <a class="site-title-container" href="https://lonjinup.github.io">
-        <img src="https://lonjinup.github.io/images/avatar.png?v=1600855712152" class="site-logo">
-        <h1 class="site-title">陇锦</h1>
-      </a>
-      <div class="menu-btn" @click="menuVisible = !menuVisible">
-        <div class="line"></div>
-      </div>
-    </div>
-    <div>
-      
+  
+    <nav class="navbar border fixed split-nav">
+  <div class="nav-brand">
+    <h3><a href="https://lonjinup.github.io">陇锦</a></h3>
+  </div>
+  <div class="collapsible">
+    <input id="collapsible1" type="checkbox" name="collapsible1">
+    <button>
+      <label for="collapsible1">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </label>
+    </button>
+    <div class="collapsible-body">
+      <ul class="inline">
         
-          <a href="/" class="site-nav">
-            首页
-          </a>
+          <li>
+            
+              <a href="/" class="menu">
+                首页
+              </a>
+            
+          </li>
         
-      
+          <li>
+            
+              <a href="/archives" class="menu">
+                归档
+              </a>
+            
+          </li>
         
-          <a href="/archives" class="site-nav">
-            归档
-          </a>
+          <li>
+            
+              <a href="/tags" class="menu">
+                标签
+              </a>
+            
+          </li>
         
-      
+          <li>
+            
+              <a href="/post/about" class="menu">
+                关于
+              </a>
+            
+          </li>
         
-          <a href="/tags" class="site-nav">
-            标签
-          </a>
-        
-      
-        
-          <a href="/post/about" class="site-nav">
-            关于
-          </a>
-        
-      
+      </ul>
     </div>
   </div>
-  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
-    <div class="social-container">
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    </div>
-    <div class="site-description">
-      记录学习 记录生活
-    </div>
-    <div class="site-footer">
-      Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a> | <a class="rss" href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a>
-    </div>
-  </div>
-</div>
+</nav>
 
-
-      <div class="main-container">
-        <div class="content-container" data-aos="fade-up">
-          <div class="post-detail">
-            <h2 class="post-title">【ES6系列】数组新增的方法</h2>
-            <div class="post-date">2019-09-19</div>
+    <div id="top" class="row site">
+      <div class="sm-12 md-8 col">
+        <div class="paper">
+          <article class="article">
+            <h1>【ES6系列】数组新增的方法</h1>
+            <p class="article-meta">
+              2019-09-19
+              
+                <a href="https://lonjinup.github.io/ulDZ9tfIn/" class="badge warning">
+                  ES6
+                </a>
+              
+            </p>
             
             <div class="post-content">
               <h1 id="数组方法">数组方法</h1>
@@ -487,38 +492,183 @@
 </code></pre>
 
             </div>
-            
-              <div class="tag-container">
-                
-                  <a href="https://lonjinup.github.io/ulDZ9tfIn/" class="tag">
-                    ES6
-                  </a>
-                
-              </div>
-            
-            
-              <div class="next-post">
-                <div class="next">下一篇</div>
-                <a href="https://lonjinup.github.io/post/shadowsocks/">
-                  <h3 class="post-title">
-                    搭建shadowsocks服务
-                  </h3>
-                </a>
-              </div>
-            
-
-            
-              
-                <div id="gitalk-container" data-aos="fade-in"></div>
-              
-
-              
-            
-
-          </div>
-
+          </article>
         </div>
+        <div class="paper" data-aos="fade-in">
+          
+            <div class="next-post">
+              <div class="next">
+                下一篇
+              </div>
+              <a href="https://lonjinup.github.io/post/shadowsocks/">
+                <h3 class="post-title">
+                  搭建shadowsocks服务
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+        
+          
+            <div class="paper" data-aos="fade-in">
+              <div id="gitalk-container"></div>
+            </div>
+          
+
+          
+        
       </div>
+
+      <div class="sm-12 md-4 col sidebar">
+  <div class="paper info-container">
+    <img src="https://lonjinup.github.io/images/avatar.png?v=1600855867032" class="no-responsive avatar">
+    <div class="text-muted">记录学习 记录生活</div>
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+          <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+            <i class="fab fa-zhihu"></i>
+          </a>
+        
+      
+        
+      
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      最新文章
+    </div>
+    <div class="row">
+      <ul>
+        
+          
+            <li>
+              <a href="https://lonjinup.github.io/post/jsjc/">面向对象中的继承</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://lonjinup.github.io/post/promise/"> 异步编程方案之Promise</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://lonjinup.github.io/post/yxl/">彻底理解原型 原型链</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://lonjinup.github.io/post/enentloop/">JavaScript中的event loop和宏任务、微任务</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://lonjinup.github.io/post/jsfdoujieliu/">js中防抖与节流</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://lonjinup.github.io/post/es6-class-lei/">【ES6】class类</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://lonjinup.github.io/post/xcxzb/">小程序官方直播插件</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://lonjinup.github.io/post/01-react/">【01】React环境搭建以及文件目录介绍</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://lonjinup.github.io/post/es6-jie-gou-shu-zu-dui-xiang/">【ES6】解构(数组-对象)</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://lonjinup.github.io/post/es6-zhan-kai-yun-suan-fu/">【ES6】展开运算符</a>
+            </li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      标签列表
+    </div>
+    <div class="row">
+      
+        <a href="https://lonjinup.github.io/su-x11Ukj/" class="badge secondary">
+          JavaScript
+        </a>
+      
+        <a href="https://lonjinup.github.io/ulDZ9tfIn/" class="badge secondary">
+          ES6
+        </a>
+      
+        <a href="https://lonjinup.github.io/qtoGOVHJb/" class="badge ">
+          小程序
+        </a>
+      
+        <a href="https://lonjinup.github.io/D-FxeeuIa/" class="badge secondary">
+          React
+        </a>
+      
+        <a href="https://lonjinup.github.io/vWMtMYt9m/" class="badge ">
+          工具/教程
+        </a>
+      
+        <a href="https://lonjinup.github.io/1Y5ph1lwg/" class="badge secondary">
+          HTML CSS
+        </a>
+      
+    </div>
+  </div>
+  <div class="paper">
+    Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a> | <a class="rss" href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a>
+  </div>
+</div>
+
+
     </div>
 
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
@@ -528,13 +678,6 @@
 AOS.init();
 
 hljs.initHighlightingOnLoad()
-
-var app = new Vue({
-  el: '#app',
-  data: {
-    menuVisible: false,
-  },
-})
 
 </script>
 
