@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>小程序官方直播插件 | 陇锦</title>
+<meta name="description" content="记录学习 记录生活">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1600855712152">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://lonjinup.github.io">
+        <img src="https://lonjinup.github.io/images/avatar.png?v=1600855712152" class="site-logo">
+        <h1 class="site-title">陇锦</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记录学习 记录生活
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a> | <a class="rss" href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">小程序官方直播插件</h2>
+            <div class="post-date">2020-05-14</div>
+            
+            <div class="post-content">
+              <blockquote>
+<p>关于直播，可谓是2020年很火爆的话题了，正好赶上肺炎，不能出门，娱乐方式极少，大大推动了直播。  同时最近直播也新闻不断：罗永浩抖音直播带货，直播一姐卖火箭....<br>
+可见今年直播行业的火爆。好多公司都有需求开发小程序直播。</p>
+</blockquote>
+<h2 id="小程序直播">小程序直播</h2>
+<ul>
+<li>
+<p>如今直播平台很多，抖音直播，快手直播，虎牙直播，b站直播，各大平台竞争也是很激烈。<br>
+短视频也是，今年微信推出了视频号，不过还在内测阶段，小程序也推出了新的直播方案。可见马爸爸也想在直播和短视频行业分一杯羹。毋庸置疑，微信几乎成为了人们必不可少的通讯工具，<br>
+有微信的用户基础，小程序直播的优势就展现出来了。</p>
+</li>
+<li>
+<p>如果公司需求不是特别大，而且工期有限，时间有限，就可以尝试一下微信小程序直播组件，开箱即用，开通要求为接入微信支付，且90天内有一笔交易。这个门槛还是非常低的。</p>
+</li>
+</ul>
+<h3 id="为什么要用小程序直播组件">为什么要用小程序直播组件</h3>
+<ul>
+<li>
+<p>开发难度低，成本少，见效快：相对于之前推出的小程序直播开发，这次的直播从文档中可以看出，可以说是傻瓜式开发，因为微信已经帮忙处理的绝大部分东西。所以开发和升级周期是非常短的。</p>
+</li>
+<li>
+<p>裂变快：虽然说现在抖音快手占据了短视频直播半边天，但是微信的流量也不是盖的，毕竟日活跃摆在那里。商家可以策划活动，在朋友圈中展开推广裂变，效果不比其他直播平台差。 我们可以想一下，<br>
+xx商户，在小程序开启了直播--&gt;直播间抽奖聚集人气（通过转发，分享快速裂变）--&gt;讲解商品，提高成交量。这样下来，流量以及成交量自然会提高。且在自己小程序直播。</p>
+</li>
+</ul>
+<h3 id="直播组件的使用">直播组件的使用</h3>
+<ul>
+<li>先放官网文档地址 <a href="https://developers.weixin.qq.com/miniprogram/dev/framework/liveplayer/live-player-plugin.html">官方文档</a></li>
+</ul>
+<h4 id="配置直播">配置直播</h4>
+<ul>
+<li>直接在<strong>app.json</strong>中引入插件</li>
+</ul>
+<pre><code class="language-js">    &quot;plugins&quot;: {
+        &quot;live-player-plugin&quot;: {
+            &quot;version&quot;: &quot;1.0.4&quot;, // 注意填写该直播组件最新版本号，微信开发者工具调试时可获取最新版本号（复制时请去掉注释）
+            &quot;provider&quot;: &quot;wx2b03c6e691cd7370&quot; // 必须填该直播组件appid，该示例值即为直播组件appid（复制时请去掉注释）
+        }
+    }
+
+</code></pre>
+<ul>
+<li>进入直播间</li>
+</ul>
+<pre><code class="language-js">    
+    live:function(){
+        let roomId = [直播房间id] // 房间号
+        let customParams = { path: 'pages/index/index', pid: 1 } // 开发者在直播间页面路径上携带自定义参数（如示例中的path和pid参数），后续可以在分享卡片链接和跳转至商详页时获取，详见【获取自定义参数】、【直播间到商详页面携带参数】章节
+        this.setData({
+            roomId,
+            customParams: encodeURIComponent(JSON.stringify(customParams))
+        })
+    }
+
+</code></pre>
+<h4 id="创建直播">创建直播</h4>
+<ul>
+<li>
+<p>问题来了，在哪创建直播间啊？看图即可</p>
+</li>
+<li>
+<p>首先登录微信小程序后台，找到<strong>直播</strong>。</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://s1.ax1x.com/2020/04/08/GW71m9.png" alt="登录小程序" loading="lazy"></figure>
+<ul>
+<li>创建直播</li>
+</ul>
+<figure data-type="image" tabindex="2"><img src="https://s1.ax1x.com/2020/04/08/GWTqLd.png" alt="登录小程序" loading="lazy"></figure>
+<ul>
+<li>选择直播形式</li>
+</ul>
+<figure data-type="image" tabindex="3"><img src="https://s1.ax1x.com/2020/04/08/GWHVnH.png" alt="登录小程序" loading="lazy"></figure>
+<ul>
+<li>填写基本信息</li>
+</ul>
+<figure data-type="image" tabindex="4"><img src="https://s1.ax1x.com/2020/04/08/GW7CQg.png" alt="登录小程序" loading="lazy"></figure>
+<ul>
+<li>配置直播间样式</li>
+</ul>
+<figure data-type="image" tabindex="5"><img src="https://s1.ax1x.com/2020/04/08/GW7mWT.png" alt="登录小程序" loading="lazy"></figure>
+<ul>
+<li>直播间样式</li>
+</ul>
+<figure data-type="image" tabindex="6"><img src="https://s1.ax1x.com/2020/04/08/GWTWZR.png" alt="登录小程序" loading="lazy"></figure>
+<ul>
+<li>好了，一个直播就创建完成了，此时你会得到一个房间号，在自己搭建的小程序后台上传一下房间号，即可观看直播。这种对于单商户平台极其友好，开发也非常省事省力。</li>
+</ul>
+<h4 id="添加商品">添加商品</h4>
+<ul>
+<li>后台建立商品库，填写相关参数即可。</li>
+</ul>
+<figure data-type="image" tabindex="7"><img src="https://s1.ax1x.com/2020/06/14/NSbfIg.png" alt="商品库" loading="lazy"></figure>
+<h3 id="推流直播">推流直播</h3>
+<ul>
+<li>看这篇文章<a href="https://developers.weixin.qq.com/community/business/doc/0004c270e4875041282a1cf605b40d">小程序推流配置</a></li>
+</ul>
+<h4 id="其他功能">其他功能</h4>
+<ul>
+<li>直播间还可以创建抽奖，优惠券，以及拉黑用户等功能。也可以在后台设置管理员进行管理。</li>
+</ul>
+<h2 id="结尾">结尾</h2>
+<blockquote>
+<p>体验了一下小程序直播组件，还是很不错的，无论推流直播还是用手机进行直播，效果还是很不错的，但是没有办法测试同时在线多少人会造成卡顿，这个微信也好像没有相关文档说明，期待微信后期的说明补充。</p>
+</blockquote>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://lonjinup.github.io/qtoGOVHJb/" class="tag">
+                    小程序
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://lonjinup.github.io/post/01-react/">
+                  <h3 class="post-title">
+                    【01】React环境搭建以及文件目录介绍
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'db2f457cc3883b93aadf',
+        clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+        repo: 'lonjinup.github.io',
+        owner: 'LonJinUp',
+        admin: ['LonJinUp'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>
