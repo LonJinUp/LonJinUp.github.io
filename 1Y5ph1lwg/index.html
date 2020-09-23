@@ -1,290 +1,161 @@
-<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" >
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 
 <title>HTML CSS | 陇锦</title>
-<meta name="description" content="记录学习 记录生活">
 
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1600855867032">
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1600870582019">
 
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
 
 
-<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
 
-
-<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-178778387-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-178778387-1');
-</script>
-
-
-  </head>
-  <body>
-    <nav class="navbar border fixed split-nav">
-  <div class="nav-brand">
-    <h3><a href="https://lonjinup.github.io">陇锦</a></h3>
-  </div>
-  <div class="collapsible">
-    <input id="collapsible1" type="checkbox" name="collapsible1">
-    <button>
-      <label for="collapsible1">
-        <div class="bar1"></div>
-        <div class="bar2"></div>
-        <div class="bar3"></div>
-      </label>
-    </button>
-    <div class="collapsible-body">
-      <ul class="inline">
-        
-          <li>
-            
-              <a href="/" class="menu">
-                首页
-              </a>
-            
-          </li>
-        
-          <li>
-            
-              <a href="/archives" class="menu">
-                归档
-              </a>
-            
-          </li>
-        
-          <li>
-            
-              <a href="/tags" class="menu">
-                标签
-              </a>
-            
-          </li>
-        
-          <li>
-            
-              <a href="/post/about" class="menu">
-                关于
-              </a>
-            
-          </li>
-        
-      </ul>
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <div class="main-content">
+        <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
     </div>
-  </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1600870582019" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
 </nav>
 
-    <div id="top" class="row site">
-      <div class="sm-12 md-8 col">
-        <div class="paper">
-          <h2 class="current-tag">标签: HTML CSS</h2>
-          
-  <article class="article">
-    <h2 class="article-title">
-      <a href="https://lonjinup.github.io/post/heiaimoshi/">两行代码为网页添加暗黑模式</a>
-    </h2>
-    <p class="article-meta">
-      2019-04-11
-      
-        <a href="https://lonjinup.github.io/1Y5ph1lwg/" class="badge ">
-          HTML CSS
-        </a>
-      
-    </p>
-    <p class="text-lead">
-      
-    </p>
-    <div class="row">
-      <a href="https://lonjinup.github.io/post/heiaimoshi/" class="readmore-link">
-        <button>
-          Read More
-        </button>
-      </a>
-    </div>
-  </article>
-
-
+        <div class="current-tag-container">
+            <h2 class="title gt-c-content-color-first">
+                #HTML CSS
+            </h2>
         </div>
-        <div class="row flex-edges">
-  
-  
+        <div class="post-list-container">
+    <div class="post-inner">
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://lonjinup.github.io/post/heiaimoshi/">
+                            <span class="post-title gt-c-content-color-first">两行代码为网页添加暗黑模式</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2019-04-11 ·
+                        </time>
+                        
+                            <a href="https://lonjinup.github.io/1Y5ph1lwg/" class="post-tag">
+                                # HTML CSS
+                            </a>
+                        
+                    </div>
+                </div>
+                
+            </div>
+        
+    </div>
+</div>
+        <div class="pagination-container">
+    
+    
 </div>
 
-      </div>
-      <div class="sm-12 md-4 col sidebar">
-  <div class="paper info-container">
-    <img src="https://lonjinup.github.io/images/avatar.png?v=1600855867032" class="no-responsive avatar">
-    <div class="text-muted">记录学习 记录生活</div>
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
     <div class="social-container">
-      
         
-      
+            
         
-      
+            
         
-      
+            
         
-          <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
-            <i class="fab fa-zhihu"></i>
-          </a>
+            
         
-      
+            
         
-      
+            
+        
     </div>
-  </div>
-  <div class="paper">
-    <div class="sidebar-title">
-      最新文章
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
     </div>
-    <div class="row">
-      <ul>
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/jsjc/">面向对象中的继承</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/promise/"> 异步编程方案之Promise</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/yxl/">彻底理解原型 原型链</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/enentloop/">JavaScript中的event loop和宏任务、微任务</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/jsfdoujieliu/">js中防抖与节流</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/es6-class-lei/">【ES6】class类</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/xcxzb/">小程序官方直播插件</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/01-react/">【01】React环境搭建以及文件目录介绍</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/es6-jie-gou-shu-zu-dui-xiang/">【ES6】解构(数组-对象)</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://lonjinup.github.io/post/es6-zhan-kai-yun-suan-fu/">【ES6】展开运算符</a>
-            </li>
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-      </ul>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
     </div>
-  </div>
-  <div class="paper">
-    <div class="sidebar-title">
-      标签列表
-    </div>
-    <div class="row">
-      
-        <a href="https://lonjinup.github.io/su-x11Ukj/" class="badge secondary">
-          JavaScript
-        </a>
-      
-        <a href="https://lonjinup.github.io/ulDZ9tfIn/" class="badge ">
-          ES6
-        </a>
-      
-        <a href="https://lonjinup.github.io/qtoGOVHJb/" class="badge ">
-          小程序
-        </a>
-      
-        <a href="https://lonjinup.github.io/D-FxeeuIa/" class="badge warning">
-          React
-        </a>
-      
-        <a href="https://lonjinup.github.io/vWMtMYt9m/" class="badge warning">
-          工具/教程
-        </a>
-      
-        <a href="https://lonjinup.github.io/1Y5ph1lwg/" class="badge success">
-          HTML CSS
-        </a>
-      
-    </div>
-  </div>
-  <div class="paper">
-    Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a> | <a class="rss" href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a>
-  </div>
 </div>
 
-    </div>
-
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-
-<script type="application/javascript">
-
-AOS.init();
-
-hljs.initHighlightingOnLoad()
-
+<script>
+  hljs.initHighlightingOnLoad()
 </script>
 
-
-
-
-  </body>
+    </div>
+</div>
+</body>
 </html>
