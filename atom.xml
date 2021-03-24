@@ -2,14 +2,411 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://lonjinup.github.io</id>
     <title>陇锦</title>
-    <updated>2020-09-23T14:16:25.168Z</updated>
+    <updated>2021-03-24T16:16:26.114Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://lonjinup.github.io"/>
     <link rel="self" href="https://lonjinup.github.io/atom.xml"/>
     <subtitle>记录学习 记录生活</subtitle>
     <logo>https://lonjinup.github.io/images/avatar.png</logo>
     <icon>https://lonjinup.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, 陇锦</rights>
+    <rights>All rights reserved 2021, 陇锦</rights>
+    <entry>
+        <title type="html"><![CDATA[2021/3月复习笔记]]></title>
+        <id>https://lonjinup.github.io/post/20213-yue-fu-xi-bi-ji/</id>
+        <link href="https://lonjinup.github.io/post/20213-yue-fu-xi-bi-ji/">
+        </link>
+        <updated>2021-03-24T16:15:05.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="20213月复习笔记">2021/3月复习笔记</h1>
+<h2 id="javascript">JavaScript</h2>
+<h3 id="数据类型">数据类型</h3>
+<blockquote>
+<p>介绍一下js中的数据类型以及值是如何存储的</p>
+</blockquote>
+<ul>
+<li>
+<p>JavaScript中一共有8种数据类型，其中基本数据类型有：Null、Undefined、Boolean、String、Number、Bigint、Symbol。<br>
+还有一种数据类型<strong>object</strong>：里面包含<strong>function</strong>、<strong>Array</strong>、<strong>Date</strong>等。</p>
+</li>
+<li>
+<p>基本数据类型保存在栈区中，占据空间小、大小固定。<br>
+引用数据类型保存在栈区和堆区，占据空间大，且大小不固定。引用数据类型在栈区中存放了指针，指针指向堆区的实际地址。当解释器寻找引用值时，会首先检索其在栈中的地址，取得地址后从堆中获得实体。</p>
+</li>
+</ul>
+<h3 id="js中数据类型判断">js中数据类型判断</h3>
+<blockquote>
+<p>说一说在js中判断数据类型的方法</p>
+</blockquote>
+<h4 id="typeof">typeof</h4>
+<ul>
+<li>typeof可以判断原始数据类型，除了null之外：</li>
+</ul>
+<pre><code class="language-js">    console.log(typeof 2) //number
+    console.log(typeof 'hello') //string
+    console.log(typeof null) //object
+    console.log(typeof true)//boolean
+    console.log(typeof undefined) //undefined
+    console.log(typeof []) //object
+</code></pre>
+<ul>
+<li>因为因为特殊值null被认为是一个对空对象的引用</li>
+</ul>
+<h2 id="instanceof">instanceof</h2>
+<ul>
+<li><strong>instanceof</strong>可以正确的判断对象的类型，因为内部机制是通过判断对象的原型链中是不是能找到类型的<strong>prototype</strong>:</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://s1.ax1x.com/2020/09/17/wWAKt1.png" alt="wWAKt1.png" loading="lazy"></figure>
+<pre><code class="language-ts">    console.log([] instanceof Array) //true
+    console.log({} instanceof Object)//true
+    console.log(function(){} instanceof Function)//true
+    console.log(1 instanceof Number)//false
+</code></pre>
+<h3 id="constructor">constructor</h3>
+<ul>
+<li><strong>constructor</strong>主要是利用原型上的<strong>prototype.constructor</strong>指向实例的构造函数来进行判断的</li>
+</ul>
+<pre><code class="language-ts">    console.log((1).constructor === Number) //true
+    console.log('1'.constructor===String)//true
+    console.log((function(){}).constructor===Function) //true
+    console.log([].constructor===Array) //true
+    console.log(({}).constructor===Object) //true
+</code></pre>
+<ul>
+<li>但constructor有个特点就是：如果我创建了一个对象，我们再去修改它的原型，就变得不那么可靠：</li>
+</ul>
+<pre><code class="language-ts">    function Func(){}
+
+    Func.prototype=new Array();
+
+    const f=new Func()
+
+    console.log(f.constructor===Function)//false
+</code></pre>
+<h3 id="objectprototypetostringcall">Object.prototype.toString.call</h3>
+<ul>
+<li>使用 Object 对象的原型方法<strong>toString</strong>,返回值是[object 类型]字符串,该方法基本上能判断所有的数据类型.</li>
+</ul>
+<pre><code class="language-js">    var toString = Object.prototype.toString;
+    console.log(toString.call(2)) //[object Number]
+    console.log(toString.call(true)) //[object Boolean]
+    console.log(toString.call(function(){})) //[object Function]
+</code></pre>
+<h3 id="作用域和作用域链">作用域和作用域链</h3>
+<blockquote>
+<p>谈一谈你对作用域、作用域链的理解。</p>
+</blockquote>
+<ul>
+<li>
+<p>作用域：作用域就是定义变量的区域，它有一套访问变量的规则，根据这套规则来管理浏览器引擎如何在当前作用域和嵌套作用域中中根据变量（标识符）进行变量查找。</p>
+</li>
+<li>
+<p>作用域链：作用域链保证对执行环境有权访问所以变量和函数的有序访问，通过作用域链，我们可以访问到外层环境中的变量和函数。</p>
+</li>
+<li>
+<p>作用域链的本质上是一个指向变量对象的指针列表。变量对象是一个包含了执行环境中所有变量和函数的对象。作用域链的前端始终都是当前执行上下文的变量对象。全局执行上下文的变量对象（也就是全局对象）始终是作用域链的最后一个对象。当我们查找一个变量时，如果当前执行环境中没有找到，我们可以沿着作用域链向后查找</p>
+</li>
+</ul>
+<h3 id="this">this</h3>
+<blockquote>
+<p>谈一谈你对this的理解，以及在各种环境下的this</p>
+</blockquote>
+<ul>
+<li>
+<p>在浏览器里，在全局范围内this指向window对象</p>
+</li>
+<li>
+<p>在函数中，this永远指向最后调用他的那个对象(箭头函数除外)。</p>
+</li>
+<li>
+<p>在构造函数中，this指向<strong>new</strong>出来的新对象。</p>
+</li>
+<li>
+<p>call、apply、bind中的this被强绑定在指定的那个对象上。</p>
+</li>
+<li>
+<p>箭头函数this为父作用域的this，不是调用时的this。</p>
+</li>
+</ul>
+<h3 id="原型原型链">原型，原型链</h3>
+<blockquote>
+<p>谈一谈JavaScript中原型，原型链，有什么特点</p>
+</blockquote>
+<ul>
+<li>在js中，我们可以通过构造函数来创建一个对象，每个构造函数都会有个<strong>prototype</strong>属性，这个属性值是一个对象，这个对象包含了可以由该构造函数的所有实例共享的属性和方法。当我们访问一个对象的属性时，如果这个对象内部不存在这个属性，那么它就会去它的原型对象里找这个属性，这个原型对象又会有自己的原型，于是就这样一直找下去，也就是原型链的概念。原型链的尽头一般来说都是<strong>Object.prototype</strong>。</li>
+</ul>
+<pre><code class="language-ts">    function Func(name){
+        this.name=name
+    };
+
+    let tom=new Func('TOM');
+
+    console.log(tom)
+
+
+    console.log(tom.__proto__===Func.prototype) //true
+    console.log(tom.__proto__.constructor==Func) //true
+
+</code></pre>
+<ul>
+<li>再上一张图，更好理解</li>
+</ul>
+<figure data-type="image" tabindex="2"><img src="https://s1.ax1x.com/2020/09/17/w2zC4g.png" alt="w2zC4g.png" loading="lazy"></figure>
+<ul>
+<li>原型对象的作用：</li>
+</ul>
+<pre><code class="language-js">    function Func(name){
+        this.name=name;
+        this.say=function(){
+            console.log(this.name)
+        }
+    }
+
+    let m=new Func('tom');
+    let n=new Func('tom')
+
+    console.log(m)
+    console.log(n)
+
+    console.log(m.say===n.say) //false 
+</code></pre>
+<ul>
+<li>每次进行<strong>new</strong>，都会开辟新的区域，这样很显然不好，所以我们可以吧共有的方法放在原型对象上，这样就避免了内存浪费：</li>
+</ul>
+<pre><code class="language-js">    function Func(name){
+        this.name=name;
+    }
+    Func.prototype.say=function(){
+        console.log(this.name)
+    }
+    let m=new Func('tom');
+    let n=new Func('tom')
+
+    console.log(m)
+    console.log(n)
+
+    console.log(m.say===n.say) //true
+</code></pre>
+<h3 id="闭包">闭包</h3>
+<blockquote>
+<p>谈一谈对闭包的理解，以及使用场景</p>
+</blockquote>
+<ul>
+<li>
+<p>闭包是指有权访问另一个函数作用域内的变量的函数。闭包最常见的就是在函数中创建函数，创建的函数就可以访问到当前函数的局部变量。</p>
+</li>
+<li>
+<p>过使用闭包，我们可以通过在外部调用闭包函数，从而在外部访问到函数内部的变量，可以使用这种方法来创建私有变量。</p>
+</li>
+<li>
+<p>另一个用途是使已经运行结束的函数上下文中的变量对象继续留在内存中，因为闭包函数保留了这个变量对象的引用，所以这个变量对象不会被回收。</p>
+</li>
+</ul>
+<pre><code class="language-js">    function func(){
+        let n=0;
+        function add(){
+            n++;
+            console.log(n)
+        }
+        return add
+    }
+
+    let a=func();
+    a() //1
+    a()//2
+</code></pre>
+<h3 id="事件模型">事件模型</h3>
+<blockquote>
+<p>什么是事件？都有哪几种事件？</p>
+</blockquote>
+<ul>
+<li>
+<p>事件是指用户操作页面时候发生的交互或者网页本身的一些操作，浏览器一共有三种事件模型：</p>
+</li>
+<li>
+<p><strong>DOM0级模型</strong>：这种模型不会传播，没有事件流的概念，但现在有的浏览器支持以冒泡的方式实现，它可以在网页中直接定义监听函数，也可以通过js属性来指定监听函数。</p>
+</li>
+<li>
+<p><strong>IE事件模型</strong>：在这种事件模型中，一次事件一共有两个过程，<strong>事件处理阶段</strong>和<strong>事件冒泡阶段</strong>，事件处理阶段首先会执行目标元素绑定的监听事件。然后是事件冒泡阶段，冒泡指的是事件从冒泡到<strong>document</strong>，一次检查经过的节点是否绑定了事件监听函数，会按顺序依次进行。</p>
+</li>
+<li>
+<p><strong>DOM2级事件模型</strong>：在该事件模型中，一次事件一共有三个过程，第一个过程就是<strong>事件捕获阶段</strong>，捕获指的是事件从<strong>document</strong>一直向下传播到目标元素，依次检查经过的节点是否绑定了事件监听函数，如果有则执行。后面的两个阶段和IE事件模型基本一样。这样的事件模型，事件绑定的函数就是<strong>addEventListener</strong>,其中第三个参数可以指定事件是否在捕获阶段执行。</p>
+</li>
+</ul>
+<pre><code class="language-js">    //DMO0
+     element.onclick=function(){}
+
+    //DOM2
+    element.addEventListener('click',function(){},false)
+
+    //DOM3 增加了鼠标事件，键盘事件
+    element.addEventListener('keyup',function(){},false)
+
+</code></pre>
+<ul>
+<li>
+<p>DOM事件的捕获流程:window---&gt;document---&gt;html---&gt;body---&gt;逐渐传递</p>
+</li>
+<li>
+<p>DOM事件冒泡过程：目标元素---&gt;父元素---&gt;body---&gt;html---&gt;document---&gt;window</p>
+</li>
+</ul>
+<h4 id="event对象的常见应用">Event对象的常见应用</h4>
+<ul>
+<li>
+<p>event.preventDefault() //阻止默认行为 比阻止点击a标签转跳</p>
+</li>
+<li>
+<p>event.stopPropagation() //阻止事件冒泡</p>
+</li>
+<li>
+<p>event.stoplmmediatePropagation() //同时注册两个事件，决定事件优先级</p>
+</li>
+<li>
+<p>event.currentTarget() //事件代理，把子元素的事件委托给父元素</p>
+</li>
+<li>
+<p>event.target() //当前被点击的元素</p>
+</li>
+</ul>
+<h3 id="异步编程">异步编程</h3>
+<blockquote>
+<p>谈一谈js中的异步编程方案，它为了解决什么？</p>
+</blockquote>
+<ul>
+<li>我们之前写代码，可能会出现函数嵌套函数，如果多个嵌套，结构就会很乱，也不容易维护，于是便有了异步编程的概念。</li>
+</ul>
+<h4 id="promise">Promise</h4>
+<ul>
+<li>
+<p><strong>Promise</strong>是异步编程的一种解决方案，比传统的解决方案——回调函数和事件——更合理和更强大。它由社区最早提出和实现，ES6 将其写进了语言标准，统一了用法，原生提供了Promise对象。</p>
+</li>
+<li>
+<p>所谓Promise，简单说就是一个容器，里面保存着某个未来才会结束的事件（通常是一个异步操作）的结果。从语法上说，Promise 是一个对象，从它可以获取异步操作的消息。Promise 提供统一的 API，各种异步操作都可以用同样的方法进行处理。</p>
+</li>
+<li>
+<p>Promise对象的状态不受外界影响，它有三种状态，<code>pending</code>(进行中)、<code>fulfilled</code>(已成功)、<code>rejected</code>(已失败)。只有异步操作的结果，可以决定当前是哪一种状态，任何其他操作都无法改变这个状态。这也是Promise这个名字的由来，它的英语意思就是“承诺”，表示其他手段无法改变。它的状态可以从<strong>pending</strong>变为<strong>fulfilled</strong>，或者从<strong>pending</strong>变为<strong>rejected</strong>。</p>
+</li>
+</ul>
+<h5 id="then方法">then方法</h5>
+<ul>
+<li>Promise只是能够简化层层回调的写法，而实质上，Promise的精髓是“状态”，用维护状态、传递状态的方式来使得回调函数能够及时调用，它比传递callback函数要简单、灵活的多。</li>
+</ul>
+<pre><code class="language-js">    const testPormise=new Promise((resovle,reject)=&gt;{
+       console.log(&quot;hi,Pormise&quot;);
+       let test=true;
+       if(test){
+            resovle('成功～')
+       }else{
+           reject(&quot;失败了&quot;)
+       }
+    });
+    testPormise.then((res)=&gt;{
+        console.log(res)
+    }).catch((erro)=&gt;{
+        console.log(erro)
+    })
+</code></pre>
+<h4 id="rejected">rejected</h4>
+<ul>
+<li>只有执行了<strong>rejected</strong>这样就可以在then中捕获到，然后执行失败情况下的回调：</li>
+</ul>
+<pre><code class="language-js"> let p = new Promise((resolve, reject) =&gt; {
+        //做一些异步操作
+      setTimeout(function(){
+            var num = Math.ceil(Math.random()*10); //生成1-10的随机数
+            if(num&lt;=3){
+                resolve(num);
+            }
+            else{
+                reject('数字太大了');
+            }
+      }, 2000);
+    });
+    p.then((data) =&gt; {
+            console.log('resolved',data);
+        },(err) =&gt; {
+            console.log('rejected',err);
+        }
+    ); 
+</code></pre>
+<h4 id="catch">catch</h4>
+<ul>
+<li>catch和then用法一样，用来指定<strong>reject</strong>的回调：</li>
+</ul>
+<pre><code class="language-js">    p.then((data) =&gt; {
+        console.log('resolved',data);
+    }).catch((err) =&gt; {
+        console.log('rejected',err);
+    });
+</code></pre>
+<h4 id="all">all</h4>
+<ul>
+<li>all接收一个数组参数，里面的值最终都算返回Promise对象,谁执行的慢，以谁为准执行回调：</li>
+</ul>
+<pre><code class="language-js">    let Promise1 = new Promise(function(resolve, reject){})
+    let Promise2 = new Promise(function(resolve, reject){})
+    let Promise3 = new Promise(function(resolve, reject){})
+
+    let p = Promise.all([Promise1, Promise2, Promise3])
+
+    p.then(funciton(){
+    // 三个都成功则成功  
+    }, function(){
+    // 只要有失败，则失败 
+    })
+</code></pre>
+<h4 id="race">race</h4>
+<ul>
+<li>谁跑的快，以谁为准执行回调,常见应用场景为设置请求超时时间，在请求超时后执行相应的回调：</li>
+</ul>
+<h3 id="event-loop">Event Loop</h3>
+<blockquote>
+<p>说一说js中事件执行机制是怎么样的？</p>
+</blockquote>
+<ul>
+<li>
+<p>“<strong>JavaScript 是单线程、异步、非阻塞、解释型脚本语言</strong>”。JavaScript 语言的一大特点就是单线程，也就是说，同一个时间只能做一件事。为了协调事件、用户交互、脚本、UI 渲染和网络处理等行为，防止主线程的不阻塞，Event Loop 的方案应用而生。</p>
+</li>
+<li>
+<p>在js中，任务进入执行栈，先判断任务类型，如果是同步任务，直接进入到主线程执行。如果是异步任务，会把任务放到异步队列，等同步任务执行完以后，事件触发线程会从消息队列中取出刚才加入队列的函数，如果有，就一条一条的去执行。</p>
+</li>
+</ul>
+<pre><code class="language-js">   
+    console.log(1)
+
+  
+    setTimeout(() =&gt; {
+        console.log(2)
+    }, 1000);
+    
+    console.log(3)
+
+    //1 3 2
+</code></pre>
+<h4 id="微任务">微任务</h4>
+<ul>
+<li>js中，setTimeout属于宏任务，像<strong>Promise</strong>为微任务，</li>
+</ul>
+<pre><code class="language-js">    console.log(1)
+
+    setTimeout(() =&gt; {
+        console.log(2)
+    }, 1000);
+
+    let test=new Pormise((resolve)=&gt;{
+        console.log(3);
+        resolve();
+    })
+    .then(=&gt;console.log(4))
+
+
+    console.log(5)
+    1.3 5 4.2
+</code></pre>
+<ul>
+<li>首先会输出1，然后遇到<strong>setTimeout</strong>，注册任务接着又遇到<strong>Pormise</strong>，首先先输出3，然后注册任务，接着会输出5，这时候执行栈没有可执行的，然后会从队列中取，这时候会先取出微任务进行执行，进入到then，输出4，这时候执行栈又为空，这时候继续从队列中取出一条任务，这时候会输出2。</li>
+</ul>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[面向对象中的继承]]></title>
         <id>https://lonjinup.github.io/post/jsjc/</id>
