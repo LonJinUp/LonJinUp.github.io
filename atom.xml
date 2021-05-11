@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://lonjinup.github.io</id>
     <title>陇锦</title>
-    <updated>2021-05-07T11:05:55.087Z</updated>
+    <updated>2021-05-11T15:38:23.977Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://lonjinup.github.io"/>
     <link rel="self" href="https://lonjinup.github.io/atom.xml"/>
@@ -10,6 +10,40 @@
     <logo>https://lonjinup.github.io/images/avatar.png</logo>
     <icon>https://lonjinup.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, 陇锦</rights>
+    <entry>
+        <title type="html"><![CDATA[vue-cli自动补全css前缀]]></title>
+        <id>https://lonjinup.github.io/post/vue-cli-css/</id>
+        <link href="https://lonjinup.github.io/post/vue-cli-css/">
+        </link>
+        <updated>2021-05-11T15:37:37.000Z</updated>
+        <content type="html"><![CDATA[<div class="output_wrapper" id="output_wrapper_id" style="font-size: 16px; color: rgb(62, 62, 62); line-height: 1.6; word-spacing: 0px; letter-spacing: 0px; font-family: 'Helvetica Neue', Helvetica, 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;"><h1 id="hvue" style="line-height: inherit; padding: 0px; margin: 1.5em 0px; font-weight: bold; color: rgb(21, 153, 87); font-size: 1.6em;"><span style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px;">vue自动补全前缀</span></h1>
+<blockquote style="line-height: inherit; display: block; padding: 15px 15px 15px 1rem; font-size: 0.9em; margin: 1em 0px; color: rgb(129, 145, 152); border-left: 6px solid rgb(220, 230, 240); background: rgb(242, 247, 251); overflow: auto; overflow-wrap: normal; word-break: normal;">
+  <p style="font-size: inherit; color: inherit; line-height: inherit; padding: 0px; margin: 0px;">需要安装<code style="font-size: inherit; line-height: inherit; overflow-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0px 2px; color: rgb(233, 105, 0); background: rgb(248, 248, 248);">postcss</code>和<code style="font-size: inherit; line-height: inherit; overflow-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0px 2px; color: rgb(233, 105, 0); background: rgb(248, 248, 248);">autoprefixer</code>两个npm包。</p>
+</blockquote>
+<ul style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px; padding-left: 32px; list-style-type: disc;">
+<li style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px; margin-bottom: 0.5em;"><span style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px;">1.安装</span></li>
+</ul>
+<pre style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px;"><code class="js language-js hljs javascript" style="overflow-wrap: break-word; margin: 0px 2px; line-height: 18px; font-size: 14px; font-weight: normal; word-spacing: 0px; letter-spacing: 0px; font-family: Consolas, Inconsolata, Courier, monospace; border-radius: 0px; overflow-x: auto; padding: 0.5em; background: rgb(51, 51, 51); color: white; white-space: pre !important; word-wrap: normal !important; word-break: normal !important; overflow: auto !important; display: -webkit-box !important;">&nbsp;&nbsp;&nbsp;&nbsp;npm&nbsp;install&nbsp;postcss<br>&nbsp;&nbsp;&nbsp;&nbsp;npm&nbsp;install&nbsp;autoprefixer<br></code></pre>
+<ul style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px; padding-left: 32px; list-style-type: disc;">
+<li style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px; margin-bottom: 0.5em;"><span style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px;">2.在package.json文件修改 browserslist</span></li>
+</ul>
+<pre style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px;"><code class="json language-json hljs" style="overflow-wrap: break-word; margin: 0px 2px; line-height: 18px; font-size: 14px; font-weight: normal; word-spacing: 0px; letter-spacing: 0px; font-family: Consolas, Inconsolata, Courier, monospace; border-radius: 0px; overflow-x: auto; padding: 0.5em; background: rgb(51, 51, 51); color: white; white-space: pre !important; word-wrap: normal !important; word-break: normal !important; overflow: auto !important; display: -webkit-box !important;">&nbsp;<span class="hljs-string" style="font-size: inherit; line-height: inherit; margin: 0px; padding: 0px; color: rgb(162, 252, 162); word-wrap: inherit !important; word-break: inherit !important;">"browserslist"</span>:&nbsp;[<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-string" style="font-size: inherit; line-height: inherit; margin: 0px; padding: 0px; color: rgb(162, 252, 162); word-wrap: inherit !important; word-break: inherit !important;">"&gt;&nbsp;1%"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-string" style="font-size: inherit; line-height: inherit; margin: 0px; padding: 0px; color: rgb(162, 252, 162); word-wrap: inherit !important; word-break: inherit !important;">"last&nbsp;3&nbsp;versions"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-string" style="font-size: inherit; line-height: inherit; margin: 0px; padding: 0px; color: rgb(162, 252, 162); word-wrap: inherit !important; word-break: inherit !important;">"not&nbsp;ie&nbsp;&lt;=&nbsp;8"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-string" style="font-size: inherit; line-height: inherit; margin: 0px; padding: 0px; color: rgb(162, 252, 162); word-wrap: inherit !important; word-break: inherit !important;">"chrome&nbsp;&gt;=&nbsp;14"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-string" style="font-size: inherit; line-height: inherit; margin: 0px; padding: 0px; color: rgb(162, 252, 162); word-wrap: inherit !important; word-break: inherit !important;">"safari&nbsp;&gt;=&nbsp;3"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-string" style="font-size: inherit; line-height: inherit; margin: 0px; padding: 0px; color: rgb(162, 252, 162); word-wrap: inherit !important; word-break: inherit !important;">"ios&nbsp;&gt;=&nbsp;8"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-string" style="font-size: inherit; line-height: inherit; margin: 0px; padding: 0px; color: rgb(162, 252, 162); word-wrap: inherit !important; word-break: inherit !important;">"android&nbsp;&gt;=&nbsp;4.0"</span><br>&nbsp;]<br></code></pre>
+<ul style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px; padding-left: 32px; list-style-type: disc;">
+<li style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px; margin-bottom: 0.5em;"><span style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px;">3.在根目录新建postcss.config.js文件</span></li>
+</ul>
+<pre style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px;"><code class="js language-js hljs javascript" style="overflow-wrap: break-word; margin: 0px 2px; line-height: 18px; font-size: 14px; font-weight: normal; word-spacing: 0px; letter-spacing: 0px; font-family: Consolas, Inconsolata, Courier, monospace; border-radius: 0px; overflow-x: auto; padding: 0.5em; background: rgb(51, 51, 51); color: white; white-space: pre !important; word-wrap: normal !important; word-break: normal !important; overflow: auto !important; display: -webkit-box !important;">&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-built_in" style="font-size: inherit; line-height: inherit; margin: 0px; padding: 0px; color: rgb(255, 255, 170); word-wrap: inherit !important; word-break: inherit !important;">module</span>.exports&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-attr" style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px; word-wrap: inherit !important; word-break: inherit !important;">plugins</span>:&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-attr" style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px; word-wrap: inherit !important; word-break: inherit !important;">autoprefixer</span>:&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br></code></pre>
+<ul style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px; padding-left: 32px; list-style-type: disc;">
+<li style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px; margin-bottom: 0.5em;"><span style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px;">4.重新启动项目即可。</span></li>
+</ul>
+<h2 id="htips" style="line-height: inherit; padding: 0px; margin: 1.5em 0px; font-weight: bold; color: rgb(21, 153, 87); font-size: 1.4em;"><span style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px;">tips</span></h2>
+<blockquote style="line-height: inherit; display: block; padding: 15px 15px 15px 1rem; font-size: 0.9em; margin: 1em 0px; color: rgb(129, 145, 152); border-left: 6px solid rgb(220, 230, 240); background: rgb(242, 247, 251); overflow: auto; overflow-wrap: normal; word-break: normal;">
+  <p style="font-size: inherit; color: inherit; line-height: inherit; padding: 0px; margin: 0px;">安装后运行发现有报错：<code style="font-size: inherit; line-height: inherit; overflow-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0px 2px; color: rgb(233, 105, 0); background: rgb(248, 248, 248);">Error: PostCSS plugin autoprefixer requires PostCSS 8.Migration guide for end-users:</code>。可能是版本问题导致不兼容，直接安装的是最新版本(10.2.5)，这时候我们需要降低一下版本即可。</p>
+</blockquote>
+<pre style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px;"><code class="js language-js hljs javascript" style="overflow-wrap: break-word; margin: 0px 2px; line-height: 18px; font-size: 14px; font-weight: normal; word-spacing: 0px; letter-spacing: 0px; font-family: Consolas, Inconsolata, Courier, monospace; border-radius: 0px; overflow-x: auto; padding: 0.5em; background: rgb(51, 51, 51); color: white; white-space: pre !important; word-wrap: normal !important; word-break: normal !important; overflow: auto !important; display: -webkit-box !important;">&nbsp;&nbsp;&nbsp;&nbsp;npm&nbsp;i&nbsp;postcss-loader&nbsp;autoprefixer@<span class="hljs-number" style="font-size: inherit; line-height: inherit; margin: 0px; padding: 0px; color: rgb(211, 99, 99); word-wrap: inherit !important; word-break: inherit !important;">8.0</span><span class="hljs-number" style="font-size: inherit; line-height: inherit; margin: 0px; padding: 0px; color: rgb(211, 99, 99); word-wrap: inherit !important; word-break: inherit !important;">.0</span>&nbsp;-D<br></code></pre>
+<ul style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px; padding-left: 32px; list-style-type: disc;">
+<li style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px; margin-bottom: 0.5em;"><span style="font-size: inherit; color: inherit; line-height: inherit; margin: 0px; padding: 0px;">安装完重新运行即可。</span></li>
+</ul></div>]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[webpack4学习笔记 02]]></title>
         <id>https://lonjinup.github.io/post/webpack02/</id>
@@ -2989,78 +3023,6 @@ document.getElementById(&quot;app&quot;).innerHTML = template;
             `
 
    document.getElementById(&quot;app&quot;).innerHTML = template;
-
-</code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[【ES6系列】let,const与var的区别]]></title>
-        <id>https://lonjinup.github.io/post/letconst-yu-var-de-qu-bie/</id>
-        <link href="https://lonjinup.github.io/post/letconst-yu-var-de-qu-bie/">
-        </link>
-        <updated>2019-11-25T15:59:01.000Z</updated>
-        <content type="html"><![CDATA[<h1 id="varlet-const的区别">var,let ,const的区别</h1>
-<h2 id="var">var</h2>
-<ul>
-<li>全局变量</li>
-</ul>
-<pre><code class="language-js">    function textVar(){
-
-        var a=30;
-
-        if(true){
-
-            var a=50;
-
-            console.log(a);//50
-        };
-
-        console.log(a);//50 找离他最近的a
-
-    };
-</code></pre>
-<h2 id="let">let</h2>
-<ul>
-<li>有作用域的概念</li>
-</ul>
-<pre><code class="language-js"> function textLet(){
-
-        let a=30;
-
-        if(true){
-
-            let a=50;//有作用域的概念
-
-            console.log(a);//50 
-        };
-
-        console.log(a);//30 
-
-    };
-
-    textLet();
-</code></pre>
-<h2 id="const">const</h2>
-<ul>
-<li>一但申明，不可修改,他是一个常量。</li>
-</ul>
-<pre><code class="language-js">    const x=10;
-
-    x=100;
-
-    console.log(x);//Uncaught TypeError: Assignment to constant variable.
-
-</code></pre>
-<ul>
-<li>定义数组</li>
-</ul>
-<pre><code class="language-js">    const colors=[];
-
-    colors.push('red');
-
-    colors.push('green');
-
-    console.log(colors)
 
 </code></pre>
 ]]></content>
