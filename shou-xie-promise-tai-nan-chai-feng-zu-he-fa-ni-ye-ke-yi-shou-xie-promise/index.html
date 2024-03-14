@@ -1,0 +1,1606 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>手写Promise太难？拆封组合法你也可以手写Promise | 陇锦</title>
+
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1710403740086">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://lonjinup.github.io/aboutme" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1710403740086" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    手写Promise太难？拆封组合法你也可以手写Promise
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-07-25 ·
+                    </time>
+                    
+                        <a href="https://lonjinup.github.io/su-x11Ukj/" class="post-tags">
+                            # JavaScript
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="手写promise太难拆封组合法你也可以手写promise">手写Promise太难？拆封组合法你也可以手写Promise</h1>
+<blockquote>
+<p>现在面试也越来越<code>内卷</code>了，动不动就手写各种源码。当然手写源码不是目的，可能就是为了考察对知识的掌握程度。很多人一听到手写<code>Promise</code>就头大，毫无思路，其实我们把<code>Promise</code>功能需求拆封一下，分步骤实现；写起来就相对简单了，并且易于理解，下面就带大家手写一个<code>Promise</code>。</p>
+</blockquote>
+<p>☀️阅读小提示：本文看起来篇幅很长，因为每部分都贴出了完整代码，所以代码量比较大。每个步骤<code>新增/修改</code>的代码部分都会标明步骤和思路，跟着步骤阅读即可。耐心看完，相信会有收获！</p>
+<h2 id="promise基本逻辑实现">Promise基本逻辑实现</h2>
+<ul>
+<li>先贴代码，分析一下：</li>
+</ul>
+<pre><code class="language-js">    new Promise((resolve,reject)=&gt;{
+        console.log('LonJIn带你手写Promise');
+        resolve('hello')
+    }).then((res)=&gt;{
+        console.log(res)
+    })
+</code></pre>
+<h3 id="核心逻辑分析">核心逻辑分析</h3>
+<ul>
+<li>
+<p>首先，我们看到<code>Promise</code>前面调用了<code>new</code>，说明<code>Promise</code><strong>是一个类</strong></p>
+</li>
+<li>
+<p>它有三种状态：<code>等待(pending)</code>、<code>成功(fulfilled)</code>、<code>失败(rejected)</code>，状态一旦从<code>pending</code>变成<code>fulfilled</code>或<code>rejected</code>就不可更改</p>
+</li>
+<li>
+<p>在<code>new Promise</code>中传入了一个函数，我们可以把它称之为执行器，执行器会立即执行</p>
+</li>
+<li>
+<p>在执行器中传入了<code>resolve</code>和<code>reject</code>,用来改变它的状态</p>
+</li>
+<li>
+<p><code>then</code>方法内部做的事情就是判断状态，如果状态是成功，调用成功回调函数,如果状态是失败，就调用失败回调函数,且<code>then</code>方法会接收一个成功或者失败的值。</p>
+</li>
+</ul>
+<h3 id="代码实现">代码实现</h3>
+<ul>
+<li>我们先建立一个<code>MyPromise.js</code>文件，在这个文件中编写我们的Promise。</li>
+</ul>
+<pre><code class="language-js">    //定义三个常量
+    const PENDING='pending', //等待
+        FULFILLED='fulfilled', //成功
+        REJECTED='rejected'; //失败
+
+    class MyPromise{
+        constructor(exector){
+            // 立即执行函数，传入resolve方法和reject方法
+            exector(this.resolve,this.reject)
+        };
+
+        //定义一个初始状态
+        status=PENDING;
+
+        //保存成功后的值
+        value=undefined;
+
+        //保存失败后的值
+        reason=undefined;
+
+        //成功
+        resolve=value=&gt;{
+            //判断当前状态是否为PENDING，如果不是就return
+            if(this.status!==PENDING)return;
+            //更改状态为fulfilled
+            this.status=FULFILLED;
+            //保存成功的返回值
+            this.value=value;
+
+        };
+        //失败
+        reject=reason=&gt;{
+            //判断当前状态是否为PENDING，如果不是就return
+            if(this.status!==PENDING)return;
+            //更改状态为rejected
+            this.status=REJECTED;
+            //保存失败的返回值
+            this.reason=reason;
+        };
+
+        //then方法会接收两个回调函数，分别为成功和失败的回调函数
+        then(successCallback,failCallback){
+            //判断当前状态，然后调用相应的函数
+            if(this.status===FULFILLED){
+                //传入返回值
+                successCallback(this.value)
+            }else if(this.status===REJECTED){
+                //传入返回值
+                failCallback(this.reason)
+            }
+        }
+    }
+    //导出MyPromise
+    module.exports = MyPromise
+</code></pre>
+<ul>
+<li>我们上面分析的基本完成，新建一个<code>index.js</code>导入测试一下：</li>
+</ul>
+<pre><code class="language-js">    //index.js
+    const MyPromise=require('./MyPromise');
+
+    let n=new MyPromise((resolve,reject)=&gt;{
+        console.log('lonjin');
+        resolve(200)
+        // reject('erro')
+    })
+
+    n.then((val)=&gt;{
+        console.log(val) 
+    },(erro)=&gt;{
+        console.log(erro)
+    })
+    //lonjin
+    //200
+</code></pre>
+<ul>
+<li>调用之后可以正常输出，说明之前写的没有问题，但还有个问题：我们没有考虑异步的时候该怎么办？比如下面的代码：</li>
+</ul>
+<pre><code class="language-js">    //index.js
+    const MyPromise=require('./MyPromise');
+
+    let n=new MyPromise((resolve,reject)=&gt;{
+        //由于setTimeout为异步代码，then会马上执行，但此时状态还为pending之前并没有判断等待这个状态
+        setTimeout(() =&gt; {
+            resolve(200)
+        }, 100);
+    })
+
+    n.then((val)=&gt;{
+        console.log(val) 
+    },(erro)=&gt;{
+        console.log(erro)
+    })
+</code></pre>
+<h2 id="处理异步调用">处理异步调用</h2>
+<ul>
+<li>由于执行器可能有异步代码，所以我们在<code>then</code>方法中还需要判断一下状态，然后做相应的处理</li>
+</ul>
+<p>代码如下(为了思路清晰，只对做更改的地方加注释，会标注实现步骤，按步骤阅读即可):</p>
+<pre><code class="language-js">    const PENDING='pending',
+        FULFILLED='fulfilled',
+        REJECTED='rejected';
+
+    class MyPromise{
+        constructor(exector){
+            exector(this.resolve,this.reject)
+        };
+
+        status=PENDING;
+
+        value=undefined;
+
+        reason=undefined;
+
+        //定义一个成功回调函数
+        successCallback=undefined;
+        //定义一个失败回调函数
+        failCallback=undefined;
+
+        resolve=value=&gt;{
+           
+            if(this.status!==PENDING)return;
+           
+            this.status=FULFILLED;
+
+            this.value=value;
+                /* 步骤2
+                -------------------------------------------------
+                判断成功回调是否存在，如果存在，直接调用
+                */
+            this.successCallback &amp;&amp; this.successCallback(this.value)
+        };
+       
+        reject=reason=&gt;{
+          
+            if(this.status!==PENDING)return;
+          
+            this.status=REJECTED;
+            
+            this.reason=reason;
+
+            /* 步骤3
+                -------------------------------------------------
+                判断失败回调是否存在，如果存在，直接调用
+            */
+            this.failCallback &amp;&amp; this.failCallback(this.reason)
+        };
+
+       
+        then(successCallback,failCallback){
+            
+            if(this.status===FULFILLED){  
+               
+                successCallback(this.value)
+                
+            }else if(this.status===REJECTED){ 
+               
+                failCallback(this.reason)
+
+            }else{
+                /* 步骤1
+                -------------------------------------------------
+                等待状态，处理异步逻辑
+                由于不知道状态，所以我们需要把成功和失败的回调函数先保存起来
+                保存回调函数 */
+                this.successCallback=successCallback;
+                this.failCallback=failCallback;
+                
+            }
+        }
+    }
+    //导出MyPromise
+    module.exports = MyPromise
+</code></pre>
+<ul>
+<li>验证代码：</li>
+</ul>
+<pre><code class="language-js">    //index.js
+    const MyPromise=require('./MyPromise');
+
+    let n=new MyPromise((resolve,reject)=&gt;{
+        //由于setTimeout为异步代码，then会马上执行，但此时状态还为pending之前并没有判断等待这个状态
+        setTimeout(() =&gt; {
+            resolve(200)
+        }, 100);
+    })
+
+    n.then((val)=&gt;{
+        console.log(val) 
+    },(erro)=&gt;{
+        console.log(erro)
+    })
+</code></pre>
+<ul>
+<li>我们可以看到代码可以正常输出，异步就算处理完成。</li>
+</ul>
+<h2 id="实现then多次调用">实现then()多次调用</h2>
+<ul>
+<li><code>Promise</code>的<code>then</code>方法是可以被多次调用的。如果是同步回调，那么直接返回当前的值就行；如果是异步回调，那么保存的成功失败的回调，需要用不同的值保存，因为都互不相同。所以之前的代码需要改造一下。</li>
+</ul>
+<pre><code class="language-js">     //index.js
+    const MyPromise=require('./MyPromise');
+
+    let n=new MyPromise((resolve,reject)=&gt;{
+        setTimeout(() =&gt; {
+            resolve(200)
+        }, 100);
+    })
+    //多次调用的情况 目前只会输出一次
+    n.then((val)=&gt;{
+        console.log(val) 
+    },(erro)=&gt;{
+        console.log(erro)
+    })
+
+    n.then((val)=&gt;{
+        console.log(val) 
+    },(erro)=&gt;{
+        console.log(erro)
+    })
+
+    n.then((val)=&gt;{
+        console.log(val) 
+    },(erro)=&gt;{
+        console.log(erro)
+    })
+</code></pre>
+<h3 id="代码实现-2">代码实现</h3>
+<ul>
+<li>为了解决多次调用的情况，之前我们定义了一个<code>successCallback</code>回调函数，默认为<code>undefined</code>,这时候我们需要把它改成数组形式，在<code>resolve</code>或<code>reject</code>回调函数中取数组最后一个保存的回调执行即可</li>
+</ul>
+<pre><code class="language-js">
+    const PENDING='pending',
+          FULFILLED='fulfilled', 
+          REJECTED='rejected';
+
+    class MyPromise{
+        constructor(exector){
+            exector(this.resolve,this.reject)
+        };
+
+        status=PENDING;
+        value=undefined;
+        reason=undefined;
+
+        /* 步骤1 
+            -------------------------------------
+            将successCallback和failCallback改成数组
+        */
+        successCallback=[];
+    
+        failCallback=[];
+
+        resolve=value=&gt;{
+            if(this.status!==PENDING)return;
+        
+            this.status=FULFILLED;
+
+            this.value=value;
+
+            /* 步骤3 
+                -------------------------------------
+                判断successCallback数组中是否有值，有值的话就取数组最后的执行
+            */
+            while(this.successCallback.length)this.successCallback.shift()(this.value)
+        };
+    
+        reject=reason=&gt;{
+        
+            if(this.status!==PENDING)return;
+            
+            this.status=REJECTED;
+        
+            this.reason=reason;
+            /* 步骤4
+                -------------------------------------
+                判断failCallback数组中是否有值，有值的话就取数组最后的执行
+            */
+            while(this.failCallback.length)this.failCallback &amp;&amp; this.failCallback.shift()(this.reason)
+        };
+
+        then(successCallback,failCallback){
+            if(this.status===FULFILLED){ 
+
+                successCallback(this.value)
+                
+            }else if(this.status===REJECTED){
+               
+                failCallback(this.reason)
+
+            }else{ 
+                /* 步骤2
+                    -------------------------------------
+                    将successCallback和failCallback函数push到数组中
+                */
+                this.successCallback.push(successCallback);
+                this.failCallback.push(failCallback);
+
+            }
+        }
+
+       
+    }
+    module.exports = MyPromise
+</code></pre>
+<ul>
+<li>验证代码：</li>
+</ul>
+<pre><code class="language-js">    //index.js
+    const MyPromise=require('./MyPromise');
+
+    let n=new MyPromise((resolve,reject)=&gt;{
+        setTimeout(() =&gt; {
+            resolve(200)
+        }, 500);
+    })
+
+    n.then((val)=&gt;{
+        console.log('one-'+val)
+    },(erro)=&gt;{
+        console.log(erro)
+    })
+
+    n.then((val)=&gt;{
+        console.log('two-'+val)
+    },(erro)=&gt;{
+        console.log(erro)
+    })
+
+    n.then((val)=&gt;{
+        console.log('three-'+val)
+    },(erro)=&gt;{
+        console.log(erro)
+    })
+    /*
+    one-200
+    two-200
+    three-200
+    */
+</code></pre>
+<p>代码正常输出，证明无问题。</p>
+<h2 id="实现then方法的链式调用">实现then方法的链式调用</h2>
+<p>还是先理一下需求，再进行开发：</p>
+<ul>
+<li><code>then</code>方法的链式调用会返回一个<code>Promise</code>，且<code>then</code>方法的<code>return</code>值会作为参数传给下一个<code>then</code></li>
+</ul>
+<h3 id="代码实现-3">代码实现</h3>
+<pre><code class="language-js">   
+    const PENDING='pending',
+          FULFILLED='fulfilled', 
+          REJECTED='rejected';
+
+    class MyPromise{
+        constructor(exector){
+            exector(this.resolve,this.reject)
+        };
+
+        status=PENDING;
+        value=undefined;
+        reason=undefined;
+
+        successCallback=[];
+        failCallback=[];
+
+        resolve=value=&gt;{
+            if(this.status!==PENDING)return;
+
+            this.status=FULFILLED;
+          
+            this.value=value;
+          
+            while(this.successCallback.length)this.successCallback.shift()(this.value)
+        };
+
+        reject=reason=&gt;{
+            if(this.status!==PENDING)return;
+
+            this.status=REJECTED;
+           
+            this.reason=reason;
+          
+            while(this.failCallback.length)this.failCallback &amp;&amp; this.failCallback.shift()(this.reason)
+        };
+
+
+        then(successCallback,failCallback){
+
+            /* 步骤1 
+            ------------------------
+            1.then方法会返回一个Promise,所以这里需要创建一个Promise，然后return回去
+            2. 我们先把 成功回调函数保存为n
+            3.然后在MyPromise类的外部再写一个resolvePromise做处理
+            */
+            let prmoise2=new MyPromise((resolve,reject)=&gt;{
+               
+                if(this.status===FULFILLED){
+                    //保存成功回调函数
+                    let n=successCallback(this.value)
+                    //传入resolvePromise函数中去做判断
+                    resolvePromise(n,resolve,reject)
+                }else if(this.status===REJECTED){ 
+                    
+                    failCallback(this.reason)
+                }else{ 
+                    this.successCallback.push(successCallback);
+                    this.failCallback.push(failCallback); 
+                }
+            });
+            return prmoise2;
+            
+        }
+    }
+    /* 步骤2
+    ---------------------------
+      //判断x是不是其实例的对象
+    */
+    function resolvePromise(n,resolve,reject){
+        // 判断x是不是其实例对象，如果是就直接调用then方法
+        if(n instanceof MyPromise){
+            n.then(resolve,reject)
+        }else{
+            //普通值，直接调用resolve
+            resolve(n)
+        }
+    }
+    module.exports = MyPromise
+</code></pre>
+<p><strong>🚀验证代码</strong></p>
+<pre><code class="language-js">    const MyPromise=require('./MyPromise');
+
+    let n=new MyPromise((resolve,reject)=&gt;{
+        resolve('lonjin')
+    })
+
+    function m(){
+        return new MyPromise((resolve,reject)=&gt;{
+                console.log('------')
+                resolve('hello')
+            })
+    }
+    n.then((res)=&gt;{
+        console.log(res)
+        return m();
+    })
+    .then((res)=&gt;{
+        console.log(res)
+    })
+    /*
+    lonjin
+    ------
+    hello
+    */
+</code></pre>
+<h3 id="️特殊情况处理">⚠️特殊情况处理</h3>
+<p>1️⃣ 如果<code>then</code>方法返回的是自己的<code>promise</code>对象，则会发生<code>promise</code>的嵌套，这个时候程序会报错,如下代码：</p>
+<pre><code class="language-js">    var promise = new Promise((resolve, reject) =&gt; {
+         resolve(100)
+    })
+    var n = promise.then(value =&gt; {
+        console.log(value)
+        return n
+    })
+// 100
+// Uncaught (in promise) TypeError: Chaining cycle detected for promise #&lt;Promise&gt;
+</code></pre>
+<p>2️⃣ 同时还要处理一种情况，如果我们在<code>new MyPromise</code>中传入的立即执行器中代码报错，以及<code>then()</code>中写的代码报错，我们都需要捕获到，然后执行<code>reject</code></p>
+<p>3️⃣ 之前一直是处理<code>resolve</code>的情况，还需要处理一下<code>reject</code>的情况</p>
+<p>这时候我们需要改造一下刚才写的代码：</p>
+<pre><code class="language-js">    const PENDING='pending', 
+          FULFILLED='fulfilled', 
+          REJECTED='rejected';
+
+    class MyPromise{
+        /* 步骤1
+        -------------------
+        捕获一下立即执行器中的错误
+        */
+        constructor(exector){
+          try{
+                exector(this.resolve,this.reject)
+          }catch(e){
+              reject(e)
+          }
+        };
+
+        status=PENDING;
+
+        value=undefined;
+
+        reason=undefined;
+
+        successCallback=[];
+
+        failCallback=[];
+
+        resolve=value=&gt;{
+         
+            if(this.status!==PENDING)return;
+         
+            this.status=FULFILLED;
+           
+            this.value=value;
+            /* 步骤6
+            -------------
+            由于修改了下面的successCallback，所以不需要传递this.value
+            */
+            while(this.successCallback.length)this.successCallback.shift()()
+        };
+
+        reject=reason=&gt;{
+          
+            if(this.status!==PENDING)return;
+          
+            this.status=REJECTED;
+          
+            this.reason=reason;
+
+             /* 步骤7
+            -------------
+            由于修改了下面的failCallback，所以不需要传递this.reason
+            */
+            while(this.failCallback.length)this.failCallback &amp;&amp; this.failCallback.shift()()
+        };
+
+       
+        then(successCallback,failCallback){
+
+            let prmoise2=new MyPromise((resolve,reject)=&gt;{
+              
+                if(this.status===FULFILLED){ 
+                    
+                    /* 步骤2
+                    ---------------------
+                    因为new Promise需要执行完成之后才有promise2，同步代码中没有pormise2，
+                    所以这部分代码需要异步执行 ，我们把prmoise2传入resolvePromise函数中
+                    去判断一下prmoise2是否等于n，同时需要捕获一下错误
+                    */
+                    setTimeout(() =&gt; {
+                        try{
+                             let n=successCallback(this.value)
+                             resolvePromise(prmoise2,n,resolve,reject)
+                        }catch(e){
+                            reject(e)
+                        }
+                    }, 0);
+                }else if(this.status===REJECTED){ 
+                    /* 
+                    步骤3
+                    ---------------------
+                    处理一下失败的情况
+                    */
+                    setTimeout(() =&gt; {
+                        try{
+                             let n= failCallback(this.reason)
+                             resolvePromise(prmoise2,n,resolve,reject)
+                        }catch(e){
+                            reject(e)
+                        }
+                    }, 0);
+                   
+                }else{ 
+                     /* 
+                    步骤5
+                    ---------------------
+                    修改一下异步情况
+                    */
+                    this.successCallback.push(()=&gt;{
+                        setTimeout(() =&gt; {
+                            try{
+                                let n=successCallback(this.value)
+                                resolvePromise(prmoise2,n,resolve,reject)
+                            }catch(e){
+                                reject(e)
+                            }
+                        }, 0);
+                    });
+                    this.failCallback.push(()=&gt;{
+                        setTimeout(() =&gt; {
+                            try{
+                                let n= failCallback(this.reason)
+                                resolvePromise(prmoise2,n,resolve,reject)
+                            }catch(e){
+                                reject(e)
+                            }
+                        }, 0);
+                    }); 
+                }
+            });
+            return prmoise2;
+            
+        }
+    }
+
+    function resolvePromise(prmoise2,n,resolve,reject){
+        /* 步骤4 
+        ----------------
+        如果n和prmoise2相等 则返回错误提示
+        */
+        if(prmoise2===n){
+            return reject(new TypeError('Chaining cycle detected for promise #&lt;Promise&gt;'))
+        }
+        // 判断x是不是其实例对象
+        if(n instanceof MyPromise){
+            n.then(resolve,reject)
+        }else{
+            //普通值，直接调用resolve
+            resolve(n)
+        }
+    }
+
+    //导出MyPromise
+    module.exports = MyPromise
+</code></pre>
+<p><strong>🚀验证代码</strong></p>
+<pre><code class="language-js">    //验证1
+    //index.js
+    const MyPromise = require('./myPromise')
+
+    var promise = new MyPromise((resolve, reject) =&gt; {
+        resolve(100)
+    })
+    var p1 = promise.then(value =&gt; {
+        console.log(value)
+        return p1
+    })
+    
+    p1.then((val)=&gt;{
+        console.log(val)
+    },(erro)=&gt;{
+        console.log(erro.message)
+    })
+    // 100
+    //  Chaining cycle detected for promise #&lt;Promise&gt;
+
+    //验证2
+    var errofn = new MyPromise((resolve, reject) =&gt; {
+    
+        throw new Error('执行器抛出异常！')
+        
+    })
+    errofn.then((val)=&gt;{
+        console.log(val)
+    },(erro)=&gt;{
+        console.log(erro)
+    })
+    // 执行器错误
+</code></pre>
+<h2 id="将then方法的参数变成可选参数">将then方法的参数变成可选参数</h2>
+<ul>
+<li>我们知道，调用<code>then()</code>时候也可以不传递任何参数，如下面这种情况</li>
+</ul>
+<pre><code class="language-js">    let promise =new Promise((resolve,reject)=&gt;{
+    resolve('lonjin')
+    })
+
+    promise.then().then().then((value)=&gt;{
+    console.log(value)
+    })
+    //lonjin
+</code></pre>
+<ul>
+<li>相当于这样：</li>
+</ul>
+<pre><code class="language-js">    promise
+    .then(value =&gt; value)
+    .then(value =&gt; value)
+    .then(value =&gt; value)
+    .then(value =&gt; console.log(value))
+</code></pre>
+<p>所以我们要把<code>then</code>方法的参数改为可选参数，如果有参数就传入，如果没有返回<code>value</code>:</p>
+<h3 id="代码实现-4">代码实现</h3>
+<pre><code class="language-js">    const PENDING='pending', 
+          FULFILLED='fulfilled', 
+          REJECTED='rejected';
+
+    class MyPromise{
+        constructor(exector){
+          try{
+            exector(this.resolve,this.reject)
+          }catch(e){
+              reject(e)
+          }
+        };
+
+        status=PENDING;
+
+        value=undefined;
+        reason=undefined;
+
+        successCallback=[];
+        failCallback=[];
+
+        resolve=value=&gt;{
+            if(this.status!==PENDING)return;
+            this.status=FULFILLED;
+            this.value=value;
+            while(this.successCallback.length)this.successCallback.shift()()
+        };
+
+        reject=reason=&gt;{
+            if(this.status!==PENDING)return;
+            this.status=REJECTED;
+            this.reason=reason;
+            while(this.failCallback.length)this.failCallback &amp;&amp; this.failCallback.shift()()
+        };
+
+        then(successCallback,failCallback){
+
+            /*步骤1
+            ----------------
+            判断参数是否存在
+            */
+           successCallback=successCallback?successCallback:value=&gt;value;
+           failCallback=failCallback?failCallback:reason=&gt;{throw reason};
+
+            let prmoise2=new MyPromise((resolve,reject)=&gt;{
+                if(this.status===FULFILLED){ 
+                    setTimeout(() =&gt; {
+                        try{
+                             let n=successCallback(this.value)
+                             resolvePromise(prmoise2,n,resolve,reject)
+                        }catch(e){
+                            reject(e)
+                        }
+                    }, 0);
+                }else if(this.status===REJECTED){ 
+                    setTimeout(() =&gt; {
+                        try{
+                             let n= failCallback(this.reason)
+                             resolvePromise(prmoise2,n,resolve,reject)
+                        }catch(e){
+                            reject(e)
+                        }
+                    }, 0);
+                   
+                }else{ 
+                    this.successCallback.push(()=&gt;{
+                        setTimeout(() =&gt; {
+                            try{
+                                let n=successCallback(this.value)
+                                resolvePromise(prmoise2,n,resolve,reject)
+                            }catch(e){
+                                reject(e)
+                            }
+                        }, 0);
+                    });
+                    this.failCallback.push(()=&gt;{
+                        setTimeout(() =&gt; {
+                            try{
+                                let n= failCallback(this.reason)
+                                resolvePromise(prmoise2,n,resolve,reject)
+                            }catch(e){
+                                reject(e)
+                            }
+                        }, 0);
+                    }); 
+                }
+            });
+            return prmoise2;
+            
+        }
+    }
+
+    function resolvePromise(prmoise2,n,resolve,reject){
+        if(prmoise2===n){
+            return reject(new TypeError('Chaining cycle detected for promise #&lt;Promise&gt;'))
+        }
+        if(n instanceof MyPromise){
+            n.then(resolve,reject)
+        }else{
+            resolve(n)
+        }
+    }
+
+    module.exports = MyPromise
+</code></pre>
+<p><strong>🚀验证代码</strong></p>
+<pre><code class="language-js">    const MyPromise = require('./myPromise')
+        let promise =new MyPromise((resolve,reject)=&gt;{
+        resolve('lonjin')
+    })
+
+    promise.then().then().then((value)=&gt;{
+     console.log(value)
+    })
+    //lonjin
+</code></pre>
+<h2 id="promiseall方法实现">Promise.all()方法实现</h2>
+<p>还是先分析一下<code>all</code>方法：</p>
+<pre><code class="language-js">    function fn1(){
+        return new Promise((resolve,reject)=&gt;{
+            setTimeout(() =&gt; {
+            resolve('fn1')
+            }, 3000);
+        })
+    }
+
+    function fn2(){
+        return new Promise((resolve,reject)=&gt;{
+            resolve('fn2')
+        })
+    }
+
+    Promise.all(['a','b',fn1(),fn2(),'e'])
+    .then((res)=&gt;{
+         console.log(res)
+    },(erro)=&gt;{
+        console.log(erro)
+    })
+    //[ 'a', 'b', 'fn1', 'fn2', 'e' ]
+</code></pre>
+<ul>
+<li>
+<p><code>all</code>方法接收一个数组，其内部可以传入<code>普通值</code>和<code>Promise</code>对象</p>
+</li>
+<li>
+<p><code>all</code>方法返回的也是一个<code>Promise</code>对象，其返回值为一个数组</p>
+</li>
+<li>
+<p><code>all</code>方法中传入的<code>Promise</code>对象，如果都是成功，返回为成功，如果有一个失败，就会走失败的回调函数</p>
+</li>
+</ul>
+<p>分析完代码，我们就可以进行编写了，具体代码如下：</p>
+<h3 id="代码实现-5">代码实现</h3>
+<pre><code class="language-js">    const PENDING='pending', 
+          FULFILLED='fulfilled', 
+          REJECTED='rejected';
+
+    class MyPromise{
+        constructor(exector){
+          try{
+            exector(this.resolve,this.reject)
+          }catch(e){
+              reject(e)
+          }
+        };
+
+        status=PENDING;
+
+        value=undefined;
+        reason=undefined;
+
+        successCallback=[];
+        failCallback=[];
+
+        resolve=value=&gt;{
+            if(this.status!==PENDING)return;
+            this.status=FULFILLED;
+            this.value=value;
+            while(this.successCallback.length)this.successCallback.shift()()
+        };
+
+        reject=reason=&gt;{
+            if(this.status!==PENDING)return;
+            this.status=REJECTED;
+            this.reason=reason;
+            while(this.failCallback.length)this.failCallback &amp;&amp; this.failCallback.shift()()
+        };
+
+        then(successCallback,failCallback){
+           successCallback=successCallback?successCallback:value=&gt;value;
+           failCallback=failCallback?failCallback:reason=&gt;{throw reason};
+
+            let prmoise2=new MyPromise((resolve,reject)=&gt;{
+                if(this.status===FULFILLED){ 
+                    setTimeout(() =&gt; {
+                        try{
+                             let n=successCallback(this.value)
+                             resolvePromise(prmoise2,n,resolve,reject)
+                        }catch(e){
+                            reject(e)
+                        }
+                    }, 0);
+                }else if(this.status===REJECTED){ 
+                    setTimeout(() =&gt; {
+                        try{
+                             let n= failCallback(this.reason)
+                             resolvePromise(prmoise2,n,resolve,reject)
+                        }catch(e){
+                            reject(e)
+                        }
+                    }, 0);
+                   
+                }else{ 
+                    this.successCallback.push(()=&gt;{
+                        setTimeout(() =&gt; {
+                            try{
+                                let n=successCallback(this.value)
+                                resolvePromise(prmoise2,n,resolve,reject)
+                            }catch(e){
+                                reject(e)
+                            }
+                        }, 0);
+                    });
+                    this.failCallback.push(()=&gt;{
+                        setTimeout(() =&gt; {
+                            try{
+                                let n= failCallback(this.reason)
+                                resolvePromise(prmoise2,n,resolve,reject)
+                            }catch(e){
+                                reject(e)
+                            }
+                        }, 0);
+                    }); 
+                }
+            });
+            return prmoise2;
+        };
+        /*
+          all()实现all方法
+        */
+        static all(array){
+            // 要返回的数组
+            let result=[];
+            //记录执行次数
+            let index=0;
+            //all方法返回的也是一个promise
+            return new MyPromise((resolve,reject)=&gt;{
+
+                //定义一个存到result数组中的方法
+                function addItem(key,value){
+                    result[key]=value;
+                    index++;
+                    //如果index等于传入array的长度，说明执行完成
+                    if(index==array.length){
+                        resolve(result)
+                    }
+                }
+
+                //循环array
+                for(let i=0;i&lt;array.length;i++){
+                    //当前的参数
+                    let current=array[i];
+                    //判断一下当前的返回值是普通值还是promise
+                    if(current instanceof MyPromise){
+                        current.then(value=&gt;addItem(i,value),reason=&gt;reject(reason));
+                    }else{
+                        addItem(i,current)
+                    }
+                
+                }
+            })
+        }
+    }
+
+    function resolvePromise(prmoise2,n,resolve,reject){
+        if(prmoise2===n){
+            return reject(new TypeError('Chaining cycle detected for promise #&lt;Promise&gt;'))
+        }
+        if(n instanceof MyPromise){
+            n.then(resolve,reject)
+        }else{
+            resolve(n)
+        }
+    }
+
+    module.exports = MyPromise
+</code></pre>
+<h2 id="promiseresolve方法实现">Promise.resolve()方法实现</h2>
+<p><code>resolve</code>方法可以接受一个<code>prmoise</code>对象，也可以接收一个普通值，如果是普通值需要包装成一个<code>prmoise</code>返回。</p>
+<h3 id="代码实现-6">代码实现</h3>
+<pre><code class="language-js">    const PENDING='pending', 
+          FULFILLED='fulfilled', 
+          REJECTED='rejected';
+
+    class MyPromise{
+        constructor(exector){
+          try{
+            exector(this.resolve,this.reject)
+          }catch(e){
+              reject(e)
+          }
+        };
+
+        status=PENDING;
+
+        value=undefined;
+        reason=undefined;
+
+        successCallback=[];
+        failCallback=[];
+
+        resolve=value=&gt;{
+            if(this.status!==PENDING)return;
+            this.status=FULFILLED;
+            this.value=value;
+            while(this.successCallback.length)this.successCallback.shift()()
+        };
+
+        reject=reason=&gt;{
+            if(this.status!==PENDING)return;
+            this.status=REJECTED;
+            this.reason=reason;
+            while(this.failCallback.length)this.failCallback &amp;&amp; this.failCallback.shift()()
+        };
+
+        then(successCallback,failCallback){
+           successCallback=successCallback?successCallback:value=&gt;value;
+           failCallback=failCallback?failCallback:reason=&gt;{throw reason};
+
+            let prmoise2=new MyPromise((resolve,reject)=&gt;{
+                if(this.status===FULFILLED){ 
+                    setTimeout(() =&gt; {
+                        try{
+                             let n=successCallback(this.value)
+                             resolvePromise(prmoise2,n,resolve,reject)
+                        }catch(e){
+                            reject(e)
+                        }
+                    }, 0);
+                }else if(this.status===REJECTED){ 
+                    setTimeout(() =&gt; {
+                        try{
+                             let n= failCallback(this.reason)
+                             resolvePromise(prmoise2,n,resolve,reject)
+                        }catch(e){
+                            reject(e)
+                        }
+                    }, 0);
+                   
+                }else{ 
+                    this.successCallback.push(()=&gt;{
+                        setTimeout(() =&gt; {
+                            try{
+                                let n=successCallback(this.value)
+                                resolvePromise(prmoise2,n,resolve,reject)
+                            }catch(e){
+                                reject(e)
+                            }
+                        }, 0);
+                    });
+                    this.failCallback.push(()=&gt;{
+                        setTimeout(() =&gt; {
+                            try{
+                                let n= failCallback(this.reason)
+                                resolvePromise(prmoise2,n,resolve,reject)
+                            }catch(e){
+                                reject(e)
+                            }
+                        }, 0);
+                    }); 
+                }
+            });
+            return prmoise2;
+        };
+       
+        static all(array){
+          
+            let result=[];
+            let index=0;
+            return new MyPromise((resolve,reject)=&gt;{
+                function addItem(key,value){
+                    result[key]=value;
+                    index++;
+                    if(index==array.length){
+                        resolve(result)
+                    }
+                }
+
+                for(let i=0;i&lt;array.length;i++){
+                    let current=array[i];
+                    if(current instanceof MyPromise){
+                        current.then(value=&gt;addItem(i,value),reason=&gt;reject(reason));
+                    }else{
+                        addItem(i,current)
+                    }
+                
+                }
+            })
+        };
+        /* 
+         resolve方法
+        */
+         static resolve(value){
+            //判断value 是否为MyPromise的实例，如果是，直接返回
+            if( value instanceof MyPromise) return value;
+            //如果不是，return一个prmoise
+            return new MyPromise(resolve=&gt;resolve(value))
+        }
+    }
+
+    function resolvePromise(prmoise2,n,resolve,reject){
+        if(prmoise2===n){
+            return reject(new TypeError('Chaining cycle detected for promise #&lt;Promise&gt;'))
+        }
+        if(n instanceof MyPromise){
+            n.then(resolve,reject)
+        }else{
+            resolve(n)
+        }
+    }
+
+    module.exports = MyPromise
+
+</code></pre>
+<h3 id="代码验证">代码验证</h3>
+<pre><code class="language-js">    const MyPromise = require('./myPromise');
+
+    MyPromise.resolve('lonjin').then((res)=&gt;{
+        console.log(res)
+    });
+    //lonjin
+</code></pre>
+<h2 id="finally方法实现">finally()方法实现</h2>
+<p><code>finally()</code>方法返回一个<code>Promise</code>。在<code>Promise</code>结束时，无论结果是<code>fulfilled</code>或者是<code>rejected</code>，都会执行指定的回调函数。这为在<code>Promise</code>是否成功完成后都需要执行的代码提供了一种方式。<br>
+这避免了同样的语句需要在<code>then()</code>和<code>catch()</code>中各写一次的情况。</p>
+<ul>
+<li>返回的是<code>Promise</code></li>
+<li>无论成功和失败都会执行</li>
+</ul>
+<h3 id="代码实现-7">代码实现</h3>
+<pre><code class="language-js">    //MyPromise中
+   finally(callback){
+        // 使用then方法拿到当前的promise的状态
+        return this.then(value=&gt;{
+            /* 如果callback是一个异步的promise对象，我们还需要等待其执行完毕，所以需要用到静态方法resolve
+               把callback调用之后返回的promise传递过去，并且执行promise，且在成功之后返回value
+            */
+            return MyPromise.resolve(callback()).then(()=&gt;value)
+        },reason=&gt;{
+             // 失败之后调用的then方法，然后把失败的原因返回出去
+            return MyPromise.resolve(callback()).then(() =&gt; { throw reason })
+        })
+    }
+</code></pre>
+<h3 id="代码验证-2">代码验证</h3>
+<pre><code class="language-js">    const MyPromise = require('./myPromise')
+
+    function fn1(){
+    return new MyPromise((resolve,reject)=&gt;{
+        setTimeout(() =&gt; {
+        reject('100')
+        }, 3000);
+    })
+    }
+
+    fn1().finally(()=&gt;{
+    console.log('finally')
+    }).then((value)=&gt;{
+    console.log(value)
+    },(erro)=&gt;{
+    console.log(erro)
+    })
+    //finally
+    // 100
+</code></pre>
+<h2 id="catch方法的实现">catch方法的实现</h2>
+<ul>
+<li>catch方法是为了捕获promise对象的所有错误回调的</li>
+<li>直接调用then方法，然后成功的地方传递undefined，错误的地方传递reason</li>
+<li>catch方法是作用在原型对象上的方法</li>
+</ul>
+<h3 id="代码实现-8">代码实现</h3>
+<pre><code class="language-js">    catch (failCallback) {
+         // 直接调用then方法，然后成功的地方传递undefined，错误的地方传递reason
+        return this.then(undefined, failCallback)
+    }
+</code></pre>
+<h2 id="完整代码">完整代码</h2>
+<p>完整代码在下方，所有的都加了注释，需要的直接复制到编辑器看吧！</p>
+<pre><code class="language-js">
+    //定义三个常量
+    const PENDING='pending', //等待
+        FULFILLED='fulfilled', //成功
+        REJECTED='rejected'; //失败
+
+    class MyPromise{
+        constructor(exector){
+            // 立即执行函数，传入resolve方法和reject方法
+            //同时捕获一下错误
+            try{
+                exector(this.resolve,this.reject)
+            }catch(e){
+                this.reject(e)
+            } 
+        };
+
+        //定义一个初始状态
+        status=PENDING;
+
+        //保存成功后的值
+        value=undefined;
+
+        //保存失败后的值
+        reason=undefined;
+
+        //定义一个成功回调函数
+        successCallback=[];
+        //定义一个失败回调函数
+        failCallback=[];
+
+        //成功
+        resolve=value=&gt;{
+            //判断当前状态是否为PENDING，如果不是就return
+            if(this.status!==PENDING)return;
+            //更改状态为fulfilled
+            this.status=FULFILLED;
+            //保存成功的返回值
+            this.value=value;
+            //判断成功回调是否存在，如果存在，直接调用
+            while(this.successCallback.length)this.successCallback.shift()()
+        };
+        //失败
+        reject=reason=&gt;{
+            //判断当前状态是否为PENDING，如果不是就return
+            if(this.status!==PENDING)return;
+            //更改状态为rejected
+            this.status=REJECTED;
+            //保存失败的返回值
+            this.reason=reason;
+            //判断成功回调是否存在，如果存在，直接调用
+            while(this.failCallback.length)this.failCallback &amp;&amp; this.failCallback.shift()()
+        };
+
+        //then方法会接收两个回调函数，分别为成功和失败的回调函数
+        then(successCallback,failCallback){
+            //处理then方法可选参数
+            successCallback=successCallback?successCallback:value=&gt;value;
+            failCallback=failCallback?failCallback:reason=&gt;{throw reason}
+            
+            let prmoise2=new MyPromise((resolve,reject)=&gt;{
+                //判断当前状态，然后调用相应的函数
+                if(this.status===FULFILLED){  //成功状态
+                    //传入返回值
+                    /*因为new Promise需要执行完成之后才有promise2，同步代码中没有pormise2，
+                    所以这部分代码需要异步执行 */
+                    setTimeout(() =&gt; {
+                        //捕获错误
+                        try{
+                            let n=successCallback(this.value)
+                            resolvePromise(prmoise2,n,resolve,reject)
+                        }catch(e){
+                            reject(e)
+                        }
+                    }, 0);
+                }else if(this.status===REJECTED){ //失败状态  
+                    //传入返回值
+                    setTimeout(() =&gt; {
+                        //捕获错误
+                        try{
+                            let n= failCallback(this.reason)
+                            resolvePromise(prmoise2,n,resolve,reject)
+                        }catch(e){
+                            reject(e)
+                        }
+                    }, 0);
+                }else{ //等待状态
+                    //保存回调函数(考虑到异步情况)
+                    this.successCallback.push(()=&gt;{
+                        setTimeout(() =&gt; {
+                            //捕获错误
+                            try{
+                                let n=successCallback(this.value)
+                                resolvePromise(prmoise2,n,resolve,reject)
+                            }catch(e){
+                                reject(e)
+                            }
+                        }, 0);
+                    });
+                    this.failCallback.push(()=&gt;{
+                        setTimeout(() =&gt; {
+                            //捕获错误
+                            try{
+                                let n= failCallback(this.reason)
+                                resolvePromise(prmoise2,n,resolve,reject)
+                            }catch(e){
+                                reject(e)
+                            }
+                        }, 0);
+                    }); 
+                }
+            });
+            return prmoise2;
+            
+        };
+        // 直接调用then方法，然后成功的地方传递undefined，错误的地方传递reason
+        catch (failCallback) {
+            return this.then(undefined, failCallback)
+        }
+
+        finally(callback){
+            // 使用then方法拿到当前的promise的状态
+            return this.then(value=&gt;{
+                /* 如果callback是一个异步的promise对象，我们还需要等待其执行完毕，所以需要用到静态方法resolve
+                把callback调用之后返回的promise传递过去，并且执行promise，且在成功之后返回value
+                */
+                return MyPromise.resolve(callback()).then(()=&gt;value)
+            },reason=&gt;{
+                // 失败之后调用的then方法，然后把失败的原因返回出去
+                return MyPromise.resolve(callback()).then(() =&gt; { throw reason })
+            })
+        }
+
+        static all(array){
+            // 要返回的数组
+            let result=[];
+            //记录执行次数
+            let index=0;
+            //all方法返回的也是一个promise
+            return new MyPromise((resolve,reject)=&gt;{
+
+                //定义一个存到result数组中的方法
+                function addItem(key,value){
+                    result[key]=value;
+                    index++;
+                    if(index==array.length){
+                        resolve(result)
+                    }
+                }
+
+                //循环array
+                for(let i=0;i&lt;array.length;i++){
+                    //当前的参数
+                    let current=array[i];
+
+                    //判断一下当前的返回值是普通值还是promise
+                    if(current instanceof MyPromise){
+                        current.then(value=&gt;addItem(i,value),reason=&gt;reject(reason));
+                    }else{
+                        addItem(i,current)
+                    }
+                
+                }
+            })
+        };
+
+        static resolve(value){
+            //判断value 是否为MyPromise的实例，如果是，直接返回
+        if( value instanceof MyPromise) return value;
+        //如果不是，return一个prmoise
+        return new MyPromise(resolve=&gt;resolve(value))
+        }
+    }
+
+    //判断x是不是其实例的对象
+    function resolvePromise(prmoise2,n,resolve,reject){
+        //如果n和prmoise2相等 则返回错误提示
+        if(prmoise2===n){
+            console.log('相等')
+            return reject(new TypeError('Chaining cycle detected for promise #&lt;Promise&gt;'))
+        }
+        // 判断x是不是其实例对象
+        if(n instanceof MyPromise){
+            n.then(resolve,reject)
+        }else{
+            //普通值，直接调用resolve
+            resolve(n)
+        }
+    }
+
+    //导出MyPromise
+    module.exports = MyPromise
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://lonjinup.github.io/javascript-yi-bu-bian-cheng/" class="post-title gt-a-link">
+                    JavaScript异步编程
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="0fdde3b6-a87f-4594-9b7f-25d151ba858f";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<style>
+.gt-bg-theme-color-second{ background: none!important;}
+</style>
+
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,5155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://lonjinup.github.io</id>
+    <title>陇锦</title>
+    <updated>2024-03-14T08:09:02.997Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://lonjinup.github.io"/>
+    <link rel="self" href="https://lonjinup.github.io/atom.xml"/>
+    <subtitle>记录学习 记录生活</subtitle>
+    <logo>https://lonjinup.github.io/images/avatar.png</logo>
+    <icon>https://lonjinup.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2024, 陇锦</rights>
+    <entry>
+        <title type="html"><![CDATA["WebSocket消息推送：前端实现实时通知功能全过程解析"]]></title>
+        <id>https://lonjinup.github.io/WebSocketManager/</id>
+        <link href="https://lonjinup.github.io/WebSocketManager/">
+        </link>
+        <updated>2024-01-15T08:03:08.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="websocket消息推送">WebSocket消息推送</h1>
+<blockquote>
+<p>在做一些后台项目的时候，有时候需要前端去实时接收消息；一种比较原始的做法就是前端每隔一段时间主动去轮询服务器，如果用户较多的情况下，会给服务器造成一定的压力，而且访问的频率也无法准确把握，所以这种需求还是使用<code>websocket</code>来解决。 下面我们就从0到1封装一套<code>websocket</code>消息推送功能模块。文章涉及到的知识均为前端部分，后端部分我们就不展开来说了。如果文章对你有帮助，记得👍点赞🌟收藏！</p>
+</blockquote>
+<h2 id="需求梳理">需求梳理</h2>
+<p>我们还是使用<code>class</code>来封装，该模块需要提供以下功能：</p>
+<ul>
+<li><code>WebSocket</code>对象的创建</li>
+<li><code>WebSocket</code>对象的关闭</li>
+<li>启用心跳机制，避免断连</li>
+<li>消息推送，接收到消息后进行业务逻辑处理</li>
+<li>重连机制，如果断连后尝试一定次数的重连，超过最大次数后仍然失败则关闭连接</li>
+</ul>
+<p>下面我们就逐一实现这些功能。</p>
+<h2 id="功能实现">功能实现</h2>
+<h3 id="创建websocket类">创建WebSocket类</h3>
+<p>新建<code>WebSocketManager.js</code>文件，创建一个<code>WebSocketManager</code>类，同时初始化一些参数，具体代码如下：</p>
+<pre><code class="language-js">export default class WebSocketManager {
+    constructor(url = null, userId = null, receiveMessageCallback = null) {
+        this.socket = null // WebSocket 对象
+        this.pingTimeout = null // 心跳计时器
+        this.reconnectTimeout = 5000 // 重连间隔，单位：毫秒
+        this.maxReconnectAttempts = 10 // 最大重连尝试次数
+        this.reconnectAttempts = 0; // 当前重连尝试次数
+        this.id = userId //用户ID（业务逻辑，根据自己业务需求调整）
+        this.url = url // WebSocket 连接地址
+        this.receiveMessageCallback = receiveMessageCallback // 接收消息回调函数
+    }
+}
+</code></pre>
+<h3 id="初始化websocket对象">初始化WebSocket对象</h3>
+<p>初始化完成后，我们先实现一个<code>initialize</code>方法，在这里我们要监测一下使用时候是否传入了<code>webSocket</code>连接的服务器地址、用户<code>id</code>等；如果没有问题，则连接<code>WebSocket</code>。</p>
+<pre><code class="language-js">export default class WebSocketManager {
+    constructor() {
+        // ...省略
+    }
+    /**
+     * 初始化
+     */
+    async start() {
+        if( this.url &amp;&amp; this.id){
+            // 连接WebSocket
+            this.connectWebSocket()
+        }else{
+            console.error('WebSocketManager erros: 请传入连接地址和用户id')
+        }
+    }
+}
+</code></pre>
+<h3 id="创建websocket连接">创建WebSocket连接</h3>
+<p>初始化完成后，我们就开始来实现一下<code>WebSocket</code>连接，标准的<code>WebSocket</code>构造函数以<code>url</code>作为其第一个参数，第二个参数是可选的，这里根据服务端那边的约定去进行处理即可，这里要求传入<code>用户id+一个随机值</code>去生成唯一标识符。</p>
+<pre><code class="language-js">export default class WebSocketManager {
+    constructor() {
+        // ...省略
+    }
+    /**
+     * 创建WebSocket连接
+     */
+    connectWebSocket() {
+        // 通过id生成唯一值（服务端要求，具体根据自己业务去调整）
+        let id = `${this.id}-${Math.random()}`
+        // 创建 WebSocket 对象
+        this.socket = new WebSocket(this.url, id)
+
+        // 处理连接打开事件
+        this.socket.addEventListener('open', event =&gt; {
+            // 心跳机制
+            this.startHeartbeat()
+        })
+
+        // 处理接收到消息事件
+        this.socket.addEventListener('message', event =&gt; {
+            this.receiveMessage(event)
+        })
+
+        // 处理连接关闭事件
+        this.socket.addEventListener('close', event =&gt; {
+            // 清除定时器
+            clearTimeout(this.pingTimeout)
+            clearTimeout(this.reconnectTimeout)
+            // 尝试重连
+            if (this.reconnectAttempts &lt; this.maxReconnectAttempts) {
+                this.reconnectAttempts++
+                this.reconnectTimeout = setTimeout(() =&gt; {
+                    this.connectWebSocket()
+                }, this.reconnectTimeout)
+            } else {
+                // 重置重连次数
+                this.reconnectAttempts = 0
+                console.error('WebSocketManager erros: Max reconnect attempts reached. Unable to reconnect.')
+            }
+        })
+
+        // 处理 WebSocket 错误事件
+        this.socket.addEventListener('error', event =&gt; {
+            console.error('WebSocketManager error:', event)
+        })
+    }
+}
+</code></pre>
+<h3 id="心跳机制">心跳机制</h3>
+<p>心跳机制主要用于检测客户端是否在线，如果客户端超过一定时间没有发送消息，服务端就会断开连接。所以我们需要每隔一段时间发送一个心跳消息，这样就可以避免长时间的连接断开。具体实现代码如下：</p>
+<pre><code class="language-js">export default class WebSocketManager {
+    constructor() {
+        // ...省略
+    }
+
+    /**
+     * 启动心跳机制
+     */
+    startHeartbeat() {
+        this.pingTimeout = setInterval(() =&gt; {
+            // 发送心跳消息
+            this.sendMessage('ping')
+        }, 10000) // 每隔 10 秒发送一次心跳
+    }
+
+    /**
+     * 发送消息
+     * @param {String} message 消息内容
+     */
+    sendMessage(message) {
+       if (this.socket.readyState === WebSocket.OPEN) {
+            this.socket.send(message);
+        } else {
+            console.error('WebSocketManager error: WebSocket connection is not open. Unable to send message.')
+        }
+    }
+}
+</code></pre>
+<h3 id="接收消息">接收消息</h3>
+<p>这里我们只简单处理一下，接收到消息后，我们根据消息内容做不同的处理。</p>
+<pre><code class="language-js">export default class WebSocketManager {
+    constructor() {
+        // ...省略
+    }
+    /**
+     * 接收到消息
+     */
+    receiveMessage(event) {
+        // 根据业务自行处理
+        console.log('receiveMessage:', event.data)
+        this.receiveMessageCallback &amp;&amp; receiveMessageCallback(event.data)
+    }
+}
+</code></pre>
+<h3 id="关闭连接">关闭连接</h3>
+<p>如果用户要退出登录，我们可以写一个方法来实现关闭连接，同时清除定时器以及当前重连尝试次数，具体代码如下：</p>
+<pre><code class="language-js">export default class WebSocketManager {
+    constructor() {
+        // ...省略
+    }
+    /**
+     * 关闭连接
+     */
+    closeWebSocket() {
+        this.socket.close()
+        // 清除定时器 重置重连次数
+        clearTimeout(this.pingTimeout)
+        clearTimeout(this.reconnectTimeout)
+        this.reconnectAttempts = 0
+    }
+}
+</code></pre>
+<h3 id="使用方法">使用方法</h3>
+<p>导入<code>WebSocketManager</code>后，我们就可以使用它了，如下所示：</p>
+<pre><code class="language-js">/**
+ * 接收消息回调
+ */
+const receiveMessage = (res)=&gt;{
+    console.log('接收消息回调：'res)
+}
+
+const socketManager = new WebSocketManager('ws://example.com/socket', 'userid292992', receiveMessage)
+socketManager.start()
+</code></pre>
+<h2 id="总结">总结</h2>
+<blockquote>
+<p>以上就是使用<code>WebSocket</code>的一个简单例子，具体实现根据业务需求进行调整即可。全部代码比较多，就不在这里展示了，需要的可以到<a href="https://github.com/LonJinUp/webSocketManager">GitHub</a>下载。</p>
+</blockquote>
+<h2 id="往期推荐文章">往期推荐文章📚</h2>
+<p>🏷️<a href="https://lonjinup.github.io/weixin-onNetworkStatusChange/">小程序网络监控大揭秘：如何实时监听网络变化</a></p>
+<p>🏷️<a href="https://lonjinup.github.io/weixn-image-time/">&quot;5.25秒变0.023秒：小程序图片优化全攻略&quot;</a></p>
+<p>🏷️<a href="https://lonjinup.github.io/uni-request/">如何封装优雅、高效的uni-app请求：让开发更轻松</a></p>
+<p>🏷️<a href="https://lonjinup.github.io/uni-app-template-01/">uni-app开发小程序：项目架构以及经验分享</a></p>
+<p>🏷️<a href="https://lonjinup.github.io/wxtabbar/">小程序TabBar创意动画(文末附完整源代码)</a></p>
+<blockquote>
+<p>本文首发于<a href="https://lonjinup.github.io">陇锦的个人博客</a>，转载请注明出处！</p>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[小程序网络监控大揭秘：如何实时监听网络变化]]></title>
+        <id>https://lonjinup.github.io/weixin-onNetworkStatusChange/</id>
+        <link href="https://lonjinup.github.io/weixin-onNetworkStatusChange/">
+        </link>
+        <updated>2024-01-12T07:48:12.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="小程序网络监控大揭秘如何实现实时监听网络变化">小程序网络监控大揭秘：如何实现实时监听网络变化</h1>
+<blockquote>
+<p>前几天写了一篇<a href="https://lonjinup.github.io/weixn-image-time/">&quot;5.25秒变0.023秒：小程序图片优化全攻略&quot;<br>
+</a>；介绍了一些小程序图片优化技巧，在文章中提到我们可以借助当前用户的网络状态去加载对应分辨率的图片。下面我们就实现一下这个功能。</p>
+</blockquote>
+<h2 id="需求分析">需求分析</h2>
+<p>首先我们需要去写一个下载方法，通过下载来计算请求耗时，然后通过所需耗时来判断网络状态，如果网络状态不好，则进行几次重试，看看是否有更好的网络状态。同时我们还需要使用<code>wx.onNetworkStatusChange</code>这个api来监听网络状态的变化；该api会在用户网络切换时候触发，一旦触发，我们需要重新执行下载方法来判断当前的网络状态。</p>
+<h2 id="功能实现">功能实现</h2>
+<p>我这里demo使用<code>uni-app</code>开发，所以有些api可能是<code>uni.</code>开头，如果你使用小程序原生开发，换成<code>wx.</code>即可。</p>
+<p>新建<code>/utils/networkManager.js</code>，我们先定义一些基本的参数：</p>
+<pre><code class="language-js">class NetworkManager {
+    constructor() {
+        // 最大重试次数
+        this.MAX_RETRY_COUNT = 3
+        // 当前重试次数
+        this.retryCount = 0
+        // 当前网络状态
+        this.currentNetworkStatus = ''
+        // 网络状态改变回调
+        this.statusChangeCallback = null
+        // 图片地址
+        this.url = ''
+    }
+}
+</code></pre>
+<p>然后我们去添加两个函数，用来设置图片地址和网络状态改变的回调函数：</p>
+<pre><code class="language-js">class NetworkManager {
+    constructor() {
+        // ...省略
+    }
+    /**
+     * 设置网络状态变化的回调函数
+     * @param {*} callback 
+     */
+    setChangeCallback(callback) {
+        this.statusChangeCallback = callback
+    }
+
+    // 设置请求的url
+    setRequestUrl(url) {
+        this.url = url
+    }
+}
+</code></pre>
+<p>如何判断当前网络到底好不好呢？我们可以通过<code>uni.downloadFile</code>来下载一张<code>1M-2M</code>大小的图片，通过下载时间来判断网络情况。当请求耗时在<code>1000ms</code>以内，则认为网络极好，如果介于<code>1000-1500ms</code>之间，则认为网络好，如果大于<code>1500ms</code>，则认为网络差。如果网络非常差的时候，我们需要多请求几次，来持续判断网络是否有好转，如果超过我们定义的最大重试次数就停止请求。</p>
+<pre><code class="language-js">class NetworkManager {
+    constructor() {
+        // ...省略
+    }
+    // 请求方法
+    request() {
+        return new Promise((resolve, reject) =&gt; {
+            // 记录当前时间
+            const startTime = Date.now()
+            uni.downloadFile({
+                url: `${this.url}?timer=${startTime}`,
+                success: (res) =&gt; {
+                    // 记录结束时间
+                    const endTime = Date.now()
+                    // 时间差
+                    const duration = endTime - startTime
+                    // 判断网络情况
+                    this.checkNetworkStatus(duration)
+                    resolve(res)
+                },
+                fail: (res) =&gt; {
+                    // 进行重试
+                    this.retryCount++
+                    if (this.retryCount &lt; this.MAX_RETRY_COUNT) {
+                        this.request()
+                    } else {
+                        console.log('网络状态不佳，已停止')
+                        // 重试次数归零
+                        this.retryCount = 0
+                        reject(res)
+                    }
+                },
+            })
+        })
+    }
+
+    /**
+     * 判断网络状态
+     * @param {*} duration 请求耗时ms
+     */
+    checkNetworkStatus(duration) {
+        const previousStatus = this.currentNetworkStatus
+        if (duration &lt; 1000) {
+            this.currentNetworkStatus = 'veryGood'
+        } else if (duration &gt;= 1000 &amp;&amp; duration &lt;= 1500) {
+            this.currentNetworkStatus = 'good'
+        } else {
+            this.currentNetworkStatus = 'poor'
+            // 请求失败，开始判断
+            if (this.retryCount &lt; this.MAX_RETRY_COUNT) {
+                this.retryCount++
+                this.request()
+            } else {
+                // 达到最大重试次数，停止递归
+                this.retryCount = 0
+                console.log('网络状态不佳，已停止')
+            }
+        }
+
+        // 判断网络状态是否发生变化,如果有变化，就通知回调函数
+        if (previousStatus !== this.currentNetworkStatus &amp;&amp; this.statusChangeCallback) {
+            this.statusChangeCallback(this.currentNetworkStatus)
+        }
+    }
+}
+</code></pre>
+<p>最后我们还需要写一个开启函数，用来启动网络监听，同时使用<code>uni.onNetworkStatusChange</code>来监听用户网络环境变化，如果有变化则进行一次请求。</p>
+<pre><code class="language-js">class NetworkManager {
+    constructor() {
+        // ...省略
+    }
+    /**
+     * 开启监听
+     * @returns 
+     */
+    start() {
+        if (!this.url) {
+            console.error('请设置请求的url')
+            return
+        }
+        // 执行请求
+        this.request()
+        // 网络环境变换后，重新请求
+        uni.onNetworkStatusChange(() =&gt; {
+            this.request()
+        })
+    }
+}
+</code></pre>
+<h2 id="使用方式">使用方式</h2>
+<p>我们来看一下最终的使用方式：</p>
+<pre><code class="language-js">// 使用示例
+const networkManager = new NetworkManager()
+// 设置请求的url
+networkManager.setRequestUrl('https://lonjin.oss-cn-beijing.aliyuncs.com/weixin-test/wallhaven-o5g125.jpeg')
+// 设置网络状态变化的回调函数
+networkManager.setChangeCallback((newStatus) =&gt; {
+    // 这里可以把结果存到全局变量中，在其他页面方便使用
+    console.log('网络状态变化:', newStatus)
+})
+// 启动
+networkManager.start()
+</code></pre>
+<h2 id="总结">总结</h2>
+<blockquote>
+<p>我们通过<code>uni.downloadFile</code>来下载一张图片，通过下载时间来判断网络情况，然后通过<code>uni.onNetworkStatusChange</code>监听网络环境变化，当网络环境变化时，重新请求；从而去根据网络状态去请求不同大小的资源文件，减少白屏时间，提升用户体验。</p>
+</blockquote>
+<p>往期推荐文章📚：</p>
+<p>🏷️<a href="https://lonjinup.github.io/weixn-image-time/">&quot;5.25秒变0.023秒：小程序图片优化全攻略&quot;</a></p>
+<p>🏷️<a href="https://lonjinup.github.io/uni-request/">如何封装优雅、高效的uni-app请求：让开发更轻松</a></p>
+<p>🏷️<a href="https://lonjinup.github.io/uni-app-template-01/">uni-app开发小程序：项目架构以及经验分享</a></p>
+<p>🏷️<a href="https://lonjinup.github.io/wxtabbar/">小程序TabBar创意动画(文末附完整源代码)</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA["5.25秒变0.023秒：小程序图片优化全攻略"]]></title>
+        <id>https://lonjinup.github.io/weixn-image-time/</id>
+        <link href="https://lonjinup.github.io/weixn-image-time/">
+        </link>
+        <updated>2024-01-08T17:37:08.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="525秒变0023秒小程序图片优化全攻略">&quot;5.25秒变0.023秒：小程序图片优化全攻略&quot;</h1>
+<blockquote>
+<p>最近在公司在写微信小程序，该小程序主要展示一些高清图片，所以图片数量非常多，而且图片尺寸也比较大，导致小程序的加载时间非常长。所以这里记录一下如何减少小程序图片的加载时间。</p>
+</blockquote>
+<h2 id="优化前">优化前</h2>
+<p>这里我挑选了一些项目里面比较大的图片，还有我之前保存的一些背景图，共计<code>12</code>张，上传到<code>阿里云oss</code>，然后写了一个demo去渲染图片，这里我们先看看加载时间。</p>
+<figure data-type="image" tabindex="1"><img src="https://s11.ax1x.com/2024/01/10/pFpoHTU.png" alt="pFpoHTU.png" loading="lazy"></figure>
+<p>可以看到，一旦文件大小到了<code>1M</code>以上，加载基本都在<code>1秒</code>以上了，而且加载最慢的一张图片大小为<code>2.4M</code>；加载耗时<code>5.27</code>秒。然而在这个小程序中，有非常多的瀑布流图片展示，需要加载的图片也非常多，这对于这种图片展示类的小程序来说，简直是非常糟糕的体验。下面我们就分析一下，如何提升用户体验，缩短加载时间。</p>
+<h2 id="分析优化">分析优化</h2>
+<p>这里我总结了一些常见图片优化策略，方法如下：</p>
+<figure data-type="image" tabindex="2"><a href="https://imgse.com/i/pFpojp9"><img src="https://s11.ax1x.com/2024/01/10/pFpojp9.png" alt="pFpojp9.png" loading="lazy"></a></figure>
+<p>下面我们就根据总结的优化策略进行优化，具体如下：</p>
+<h3 id="优化1使用webp格式的图片">优化1：使用<code>webp</code>格式的图片</h3>
+<p>首先我们知道，在小程序中是支持<code>webp</code>格式的图片的，所以我们可以将图片转换为<code>webp</code>格式，这样可以减少图片体积，提升加载速度。<br>
+公司使用的<code>阿里云oss</code>进行图片存储，阿里云oss是支持格式转换的，只需要在图片url后面加一定的参数即可，我们可以给图片后面加上<code>?x-oss-process=image/format,webp</code>即可。</p>
+<pre><code class="language-js">// 原本图片路径：
+let url =' https://lonjin.oss-cn-beijing.aliyuncs.com/weixin-test/3%20%282%2917047050403470042.png'
+
+// 转化为webp格式的图片路径：
+let url =' https://lonjin.oss-cn-beijing.aliyuncs.com/weixin-test/3%20%282%2917047050403470042.png?x-oss-process=image/format,webp'
+</code></pre>
+<p>清除缓存，刷新页面，再来看加载时间：</p>
+<figure data-type="image" tabindex="3"><a href="https://imgse.com/i/pFpoqkF"><img src="https://s11.ax1x.com/2024/01/10/pFpoqkF.png" alt="pFpoqkF.png" loading="lazy"></a></figure>
+<p>可以看到，加载时间大幅缩短，图片格式转化后，图片大小已经非常小了，最大的一张图片仅仅有<code>730kb</code>；随之加载时间也大幅缩短，最慢的一张图片从之前的5.27秒缩短为1.71秒，加载速度提升了<code>3倍</code>！其他的图片加载基本都在<code>500ms</code>左右，加载速度提升也是比较明显。</p>
+<p>这里我们还需要注意一下<code>webp</code>图片格式的支持范围，我这里使用的<code>uni-app</code>做为demo，查了一下文档，支持范围如下：</p>
+<blockquote>
+<p>Android4以上（含）、iOS14以上（含）系统内置支持webp，此时，不管web、小程序、app，也不管vue/nvue/uvue都可以直接使用webp；<br>
+iOS14以下，app-vue下，iOS不支持；app-nvue/uvue下，iOS支持；微信小程序2.9.0起，配置属性webp为true时iOS支持；</p>
+</blockquote>
+<p>所以如果考虑一些特殊情况，我们可以进行一些特殊情况下的处理。</p>
+<p>如果文件是直接放在服务器上的，我们可以借助一些第三方工具来把图片批量转化为<code>webp</code>格式；比如<a href="https://convertio.co/zh/jpg-webp/">convertio.co</a></p>
+<h3 id="优化2根据需求设置适当的分辨率">优化2：根据需求设置适当的分辨率</h3>
+<p>阿里云oss支持在图片后面加上参数来设置图片的分辨率，我这里写的demo中，<code>image</code>标签图片宽度均为小程序图片默认宽度；即为<code>width: 320px;</code>，所以我们可以给图片url后面加上<code>/resize,w_320</code>即可，其中<code>w_320</code>表示图片宽度为<code>320px</code>。</p>
+<pre><code class="language-js">// 原本图片路径：
+let url =' https://lonjin.oss-cn-beijing.aliyuncs.com/weixin-test/3%20%282%2917047050403470042.png?x-oss-process=image/format,webp'
+
+// 设置宽度后的图片路径：
+let url =' https://lonjin.oss-cn-beijing.aliyuncs.com/weixin-test/3%20%282%2917047050403470042.png?x-oss-process=image/format,webp/resize,w_320'
+</code></pre>
+<p>清除缓存，刷新页面，再来看加载时间：</p>
+<figure data-type="image" tabindex="4"><a href="https://imgse.com/i/pFpoLY4"><img src="https://s11.ax1x.com/2024/01/10/pFpoLY4.jpg" alt="pFpoLY4.jpg" loading="lazy"></a></figure>
+<p>图片大小大幅度减少，最大的一张图片仅仅有<code>15.4 kB</code>；随之加载时间也大幅缩短，最慢的一张图片从之前的1.71秒缩短为316毫秒，加载速度提升了<code>5倍</code>！这时候所有图片的加载速度全部没有超过1秒，最大不超过<code>350ms</code>；基本上算是质的飞跃了。不过需要注意的是，图片分辨率还是需要结合业务需求进行调整的，如果要求必须高清，不建议设置太小的分辨率。不过我们可以写一个检测用户网络状态的方法，在不同的网络环境下加载不同分辨率的图片；后面我会专门来写一篇文章来实现这个功能。</p>
+<h3 id="优化3使用雪碧图">优化3：使用雪碧图</h3>
+<p>雪碧图，也叫<code>Sprite</code>，是将多个小图片合并成一张大图，然后在页面中使用<code>background-image</code>和<code>background-position</code>属性来显示其中的某一张图片。这样可以减少图片的加载次数，减少图片的大小，同时减少图片的加载时间。在项目中难免会有很多小图标，我们就可以使用雪碧图的方式来使用，减少请求次数。这里我就不做展示了。</p>
+<h3 id="优化4合理使用占位图片">优化4：合理使用占位图片</h3>
+<p>通常情况下，为了内容的动态展示，需要通过网络请求从接口中获取图片的url。如果在网络慢的情况下，image加载图片的过程可能会非常慢，在请求完成之前页面都会因为没有数据而呈现一片空白，这是非常差的用户体验，这里我们可以借助小程序image标签上的<code>@error	</code>和<code>@load</code>事件来实现占位图片的展示。我们可以根据需求去封装一个<code>LoadImage</code>组件统一处理，上面提到的<code>优化1</code>、<code>优化2</code>也可以通过定义参数实现批量添加，同时我们也可以给组件加上<code>lazyLoad</code>，减轻小程序加载压力。</p>
+<p>组件具体代码如下：</p>
+<pre><code class="language-html">&lt;template&gt;
+    &lt;view class=&quot;loadImage-wrapper&quot;&gt;
+        &lt;image v-if=&quot;isLoading&quot; :src=&quot;defaultImage&quot; :mode=&quot;mode&quot; :lazy-load=&quot;lazyLoad&quot; /&gt;
+        &lt;image :class=&quot;[isLoading ? 'before-load' : '']&quot; :src=&quot;imageUrl&quot; :mode=&quot;mode&quot; :lazy-load=&quot;lazyLoad&quot;
+            @load=&quot;imageLoad&quot; /&gt;
+    &lt;/view&gt;
+&lt;/template&gt;
+&lt;script&gt;
+export default {
+    props: {
+        /**
+         * 占位图
+         * @default /static/images/load-image.png
+         */
+        defaultImage: {
+            type: String,
+            default: '/static/load-image.png',
+        },
+        /**
+         * 是否使用webp
+         * @default false
+         */
+        useWebp: {
+            type: Boolean,
+            default: false,
+        },
+        /**
+         * 图片的显示模式
+         * @default scaleToFill
+         */
+        mode: {
+            type: String,
+            default: 'scaleToFill',
+        },
+        /**
+         * 图片加载分辨率-宽度
+         * @default 
+        */
+        width: {
+            type: String,
+            default: '',
+        },
+        /**
+         * 是否懒加载
+         * @default true
+         */
+        lazyLoad: {
+            type: Boolean,
+            default: true,
+        },
+        /**
+         * 图片地址
+         * @default 
+        */
+        src: {
+            type: String,
+            default: '',
+        },
+    },
+    data() {
+        return {
+            isLoading: true,
+        }
+    },
+
+    methods: {
+        imageLoad() {
+            this.isLoading = false
+        },
+    },
+
+    computed: {
+        imageUrl() {
+            let url = this.src + '?'
+            this.useWebp &amp;&amp; (url += 'x-oss-process=image/format,webp')
+            this.width &amp;&amp; (url += '/resize,w_' + this.width)
+            return url
+        }
+    },
+}
+&lt;/script&gt;
+&lt;style lang=&quot;scss&quot; scoped&gt;
+.loadImage-wrapper {
+    .before-load {
+        width: 0;
+        height: 0;
+        opacity: 0;
+    }
+}
+&lt;/style&gt;
+</code></pre>
+<p>使用方式如下：</p>
+<pre><code class="language-html">&lt;template&gt;
+    &lt;view class=&quot;list&quot;&gt;
+        &lt;load-image v-for=&quot;(item, index) in list&quot; :src=&quot;item&quot; :lazyLoad=&quot;false&quot; useWebp :width=&quot;320&quot; :key=&quot;index&quot; /&gt;
+    &lt;/view&gt;
+&lt;/template&gt;
+</code></pre>
+<h2 id="优化后效果对比">优化后效果对比</h2>
+<p>我们再来看一下优化前后的加载时间对比：</p>
+<ul>
+<li>
+<p>优化前：<br>
+<a href="https://imgse.com/i/pFpojp9"><img src="https://s11.ax1x.com/2024/01/10/pFpojp9.png" alt="pFpojp9.png" loading="lazy"></a></p>
+</li>
+<li>
+<p>优化后：<br>
+<a href="https://imgse.com/i/pFpoOfJ"><img src="https://s11.ax1x.com/2024/01/10/pFpoOfJ.png" alt="pFpoOfJ.png" loading="lazy"></a></p>
+</li>
+</ul>
+<p>我们用一张图片来做对比：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>图片名称</th>
+<th>大小</th>
+<th>加载时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优化前</td>
+<td>wallhaven-we3z86.jpeg</td>
+<td>2.4MB</td>
+<td>5.27s</td>
+</tr>
+<tr>
+<td>优化后</td>
+<td>wallhaven-we3z86.jpeg</td>
+<td>15.3KB</td>
+<td>23ms</td>
+</tr>
+</tbody>
+</table>
+<p>可以看到相对体积而言，缩小了<code>99.4%</code>；相对加载时间，缩短了<code>5.25</code>秒，在几乎不影响图片质量的情况下，极大的提升了用户体验。</p>
+<h2 id="总结">总结</h2>
+<blockquote>
+<p>关于小程序的图片优化，我们可以根据业务需求以及技术支持来选择不同的方案，这里我只列出了几个最常用的方案，如果业务需求比较复杂，可以多尝试一些方案。</p>
+</blockquote>
+<h2 id="往期文章">往期文章</h2>
+<p><a href="https://lonjinup.github.io/uni-request/">5分钟get：Uni-App网络请求完美封装指南！</a><br>
+<a href="https://lonjinup.github.io/uni-app-template-01/">uni-app开发小程序：项目架构以及经验分享</a><br>
+<a href="https://lonjinup.github.io/wxtabbar/">小程序TabBar创意动画(文末附完整源代码)</a></p>
+<blockquote>
+<p>本文首发于<a href="https://lonjinup.github.io">lonjin个人博客</a>，转载请注明出处！</p>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[node项目实战-01实现注册登录]]></title>
+        <id>https://lonjinup.github.io/node-demo-01/</id>
+        <link href="https://lonjinup.github.io/node-demo-01/">
+        </link>
+        <updated>2024-01-03T16:53:32.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="node项目实战-01实现注册登录">node项目实战-01实现注册登录</h1>
+<h2 id="1项目准备">1.项目准备</h2>
+<p>前面我们已经搭建了一个基础的项目模版，现在我们就用这个项目模版来做一个简单的项目。首先我们安装<a href="http://www.mongoosejs.net/">mongoose</a>模块：</p>
+<pre><code class="language-bash">npm install mongoose --save
+</code></pre>
+<p><code>mongoose</code>是MongoDB的Node.js驱动程序，它为我们提供了一种在Node.js中使用MongoDB的简单方法。后面我们会详细介绍他的使用方法。</p>
+<h2 id="注册接口">注册接口</h2>
+<blockquote>
+<p>我们先来实现一个注册接口，这个接口接收一个参数<code>username</code>、<code>email</code>、<code>password</code>、<code>phone</code>，然后将这个参数保存到数据库中。</p>
+</blockquote>
+<p>首先我们分别创建关于用户功能的<code>router</code>和<code>controller</code>；新建<code>/router/user.js</code>和<code>/controller/userController.js</code>：</p>
+<p><code>/router/user.js</code>内容如下：</p>
+<pre><code class="language-js">const express = require('express')
+const router = express.Router()
+const userController = require('../controller/userController')
+
+router
+    .post('/register', userController.register)
+module.exports = router
+</code></pre>
+<p><code>/controller/userController.js</code>内容如下，顺便打印一下我们接受到参数：</p>
+<pre><code class="language-js">exports.register = async (req, res) =&gt; {
+    console.log(req.body)
+}
+</code></pre>
+<p>然后我们在<code>/router/index.js</code>中引入这个路由：</p>
+<pre><code class="language-js">const express = require('express')
+const router = express.Router()
+const user = require('./user')
+
+router.use('/user', user)
+module.exports = router
+</code></pre>
+<p>运行项目：</p>
+<pre><code class="language-shell">npm run dev
+</code></pre>
+<p>当我们使用Postman或者apifox访问<code>http://localhost:3000/user/register</code>并传入参数，控制台就会打印我们传入的参数：</p>
+<pre><code class="language-json">{
+  &quot;username&quot;: &quot;test&quot;,
+  &quot;email&quot;: &quot;test@test.com&quot;,
+  &quot;password&quot;: &quot;123456&quot;,
+  &quot;phone&quot;: &quot;12345678901&quot;
+}
+</code></pre>
+<p>拿到参数以后我们需要把这些数据存入到数据库中，这时候就需要用到开头提到的<code>mongoose</code>进行处理。</p>
+<h3 id="使用mongoose存储数据">使用mongoose存储数据</h3>
+<p>首先新建<code>/model/index.js</code>，引入<code>mongoose</code>，同时进行连接数据库的操作：</p>
+<pre><code class="language-js">const mongoose = require('mongoose')
+
+async function main() {
+    await mongoose.connect('mongodb://localhost:27017/nodeDemo')
+}
+
+main().then(res =&gt; {
+    console.log('mongo连接成功')
+}).catch(error =&gt; {
+    console.log('mongo连接失败', error)
+})
+</code></pre>
+<p>然后我们在当前文件夹中再建立一个<code>userModel.js</code>文件，在这个文件中定义一个<code>userSchema</code>，最后导出</p>
+<pre><code class="language-js">const mongoose = require('mongoose')
+
+const userSchema = new mongoose.Schema({
+    username: {
+        type: String, //数据类型
+        required: true, //数据是否必须
+        trim: true, //去除两边空格
+        minlength: 4, //最小长度
+        maxlength: 18, //最大长度
+        validate: {
+            validator: function (v) {
+                return /^[a-zA-Z0-9_-]{4,18}$/.test(v)
+            },
+            message: '{VALUE}不是一个合法的用户名'
+        }
+    },
+    email: {
+        type: String,
+        required: true,
+        trim: true,
+        validate: {
+            validator: function (v) {
+                return /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(v)
+            },
+            message: '{VALUE}不是一个合法的邮箱'
+        }
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    phone: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        validate: {
+            validator: function (v) {
+                return /^1[34578]\d{9}$/.test(v)
+            },
+            message: '{VALUE}不是一个合法的手机号'
+        }
+    },
+    avatar: {
+        type: String,
+        default: null
+    },
+    createTime: {
+        type: Date,
+        default: Date.now
+    },
+    updateTime: {
+        type: Date,
+        default: Date.now
+    }
+})
+
+module.exports = userSchema
+</code></pre>
+<p>关于mongoose.Schema的详细使用方法可以参考<a href="http://www.mongoosejs.net/docs/schematypes.html">mongoose文档</a>。</p>
+<p>导出之后，我们还是要在<code>/model/index.js</code>中进行集中的导出，到时候我们就可以在其他地方进行导入使用了，最终的<code>/model/index.js</code>内容如下：</p>
+<pre><code class="language-js">const mongoose = require('mongoose')
+
+async function main() {
+    await mongoose.connect('mongodb://localhost:27017/nodeDemo')
+}
+
+main().then(res =&gt; {
+    console.log('mongo连接成功')
+}).catch(error =&gt; {
+    console.log('mongo连接失败', error)
+})
+
+//导出模块
+module.exports = {
+    User: mongoose.model('User', require('./userModel'))
+}
+</code></pre>
+<p>再回到刚才的<code>/controller/userController.js</code>中，我们需要进行修改，将<code>register</code>方法中的<code>console.log(req.body)</code>改为：</p>
+<pre><code class="language-js">const { User } = require('../model/index')
+exports.register = async (req, res) =&gt; {
+    console.log(req.body)
+    const userModel = new User(req.body)
+    const dbBack = await userModel.save()
+    res.status(201).json(dbBack)
+}
+</code></pre>
+<p>这样一来，当我们使用Postman或者apifox访问<code>http://localhost:3000/user/register</code>并传入参数，控制台就会打印我们传入的参数，并且将这些参数保存到数据库中。</p>
+<h3 id="密码加密">密码加密</h3>
+<p>在上面的代码中，我们将密码明文存入了数据库中，这样显然是不安全的，我们需要对密码进行加密处理。这里我们使用<code>crypto</code>中的<code>createHash</code>函数对密码进行加密，然后将加密后的密码存入数据库中。</p>
+<p>新建<code>util/md5.js</code>；并引入crypto：</p>
+<pre><code class="language-js">const crypto = require('crypto')
+
+/**
+ * md5加密
+ * @param str
+ * @returns {string}
+ */
+module.exports = str =&gt; crypto.createHash('md5').update('lonjin' + str).digest('hex')
+</code></pre>
+<ol>
+<li>
+<p><strong><code>crypto.createHash('md5')</code></strong>: 创建一个用于 MD5 散列的 Hash 对象。<code>md5</code> 表示采用 MD5 算法。</p>
+</li>
+<li>
+<p><strong><code>.update('lonjin' + str)</code></strong>: 使用给定的数据进行更新，这里的数据是 <code>'lonjin' + str</code>，即将字符串 <code>'lonjin'</code> 与参数 <code>str</code> 连接后的结果，这样可避免被撞库的风险。</p>
+</li>
+<li>
+<p><strong><code>.digest('hex')</code></strong>: 返回 Hash 对象的二进制数据的十六进制表示。这就是最终的 MD5 散列值。</p>
+</li>
+</ol>
+<p>然而，请注意，MD5 不再被推荐用于安全目的，因为它已经被发现存在一些弱点。在密码存储或其他需要高度安全性的场景中，更推荐使用更强大的散列算法，比如 SHA-256，并且结合一些附加的安全措施，例如加盐（salting）和适当的迭代次数（iteration）。具体方式如下：</p>
+<pre><code class="language-js">const crypto = require('crypto');
+
+function sha256Hash(str) {
+    const hash = crypto.createHash('sha256')
+    const hashedStr = hash.update('lonjin' + str).digest('hex')
+    return hashedStr
+}
+module.exports = sha256Hash
+</code></pre>
+<h3 id="处理公共字段">处理公共字段</h3>
+<p>在上面的<code>userSchema.js</code>中，我们定义了一些公共字段，比如<code>createTime</code>和<code>updateTime</code>，在很多场景下我们可能都需要这两个字段，所以我们将这两个字段也抽离出来。</p>
+<p>新建：<code>/model/baseModel.js</code>:</p>
+<pre><code class="language-js">module.exports = {
+    createTime: {
+        type: Date,
+        default: Date.now
+    },
+    updateTime: {
+        type: Date,
+        default: Date.now
+    }
+}
+</code></pre>
+<p>然后在<code>/model/userModel.js</code>中引入并使用：</p>
+<pre><code class="language-js">const baseModel = require('./baseModel')
+
+const userSchema = new mongoose.Schema({
+    //...原有逻辑
+    avatar: {
+        type: String,
+        default: null
+    },
+    ...baseModel
+})
+</code></pre>
+<h3 id="数据验证">数据验证</h3>
+<p><a href="https://express-validator.github.io/docs/guides/customizing">express-validator</a>是一个非常好用的表单验证中间件，它可以帮助我们在表单提交的时候进行数据验证，从而避免了前端的一些常见的错误。</p>
+<p>首先我们需要安装express-validator：</p>
+<pre><code class="language-bash">npm install express-validator --save
+</code></pre>
+<p>还是已我们上面提到的注册接口为例子；首先我们封装一下验证规则：</p>
+<p>新建<code>middleware/validator/userValidator.js</code>，用来处理用户相关的验证规则，同时我们再建立一个文件夹，去统一处理错误逻辑；新建<code>middleware/validator/errorBack.js</code>。</p>
+<p><code>middleware/validator/userValidator.js</code>内容如下：</p>
+<pre><code class="language-js">const { body } = require('express-validator')
+const validator = require('./errorBack')
+
+module.exports.register = validator(
+    [
+        body('username')
+            .notEmpty().withMessage('用户名不能为空').bail()
+            .isLength({ min: 3, max: 10 }).withMessage('用户名长度必须在3-10之间'),
+        body('email')
+            .notEmpty().withMessage('邮箱不能为空').bail()
+            .isEmail().withMessage('邮箱格式不正确'),
+        body('password')
+            .notEmpty().withMessage('密码不能为空').bail()
+            .isLength({ min: 6, max: 16 }).withMessage('密码长度必须在6-16之间')
+    ]
+) 
+</code></pre>
+<p><code>middleware/validator/errorBack.js</code>文件内容如下：</p>
+<pre><code class="language-js">const { validationResult } = require('express-validator')
+
+module.exports = validator =&gt; {
+    return async (req, res, next) =&gt; {
+        await Promise.all(validator.map(i =&gt; i.run(req)))
+        //获取错误信息
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            // 处理错误信息
+            return res.status(401).json({ error: errors.array() })
+        }
+        next()
+    }
+}
+</code></pre>
+<blockquote>
+<p>下面是一些在 <code>express-validator</code> 中常用的验证规则，以及它们的简要说明：</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>验证器</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.notEmpty()</code></td>
+<td>检查字段是否为空。</td>
+</tr>
+<tr>
+<td><code>.isLength({ min, max })</code></td>
+<td>检查字段的字符长度是否在指定的范围内。</td>
+</tr>
+<tr>
+<td><code>.isEmail()</code></td>
+<td>检查字段是否是有效的电子邮件地址。</td>
+</tr>
+<tr>
+<td><code>.isURL()</code></td>
+<td>检查字段是否是有效的URL。</td>
+</tr>
+<tr>
+<td><code>.isInt()</code></td>
+<td>检查字段是否为整数。</td>
+</tr>
+<tr>
+<td><code>.isNumeric()</code></td>
+<td>检查字段是否为数字。</td>
+</tr>
+<tr>
+<td><code>.isFloat()</code></td>
+<td>检查字段是否为浮点数。</td>
+</tr>
+<tr>
+<td><code>.isDate()</code></td>
+<td>检查字段是否为有效的日期。</td>
+</tr>
+<tr>
+<td><code>.isBoolean()</code></td>
+<td>检查字段是否为布尔值。</td>
+</tr>
+<tr>
+<td><code>.isIn(values)</code></td>
+<td>检查字段值是否在指定的数组中。</td>
+</tr>
+<tr>
+<td><code>.isNotIn(values)</code></td>
+<td>检查字段值是否不在指定的数组中。</td>
+</tr>
+<tr>
+<td><code>.equals(value)</code></td>
+<td>检查字段值是否与指定的值相等。</td>
+</tr>
+<tr>
+<td><code>.not()</code></td>
+<td>反转前面的验证条件。如果之前的验证条件为真，将变为假，反之亦然。</td>
+</tr>
+<tr>
+<td><code>.custom(validatorFunction)</code></td>
+<td>使用自定义验证函数进行验证。</td>
+</tr>
+<tr>
+<td><code>.withMessage(message)</code></td>
+<td>在验证失败时设置错误消息。</td>
+</tr>
+<tr>
+<td><code>.bail()</code></td>
+<td>在验证失败时停止执行后续验证链。</td>
+</tr>
+</tbody>
+</table>
+<p>这些是一些常见的验证规则，我们可以根据具体的需求组合它们，构建强大而灵活的验证规则链。</p>
+<p>接下来我们在<code>/controller/userController.js</code>中引入验证器并使用：</p>
+<pre><code class="language-js">const express = require('express')
+const router = express.Router()
+const userController = require('../controller/userController')
+//引入验证器
+const validator = require('../middleware/validator/userValidator')
+
+// 使用validator中间件
+router
+    .post('/register',
+        validator.register,
+        userController.register)
+
+module.exports = router
+</code></pre>
+<p>这样在用户注册的时候，就能对用户提交的数据进行验证，从而避免了前端的一些常见的错误。</p>
+<p>这时候我们使用<code>apifox</code>发起注册请求，不传任何参数，就会返回错误信息：</p>
+<pre><code class="language-json">{
+    &quot;error&quot;: [
+        {
+            &quot;type&quot;: &quot;field&quot;,
+            &quot;value&quot;: &quot;&quot;,
+            &quot;msg&quot;: &quot;用户名不能为空&quot;,
+            &quot;path&quot;: &quot;username&quot;,
+            &quot;location&quot;: &quot;body&quot;
+        },
+        {
+            &quot;type&quot;: &quot;field&quot;,
+            &quot;msg&quot;: &quot;邮箱不能为空&quot;,
+            &quot;path&quot;: &quot;email&quot;,
+            &quot;location&quot;: &quot;body&quot;
+        },
+        {
+            &quot;type&quot;: &quot;field&quot;,
+            &quot;msg&quot;: &quot;密码不能为空&quot;,
+            &quot;path&quot;: &quot;password&quot;,
+            &quot;location&quot;: &quot;body&quot;
+        }
+    ]
+}
+</code></pre>
+<h3 id="数据唯一性验证">数据唯一性验证</h3>
+<p>在上面的例子中，我们做了对参数的一些验证，但是还是缺少一个对数据唯一性的验证。比如注册时候我们可能要求手机号和邮箱必须是唯一的。我们这里还是借助<code>express-validator</code>的自定义验证函数<code>custom</code>来实现；当然我们需要连接到数据库进行数据查找。</p>
+<p>首先我们在<code>middleware/validator/userValidator.js</code>中添加一个自定义验证函数：</p>
+<pre><code class="language-js">const { body } = require('express-validator')
+const validator = require('./errorBack')
+// 1.引入User model 
+const { User } = require('../../model/index')
+
+module.exports.register = validator(
+    [
+        body('username')
+            .notEmpty().withMessage('用户名不能为空').bail()
+            .isLength({ min: 3, max: 10 }).withMessage('用户名长度必须在3-10之间'),
+        body('email')
+            .notEmpty().withMessage('邮箱不能为空').bail()
+            .isEmail().withMessage('邮箱格式不正确')
+            .custom(async val =&gt; {
+                // 2.查询数据库
+                const emailValidator = await User.findOne({ email: val })
+                // 3.判断是否存在
+                if (emailValidator) {
+                    return Promise.reject('邮箱已被注册')
+                }
+            }).bail(),
+        body('password')
+            .notEmpty().withMessage('密码不能为空').bail()
+            .isLength({ min: 6, max: 16 }).withMessage('密码长度必须在6-16之间'),
+        body('phone')
+            .notEmpty().withMessage('手机号不能为空').bail()
+            .isLength({ min: 11 }).withMessage('手机号格式不正确')
+            .custom(async val =&gt; {
+                // 同理
+                const phonelValidator = await User.findOne({ phone: val })
+                if (phonelValidator) {
+                    return Promise.reject('手机号已被注册')
+                }
+            }).bail(),
+    ]
+) 
+</code></pre>
+<h2 id="restful接口规范">Restful接口规范</h2>
+<p>在项目中，我们需要对接口进行规范，比如接口的路径，请求方式，参数，返回值等。这里我们可以参考<a href="https://restfulapi.cn/">restfulapi</a>接口规范；当然我们可以根据一些业务需求做对应的调整。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[【node学习-07】搭建express项目模版]]></title>
+        <id>https://lonjinup.github.io/express-07-template/</id>
+        <link href="https://lonjinup.github.io/express-07-template/">
+        </link>
+        <updated>2023-12-10T15:10:23.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="搭建express项目模版">搭建express项目模版</h1>
+<blockquote>
+<p>下面我们将一步步搭建一个基本的Express项目模板。这个模板包括项目结构、初始化、安装必要的依赖、创建主文件app.js、设置路由和控制器。最后，你可以根据项目需求进行修改和优化。</p>
+</blockquote>
+<h2 id="1-项目结构">1. 项目结构</h2>
+<pre><code>├── app.js
+├── config
+│   ├── config.default.js
+├── controllers
+│   ├── testController.js
+├── package.json
+├── router
+│   ├── index.js
+│   ├── test.js
+</code></pre>
+<h2 id="2-项目初始化">2. 项目初始化</h2>
+<pre><code class="language-bash">npm init -y
+</code></pre>
+<h2 id="3-安装">3. 安装</h2>
+<pre><code class="language-bash">npm install express // express框架
+npm install cors // 跨域
+npm install morgan // 日志
+npm install nodemon // 重启服务
+</code></pre>
+<h2 id="4-创建appjs文件">4. 创建app.js文件</h2>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+const cors = require('cors')
+const morgan = require('morgan')
+
+// 数据格式解析
+app.use(express.json())
+app.use(express.urlencoded())
+
+// 跨域
+app.use(cors())
+
+//日志记录
+app.use(morgan('dev'))
+
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () =&gt; {
+    console.log(`Server is running on http://localhost:${PORT}`)
+})
+</code></pre>
+<h2 id="5路由控制器">5.路由&amp;&amp;控制器</h2>
+<p>新建<code>/controllers/testController.js</code>文件，并编写一个测试方法：</p>
+<pre><code class="language-js">exports.testGet = async (req, res) =&gt; {
+    console.log(req.method)
+    res.send('testGet success')
+}
+
+exports.testPost = async (req, res) =&gt; {
+    console.log(req.method)
+    res.send('testPost success')
+}
+</code></pre>
+<p>新建一个测试路由：<code>/router/test.js</code>，并导入控制器：</p>
+<pre><code class="language-js">const express = require('express')
+const router = express.Router()
+const testController = require('../controller/testController')
+
+router
+    .get('/testGet', testController.testGet)
+    .post('/testPost', testController.testPost)
+
+module.exports = router
+</code></pre>
+<p>新建一个主路由：<code>/router/index.js</code>，并导入测试路由：</p>
+<pre><code class="language-js">const express = require('express')
+const router = express.Router()
+const test = require('./test')
+
+router.use(test)
+
+module.exports = router
+</code></pre>
+<p>在<code>app.js</code>中导入主路由：</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+const cors = require('cors')
+const morgan = require('morgan')
+// 导入主路由
+const router = require('./router')
+
+app.use(express.json())
+app.use(express.urlencoded())
+app.use(cors())
+app.use(morgan('dev'))
+
+// 路由
+app.use('/api/v1', router)
+
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT, () =&gt; {
+    console.log(`Server is running on http://localhost:${PORT}`)
+})
+</code></pre>
+<blockquote>
+<p>最基本的一个项目模版就搭建完毕了，后续可以根据项目需求进行修改和优化。</p>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[【node学习-06】express进阶]]></title>
+        <id>https://lonjinup.github.io/node-06-express/</id>
+        <link href="https://lonjinup.github.io/node-06-express/">
+        </link>
+        <updated>2023-11-26T13:57:03.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="express中间件">express中间件</h2>
+<blockquote>
+<p>在<code>Express</code>中，中间件是一个功能强大的概念，它允许你在请求被处理之前或之后执行代码。中间件函数可以访问请求对象 <code>(req)</code>、响应对象<code> (res)</code>，以及应用中的下一个中间件函数 <code>(next)</code>。</p>
+</blockquote>
+<p>假如我想在<code>Express</code>项目的每一次请求中，添加一个打印日志的功能，如果在所有的请求中<code>console</code>打印肯定不现实，不如抽出一个<code>logs</code>方法，然后在每次请求时候去调用：</p>
+<pre><code class="language-js">const express = require('express')
+
+const app = express()
+const PORT = process.env.PORT || 3000
+
+
+function logs(req, res) {
+    console.log(`${req.method},${req.url}, ${new Date().toLocaleString()}`)
+}
+
+app.get('/', (req, res) =&gt; {
+    logs(req, res)
+    res.send('Hello World')
+})
+
+app.get('/login', (req, res) =&gt; {
+    logs(req, res)
+    res.send('login')
+})
+
+app.get('/register', (req, res) =&gt; {
+    logs(req, res)
+    res.send('register')
+})
+
+app.listen(PORT, () =&gt; {
+    console.log(`Server is running on http://localhost:${PORT}`)
+})
+</code></pre>
+<p>但是这样的方式还是有些不方便；需要在每次请求中都去调用<code>logs</code>方法，不仅不方便，而且还会有很多重复的代码。</p>
+<p>所以，我们可以把<code>logs</code>方法作为一个中间件，然后在<code>app.use()</code>中使用它：</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+const PORT = process.env.PORT || 3000
+
+
+function logs(req, res, next) {
+    console.log(`${req.method},${req.url}, ${new Date().toLocaleString()}`)
+    // 下一步操作
+    next()
+}
+
+app.use(logs)
+
+app.get('/', (req, res) =&gt; {
+    res.send('Hello World')
+})
+
+app.get('/login', (req, res) =&gt; {
+    res.send('login')
+})
+
+app.get('/register', (req, res) =&gt; {
+    res.send('register')
+})
+
+app.listen(PORT, () =&gt; {
+    console.log(`Server is running on http://localhost:${PORT}`)
+})
+</code></pre>
+<p>在 <code>Express</code> 中，中间件可以写在 <code>app.get</code> 方法之前、之后或之间，具体取决于中间件的作用和你希望它在请求处理过程中的执行顺序。</p>
+<h3 id="中间件分类">中间件分类</h3>
+<p>在 Express 框架中，中间件（Middleware）是一个函数，在请求被发送到路由处理程序之前，可以对请求进行预处理、处理请求、或者对响应进行后处理。Express 中间件可以分为以下几种类型：</p>
+<ol>
+<li>
+<p><strong>应用级中间件</strong>：应用级中间件绑定到 Express 的应用实例（app 对象）上，它们通过 <code>app.use()</code> 方法使用。这种中间件能够处理应用中的所有请求，对请求和响应进行修改，执行一些公共任务，比如日志记录、身份验证等。</p>
+</li>
+<li>
+<p><strong>路由级中间件</strong>：路由级中间件与应用级中间件类似，但它绑定到特定的路由上，只能处理特定路由的请求。通过 <code>app.use()</code> 或者 <code>router.use()</code> 方法使用，它能够为特定路由的请求执行特定的任务，比如验证用户权限、数据验证等。</p>
+</li>
+<li>
+<p><strong>错误处理中间件</strong>：错误处理中间件专门用于处理请求过程中发生的错误。当一个中间件通过 <code>next(err)</code> 方法传递错误时，错误处理中间件将被调用。它接收四个参数（err, req, res, next），并负责处理错误、生成错误响应以及记录错误日志等操作。</p>
+</li>
+<li>
+<p><strong>内置中间件</strong>：Express 框架内置了一些常用的中间件，比如 <code>express.static</code>（用于提供静态文件服务）、<code>express.json</code>（用于解析 JSON 请求体）、<code>express.urlencoded</code>（用于解析 URL 编码的请求体）等。这些内置中间件可以通过简单的配置来使用，提供了一些基本的功能，可以快速开发 Web 应用。</p>
+</li>
+<li>
+<p><strong>第三方中间件</strong>：除了内置中间件之外，Express 还支持第三方中间件，开发者可以通过 npm 安装并使用第三方中间件来扩展 Express 的功能。第三方中间件可以实现各种功能，比如身份验证、日志记录、性能监控等，丰富了 Express 生态系统，为开发者提供了更多选择。</p>
+</li>
+</ol>
+<h4 id="应用级中间件">应用级中间件</h4>
+<p>在 Express 中，应用级中间件直接与 Express 应用的实例相关，对整个应用生效。它们通常通过 <code>app.use</code> 或者对特定的路由使用 <code>app.METHOD</code>（例如 <code>app.get</code>）来注册。以下是一个简单的例子：</p>
+<pre><code class="language-javascript">const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// 应用级中间件
+app.use((req, res, next) =&gt; {
+    console.log('This middleware is executed for every request to the app.');
+    next(); // 调用 next() 将控制权传递给下一个中间件或路由处理程序
+});
+
+app.get('/user', (req, res, next) =&gt; {
+    console.log('Handling user request...');
+    next();
+}, (req, res) =&gt; {
+    res.send('User route response');
+});
+
+app.listen(PORT, () =&gt; {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
+</code></pre>
+<p>在这个例子中，<code>app.use</code> 注册了一个应用级中间件，它在每个请求到达应用时都会执行。对于 <code>/user</code> 路由，我们通过 <code>app.get</code> 注册了两个中间件，其中第一个中间件在 <code>/user</code> 请求前执行，记录了请求的处理过程。</p>
+<blockquote>
+<p>应用级中间件可以用于执行一些全局的任务，比如记录日志、身份验证、处理请求等。由于它们在整个应用范围内生效，因此适用于需要在每个请求中执行的任务。</p>
+</blockquote>
+<h4 id="路由级中间件">路由级中间件</h4>
+<p>在 Express 中，路由级中间件是与特定路由或路由组相关的中间件。它们通过 <code>express.Router</code> 创建，并通过 <code>app.use</code> 或者 <code>app.METHOD</code>（例如 <code>app.get</code>）来注册。以下是一个简单的应用：</p>
+<p>新建<code>/router/index.js</code>和<code>/router/video.js</code>文件，内容如下：</p>
+<ul>
+<li><code>/router/index.js</code>:</li>
+</ul>
+<pre><code class="language-js">const express = require('express')
+const router = express.Router()
+
+router.get('/user', (req, res) =&gt; {
+    console.log(req.method)
+    res.send('success')
+})
+
+router.get('/login', (req, res) =&gt; {
+    console.log(req.method)
+    res.send('login success')
+})
+
+module.exports = router
+</code></pre>
+<ul>
+<li><code>/router/video.js</code>:</li>
+</ul>
+<pre><code class="language-js">const express = require('express')
+const router = express.Router()
+
+router.get('/list', (req, res) =&gt; {
+    console.log(req.method)
+    res.send('list success')
+})
+
+router.get('/detail', (req, res) =&gt; {
+    console.log(req.method)
+    res.send('detail success')
+})
+
+module.exports = router
+</code></pre>
+<p>然后在<code>app.js</code>中引入并注册，同时注册时候给他们前面分别添加两个前缀<code>/api</code>和<code>/video</code>:</p>
+<pre><code class="language-js">const express = require('express')
+const router = require('./router/index')
+const videoRouter = require('./router/video')
+
+const app = express()
+app.use('/api', router)
+app.use('/video', videoRouter)
+
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT, () =&gt; {
+    console.log(`Server is running on http://localhost:${PORT}`)
+})
+</code></pre>
+<h4 id="错误处理中间件">错误处理中间件</h4>
+<p>在 Express 中，错误处理中间件是指处理错误的中间件，它可以处理请求和响应，并对它们进行修改。</p>
+<p>错误处理中间件可以捕获应用中的错误，并将其发送给客户端。以下是一个简单的例子：</p>
+<pre><code class="language-js">const express = require('express')
+const router = require('./router/index')
+const videoRouter = require('./router/video')
+
+const app = express()
+app.use('/api', router)
+app.use('/video', videoRouter)
+
+//捕获路由错误
+app.use((req, res, next) =&gt; {
+    res.status(404).send({
+        message: 'Not Found'
+    })
+})
+
+//捕获错误
+app.use((err, req, res, next) =&gt; {
+    res.status(500).send({
+        message: 'server error'
+    })
+})
+
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT, () =&gt; {
+    console.log(`Server is running on http://localhost:${PORT}`)
+})
+</code></pre>
+<h4 id="内置中间件">内置中间件</h4>
+<p>Express <a href="https://expressjs.com/zh-cn/api.html#express">内置的中间</a> 件主要用于处理常见的任务，如解析请求体、处理静态文件等。以下是一些常见的 Express 内置中间件：</p>
+<h3 id="1-expressjson">1. <code>express.json()</code></h3>
+<p>用于解析传入请求的 JSON 数据，并将其放置在 <code>req.body</code> 中。</p>
+<pre><code class="language-javascript">const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+app.post('/api/data', (req, res) =&gt; {
+  console.log(req.body); // 访问 JSON 数据
+  res.send('Data received successfully.');
+});
+
+app.listen(3000, () =&gt; {
+  console.log('Server is running on port 3000');
+});
+</code></pre>
+<h3 id="2-expressurlencoded">2. <code>express.urlencoded()</code></h3>
+<p>用于解析传入请求的 URL 编码数据（通常来自表单），并将其放置在 <code>req.body</code> 中。</p>
+<pre><code class="language-javascript">const express = require('express');
+const app = express();
+
+app.use(express.urlencoded({ extended: true }));
+
+app.post('/api/form', (req, res) =&gt; {
+  console.log(req.body); // 访问表单数据
+  res.send('Form data received successfully.');
+});
+
+app.listen(3000, () =&gt; {
+  console.log('Server is running on port 3000');
+});
+</code></pre>
+<h3 id="3-expressstatic">3. <code>express.static()</code></h3>
+<p>用于提供静态文件，例如 HTML、CSS、JavaScript 等。</p>
+<pre><code class="language-javascript">const express = require('express');
+const app = express();
+
+app.use(express.static('public'));
+
+app.get('/', (req, res) =&gt; {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
+app.listen(3000, () =&gt; {
+  console.log('Server is running on port 3000');
+});
+</code></pre>
+<h3 id="4-expressrouter">4. <code>express.Router()</code></h3>
+<p>虽然不是直接中间件，但用于创建模块化、可挂载的路由处理程序。</p>
+<pre><code class="language-javascript">// 在 router.js 文件中
+const express = require('express');
+const router = express.Router();
+
+router.get('/', (req, res) =&gt; {
+  res.send('Router response');
+});
+
+module.exports = router;
+
+// 在主应用中
+const express = require('express');
+const app = express();
+const router = require('./router');
+
+app.use('/api', router);
+
+app.listen(3000, () =&gt; {
+  console.log('Server is running on port 3000');
+});
+</code></pre>
+<p>这些内置中间件使得 Express 应用更易于开发，并提供了一些基本的功能，可以通过简单的配置即可使用。</p>
+<h4 id="第三方中间件">第三方中间件</h4>
+<p>Express 社区提供了许多<a href="%5B111%5D(https://expressjs.com/zh-cn/resources/middleware.html)">第三方中间件</a>，这些中间件可以用于增强 Express 应用的功能。以下是一些常用的第三方中间件：</p>
+<ul>
+<li><code>body-parser</code></li>
+</ul>
+<blockquote>
+<p>用于解析请求体，支持 JSON、URL 编码和多部分数据。</p>
+</blockquote>
+<pre><code class="language-bash">npm install body-parser
+</code></pre>
+<p>使用方法：</p>
+<pre><code class="language-javascript">const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.post('/api/data', (req, res) =&gt; {
+  console.log(req.body); // 访问 JSON 或 URL 编码数据
+  res.send('Data received successfully.');
+});
+
+app.listen(3000, () =&gt; {
+  console.log('Server is running on port 3000');
+});
+</code></pre>
+<ul>
+<li><code>helmet</code></li>
+</ul>
+<blockquote>
+<p>提供了一系列 HTTP 头的设置，帮助提高 Express 应用的安全性。</p>
+</blockquote>
+<pre><code class="language-bash">npm install helmet
+</code></pre>
+<p>使用方法：</p>
+<pre><code class="language-javascript">const express = require('express');
+const helmet = require('helmet');
+const app = express();
+
+app.use(helmet());
+
+app.get('/', (req, res) =&gt; {
+  res.send('Hello, World!');
+});
+
+app.listen(3000, () =&gt; {
+  console.log('Server is running on port 3000');
+});
+</code></pre>
+<ul>
+<li><code>compression</code></li>
+</ul>
+<blockquote>
+<p>用于压缩响应体，减小传输数据的大小。</p>
+</blockquote>
+<pre><code class="language-bash">npm install compression
+</code></pre>
+<p>使用方法：</p>
+<pre><code class="language-javascript">const express = require('express');
+const compression = require('compression');
+const app = express();
+
+app.use(compression());
+
+app.get('/', (req, res) =&gt; {
+  res.send('Compressed response.');
+});
+
+app.listen(3000, () =&gt; {
+  console.log('Server is running on port 3000');
+});
+</code></pre>
+<ul>
+<li><code>morgan</code></li>
+</ul>
+<blockquote>
+<p>用于记录 HTTP 请求的日志。</p>
+</blockquote>
+<pre><code class="language-bash">npm install morgan
+</code></pre>
+<p>使用方法：</p>
+<pre><code class="language-javascript">const express = require('express');
+const morgan = require('morgan');
+const app = express();
+
+app.use(morgan('combined'));
+
+app.get('/', (req, res) =&gt; {
+  res.send('Hello, World!');
+});
+
+app.listen(3000, () =&gt; {
+  console.log('Server is running on port 3000');
+});
+</code></pre>
+<p>这只是一小部分可用的第三方中间件。根据应用需求，你可以选择并安装适合的中间件来增强 Express 应用的功能。</p>
+<h2 id="express路由">Express路由</h2>
+<p><code>all</code>方法用于匹配所有 HTTP 动词（GET、POST、PUT、DELETE 和 OPTIONS）。</p>
+<pre><code class="language-javascript">const express = require('express')
+const app = express()
+const PORT = process.env.PORT || 3000
+
+app.all('/*', (req, res) =&gt; {
+    res.send('all')
+})
+
+app.listen(PORT, () =&gt; {
+    console.log(`Server is running on http://localhost:${PORT}`)
+})
+</code></pre>
+<h3 id="路由路径">路由路径</h3>
+<blockquote>
+<p>路由路径也可以是字符串模式。可用部分正则表达式语法来定义端点的模式。以下是所涉及的正则表达式（注意，连字符（ -）和点（.）在字符串路径中解释为字面量，不能做为正则表达式）</p>
+</blockquote>
+<ul>
+<li>路径中<code>?</code>用于匹配路径中包含一个或多个字符的路径。</li>
+</ul>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+
+app.get('/us?er', (req, res) =&gt; {
+    res.send(`${req.url}`)
+})
+
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT, () =&gt; {
+    console.log(`Server is running on http://localhost:${PORT}`)
+})
+</code></pre>
+<p>请求下面接口都可以请求通：</p>
+<pre><code class="language-js">http://localhost:3000/uer
+http://localhost:3000/user
+</code></pre>
+<ul>
+<li>路径中<code>+</code>用于匹配路径中包含多个字符的路径。</li>
+</ul>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+
+app.get('/us+er', (req, res) =&gt; {
+    res.send(`${req.url}`)
+})
+
+const PORT = process.env.PORT || 3000
+
+app.listen()
+</code></pre>
+<p>只要请求下面的路径都可以请求通</p>
+<pre><code class="language-js">http://localhost:3000/user
+http://localhost:3000/ussser
+http://localhost:3000/usssser
+</code></pre>
+<ul>
+<li>路径中<code>*</code>可以替换为任意字符串</li>
+</ul>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+
+app.get('/us+er', (req, res) =&gt; {
+    res.send(`${req.url}`)
+})
+
+const PORT = process.env.PORT || 3000
+
+app.listen()
+</code></pre>
+<p>只要请求下面的路径都可以请求通</p>
+<pre><code class="language-js">http://localhost:3000/ussssser
+http://localhost:3000/usABCer
+</code></pre>
+<h3 id="路由参数">路由参数</h3>
+<blockquote>
+<p>路由参数是指在路径中使用冒号（:）来定义的部分。</p>
+</blockquote>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+
+app.get('/user/:id', (req, res) =&gt; {
+    console.log(req.params)
+    res.send(`${req.url}`)
+})
+
+const PORT = process.env.PORT || 3000
+
+app.listen()
+</code></pre>
+<p>请求下面接口都可以请求通：</p>
+<pre><code class="language-js">http://localhost:3000/user/123 // 输出 { id: '123' }
+http://localhost:3000/user/abc // 输出 { id: 'abc' }
+
+</code></pre>
+<p>也可以设置多个路由参数</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+
+app.get('/user/:id/:name', (req, res) =&gt; {
+    console.log(req.params)
+    res.send(`${req.url}`)
+})
+
+const PORT = process.env.PORT || 3000
+
+app.listen()
+</code></pre>
+<p>请求下面接口都可以请求通：</p>
+<pre><code class="language-js">http://localhost:3000/user/123/abc // 输出 { id: '123', name: 'abc' }
+http://localhost:3000/user/abc/123 // 输出 { id: 'abc', name: '123' }
+</code></pre>
+<h3 id="链式路由">链式路由</h3>
+<blockquote>
+<p>链式路由是指在一个路由中定义另一个路由，并在该路由中定义其它的路由。</p>
+</blockquote>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+app.get('/user', (req, res) =&gt; {
+    res.send(`${req.url}`)
+}).post('/login', (req, res) =&gt; {
+    res.send(`${req.url}`)
+})
+
+const PORT = process.env.PORT || 3000
+app.listen()
+</code></pre>
+<h3 id="响应方法">响应方法</h3>
+<blockquote>
+<p>响应方法用于向客户端发送响应，同时也支持链式调用。</p>
+</blockquote>
+<p><code>res.send()</code>方法用于发送字符串。</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+app.get('/user', (req, res) =&gt; {
+    res.send('Hello, World!')
+})
+
+const PORT = process.env.PORT || 3000
+app.listen()
+</code></pre>
+<p><code>res.download()</code>方法用于下载文件。</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+app.get('/user', (req, res) =&gt; {
+    res.download('path/to/file')
+})
+
+const PORT = process.env.PORT || 3000
+app.listen()
+</code></pre>
+<p><code>res.json()</code>方法用于发送 JSON 数据。</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+app.get('/user', (req, res) =&gt; {
+    res.json({
+        name: 'John Doe',
+        age: 30
+    })
+})
+
+const PORT = process.env.PORT || 3000
+app.listen()
+</code></pre>
+<p><code>res.end()</code>方法用于结束响应。</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+app.get('/user', (req, res) =&gt; {
+    res.end('Hello, World!')
+})
+
+const PORT = process.env.PORT || 3000
+app.listen()
+</code></pre>
+<p><code>res.redirect()</code>方法用于重定向到另一个 URL。</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+app.get('/user', (req, res) =&gt; {
+    res.redirect('/login')
+})
+
+const PORT = process.env.PORT || 3000
+app.listen()
+</code></pre>
+<p><code>res.render()</code>方法用于渲染模板。</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+app.get('/user', (req, res) =&gt; {
+    res.render('index', {
+        title: 'Hello, World!'
+    })
+})
+
+const PORT = process.env.PORT || 3000
+app.listen()
+</code></pre>
+<p><code>res.sendStatus()</code>方法用于设置响应状态码。</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+
+app.get('/user', (req, res) =&gt; {
+    res.sendStatus(200)
+})
+
+const PORT = process.env.PORT || 3000
+app.listen()
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[【node学习-05】mongoDB基础]]></title>
+        <id>https://lonjinup.github.io/mongodb-study/</id>
+        <link href="https://lonjinup.github.io/mongodb-study/">
+        </link>
+        <updated>2023-11-21T15:48:25.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="mongodb基础">mongoDB基础</h1>
+<h2 id="简介">简介</h2>
+<p><a href="https://www.mongodb.com/try/download/community">mongoDB</a>是一种基于分布式文件存储的数据库，由 C++ 语言编写。由 MongoDB 自身提供的高性能数据存储，以及第三方提供的各种数据库管理工具，包括用于查询和分析的 MongoDB 自带的 shell 工具。</p>
+<h2 id="特点">特点</h2>
+<ul>
+<li>高性能：MongoDB 是一个高性能的 NoSQL 数据库，是当前最流行的<code>非关系型</code>数据库之一。</li>
+<li>易用性：MongoDB 是一个基于文档的数据库，不需要关系型数据库的 SQL 语言，即使对数据库的操作也不需要关系型数据库的 DDL 语言。</li>
+<li>灵活性：MongoDB 是一个基于文档的数据库，可以存储各种类型的数据，包括文档、数组、对象、二进制数据等。</li>
+<li>高可用性：MongoDB 是一个高可用性的数据库，可以保证数据的安全性和可用性。</li>
+<li>低成本：MongoDB 是一个开源的数据库，使用 C++ 编写，因此具有较高的开发效率，部署方便，成本低廉。</li>
+<li>高扩展性：MongoDB 是一个分布式数据库，可以水平扩展，即可以将数据复制到多台服务器上，实现数据的高可用性。</li>
+</ul>
+<h3 id="非关系型数据库和关系型数据库的区别">非关系型数据库和关系型数据库的区别</h3>
+<ul>
+<li>非关系型数据库：非关系型数据库不仅仅是指数据库的存储结构，而是指数据库的存储结构和数据库的操作方式。</li>
+<li>关系型数据库：关系型数据库是指数据库的存储结构和数据库的操作方式。</li>
+</ul>
+<h3 id="关系型数据库和非关系型数据库的优缺点">关系型数据库和非关系型数据库的优缺点</h3>
+<ul>
+<li>关系型数据库的优点：关系型数据库的优点是可以实现关系型数据库的查询，数据更新，数据删除等操作，并且这些操作都是事务性的，即要么全部成功，要么全部失败。</li>
+<li>关系型数据库的缺点：关系型数据库的缺点是关系型数据库的查询性能不高，因为关系型数据库的查询是基于表的连接查询，而非关系型数据库的查询是基于文档的嵌套查询</li>
+</ul>
+<h3 id="mongodb使用场景">mongoDB使用场景</h3>
+<ul>
+<li>存储海量数据</li>
+<li>存储动态数据</li>
+<li>存储大量的结构化和非结构化数据</li>
+<li>存储高并发数据</li>
+<li>存储大量的静态数据</li>
+<li>存储大量的半结构化数据</li>
+<li>存储大量的非结构化数据</li>
+<li>存储大量的关系数据</li>
+<li>存储大量的文档数据</li>
+</ul>
+<h2 id="安装">安装</h2>
+<blockquote>
+<p><code>mongoDB</code>版本号奇数为测试版本，偶数为稳定版本，而且在3.2版本之后不再支持32位系统，所以建议安装64位的系统。由于不同操作系统安装方式略有不同，建议google一下或者进入<a href="https://www.mongodb.com/try/download/community">mongoDB官网</a>进行安装。同时推荐下载<code>Navicat Premium</code>来进行数据库的管理。</p>
+</blockquote>
+<h2 id="mongodb的基础概念">MongoDB的基础概念</h2>
+<h3 id="数据存储结构及存储库">数据存储结构及存储库</h3>
+<p>在 MongoDB 中，数据存储结构主要由集合（Collection）和文档（Document）组成。这种非关系型数据库的设计灵感来源于 JSON 文件格式，因此非常灵活，适用于处理各种不同形式的数据。</p>
+<h4 id="集合">集合</h4>
+<p>集合是 MongoDB 中的一种数据组织方式，类似于关系数据库中的表。不同的是，集合并不要求其中的文档具有相同的结构，可以容纳各种形式和类型的数据。集合的命名通常采用小写字母，避免使用特殊字符和空格。</p>
+<h5 id="示例">示例</h5>
+<p>假设我们有一个博客应用，其中包含一个集合名为 &quot;articles&quot;，用于存储所有文章的数据。每篇文章可以具有不同的字段，例如标题、作者、内容等。示例创建集合的命令如下：</p>
+<pre><code class="language-bash">db.createCollection(&quot;articles&quot;)
+</code></pre>
+<h4 id="文档">文档</h4>
+<p>文档是 MongoDB 存储数据的基本单元，类似于关系数据库中的行。每个文档都是一个 JSON 风格的对象，可以包含各种字段和值。在一个集合中，文档的结构可以是不同的，这使得 MongoDB 能够轻松地适应变化多端的数据需求。</p>
+<p>当我们使用 MongoDB 存储数据时，文档的表示方式与 JSON 非常相似。以下是文档的 JSON 格式示例：</p>
+<pre><code class="language-json">// 在 &quot;articles&quot; 集合中插入一篇文章的文档
+db.articles.insert({
+  &quot;title&quot;: &quot;MongoDB Basics&quot;,
+  &quot;author&quot;: &quot;John Doe&quot;,
+  &quot;content&quot;: &quot;An introduction to MongoDB and its key concepts.&quot;,
+  &quot;tags&quot;: [&quot;NoSQL&quot;, &quot;Database&quot;]
+})
+</code></pre>
+<p>在这个示例中，我们创建了一个名为 &quot;articles&quot; 的集合，并向该集合插入了一篇文章的文档。文档的结构以 JSON 格式表示，包含了标题、作者、内容和标签等字段。</p>
+<p>MongoDB 的灵活性使得文档可以根据实际需求自由定义字段，而集合则提供了一个容纳不同文档的容器。这种方式使得 MongoDB 适用于处理各种数据结构和数据变化的场景。</p>
+<p>通过集合和文档，MongoDB 提供了一种直观且强大的方式来存储和组织数据，适应不同数据结构和变化。这种灵活性是 MongoDB 的一项关键特性，使其成为处理各种数据场景的理想选择。</p>
+<h3 id="常用-mongodb-指令">常用 MongoDB 指令</h3>
+<p>这是一些常用的 MongoDB 命令，方便大家熟悉 MongoDB 的使用。</p>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mongo</code></td>
+<td>连接到 MongoDB 数据库</td>
+</tr>
+<tr>
+<td><code>show dbs</code></td>
+<td>显示所有数据库</td>
+</tr>
+<tr>
+<td><code>use db_name</code></td>
+<td>切换到指定的数据库</td>
+</tr>
+<tr>
+<td><code>db</code></td>
+<td>显示当前数据库</td>
+</tr>
+<tr>
+<td><code>db.dropDatabase()</code></td>
+<td>删除当前数据库</td>
+</tr>
+<tr>
+<td><code>show collections</code></td>
+<td>显示当前数据库中的所有集合</td>
+</tr>
+<tr>
+<td><code>db.createCollection(name)</code></td>
+<td>创建一个新的集合</td>
+</tr>
+<tr>
+<td><code>db.collectionName.insert(document)</code></td>
+<td>在指定集合中插入文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find()</code></td>
+<td>查询指定集合中的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.update(query, update)</code></td>
+<td>更新指定集合中符合条件的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.remove(query)</code></td>
+<td>删除指定集合中符合条件的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.drop()</code></td>
+<td>删除指定集合</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find().sort({field: 1})</code></td>
+<td>按指定字段升序排序文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find().sort({field: -1})</code></td>
+<td>按指定字段降序排序文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find().limit(n)</code></td>
+<td>限制查询结果返回的文档数量</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find().skip(n)</code></td>
+<td>跳过指定数量的文档，返回剩余的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find({field: value})</code></td>
+<td>查询指定字段等于给定值的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find({field: { $gt: value }})</code></td>
+<td>查询指定字段大于给定值的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find({field: { $lt: value }})</code></td>
+<td>查询指定字段小于给定值的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find({field: /pattern/})</code></td>
+<td>使用正则表达式查询指定字段的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.aggregate(pipeline)</code></td>
+<td>执行聚合操作（例如，分组、筛选、排序）</td>
+</tr>
+<tr>
+<td><code>db.collectionName.ensureIndex({field: 1})</code></td>
+<td>创建索引以加速查询</td>
+</tr>
+<tr>
+<td><code>db.collectionName.getIndexes()</code></td>
+<td>查看集合的索引</td>
+</tr>
+</tbody>
+</table>
+<h2 id="基本的增删改查">基本的增删改查</h2>
+<p>MongoDB 是一个基于文档的数据库，这意味着，与关系型数据库相比，MongoDB 中的数据存储更加灵活。</p>
+<p>首先我们创建一个名字为<code>mytest</code>的数据库：</p>
+<pre><code class="language-bash">use mytest
+</code></pre>
+<p>并且创造一个名字为<code>user</code>的集合：</p>
+<pre><code class="language-bash">db.createCollection(&quot;user&quot;)
+</code></pre>
+<h4 id="增">增</h4>
+<p>在<code>user</code>集合中增加单条数据：</p>
+<pre><code class="language-bash">db.user.insertOne({name: 'lonjin', age: 18})
+</code></pre>
+<p>在<code>user</code>集合中增加多条数据：</p>
+<pre><code class="language-bash">db.user.insertMany([
+    {name: 'lonjin2', age: 22},
+    {name: 'lonjin3', age: 33}
+])
+</code></pre>
+<h4 id="查">查</h4>
+<p>在<code>user</code>集合中查询所有数据：</p>
+<pre><code class="language-bash">db.user.find()
+</code></pre>
+<p>在<code>user</code>集合中查询指定条件的数据：</p>
+<pre><code class="language-bash">db.user.find({age: 18})
+</code></pre>
+<p>在<code>user</code>集合中查询指定条件的数据（查询age等于18的数据）：</p>
+<pre><code class="language-bash">db.user.find({age: 18})
+</code></pre>
+<p>在<code>user</code>集合中查询<code>age</code>大于18的数据：</p>
+<pre><code class="language-bash">db.user.find({age: {$gt: 18}})
+</code></pre>
+<p>在<code>user</code>集合中查询<code>age</code>大于18的数据：</p>
+<pre><code class="language-bash">db.user.find({age: {$gt: 18}})
+</code></pre>
+<p>在<code>user</code>集合中查询<code>age</code>大于18的数据，并且只输出符合条件的一条数据：</p>
+<pre><code class="language-bash">db.user.findOne({age: {$gt: 18}})
+</code></pre>
+<h4 id="改">改</h4>
+<p>在<code>user</code>集合中修改<code>name</code>为<code>lonjin</code>，设置他的<code>age</code>为16的数据：</p>
+<pre><code class="language-bash">db.user.updateOne({name: 'lonjin'}, {$set:{age: 16}})
+</code></pre>
+<p>在<code>user</code>集合中修改<code>age</code>大于14的数据，将<code>name</code>改为<code>tom</code>：</p>
+<pre><code class="language-bash">db.user.updateMany({age: {$gt: 14}}, {$set:{name: 'tom'}})
+</code></pre>
+<h4 id="删除">删除</h4>
+<p>在<code>user</code>集合中删除<code>age</code>为<code>16</code>的数据：</p>
+<pre><code class="language-bash">db.user.deleteOne({age: 16})
+
+</code></pre>
+<p>在<code>user</code>集合中删除<code>age</code>大于32的数据：</p>
+<pre><code class="language-bash">db.user.deleteMany({age: {$gt: 32}})
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[【node学习-04】创建Express项目]]></title>
+        <id>https://lonjinup.github.io/node-04/</id>
+        <link href="https://lonjinup.github.io/node-04/">
+        </link>
+        <updated>2023-11-19T15:35:48.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="创建express项目">创建Express项目</h1>
+<blockquote>
+<p>Express 是一个轻量级、高度可定制的 Web 应用程序框架，它简化了在 Node.js 环境中构建强大的 Web 应用程序的过程。它提供了一系列的功能和工具，可以帮助开发者快速地构建高性能的 Web 应用。Express 的灵活性使得它成为了许多开发者首选的框架之一，同时也被广泛用于构建各类规模的项目。无论是快速搭建一个简单的 API 服务器，还是开发一个复杂的网站，Express 都能提供所需的基础设施和功能支持。</p>
+</blockquote>
+<h2 id="express特性">Express特性</h2>
+<p>Express 是一个简洁、灵活的 Node.js Web 应用程序框架，具有以下特性：</p>
+<ol>
+<li>
+<p><strong>上手简单，学习门槛低</strong>：Express 提供了直观且简洁的 API，使得初学者可以快速上手，并且可以随着经验的积累进行深入学习和定制。</p>
+</li>
+<li>
+<p><strong>丰富的API基础支持</strong>：Express 提供了许多构建 Web 应用所需的基础功能，包括路由、请求和响应处理、中间件等，使得开发者可以方便地构建出各种类型的应用。</p>
+</li>
+<li>
+<p><strong>强大的路由功能</strong>：Express 提供了灵活的路由功能，可以根据不同的 URL 路径分发到不同的处理程序，使得开发者可以轻松地管理各类请求和响应。</p>
+</li>
+<li>
+<p><strong>灵活的中间件支持</strong>：Express 中间件提供了一种有效的方式来处理 HTTP 请求。开发者可以通过中间件来扩展 Express 的功能，例如身份验证、日志记录等，使得应用具有更强的可定制性。</p>
+</li>
+<li>
+<p><strong>性能接近原生Node</strong>：由于 Express 是基于 Node.js 构建的，它在处理请求和响应时非常高效，性能接近原生的 Node.js。</p>
+</li>
+</ol>
+<h2 id="express可以做什么">Express可以做什么</h2>
+<p>Express 是一个强大的框架，可以用于构建多种类型的应用：</p>
+<ol>
+<li>
+<p><strong>网站</strong>：Express 可以用于构建各种类型的网站，从简单的个人博客到复杂的企业网站，都可以通过 Express 轻松实现。</p>
+</li>
+<li>
+<p><strong>API接口服务器</strong>：许多现代应用程序依赖于后端提供 API 接口，Express 可以作为一个高效的 API 服务器，提供数据的获取、处理和响应功能。</p>
+</li>
+<li>
+<p><strong>服务端渲染中间层</strong>：Express 可以作为服务端渲染应用的中间层，处理前端页面请求并在服务器端进行渲染，提高页面加载速度和 SEO 优化。</p>
+</li>
+<li>
+<p><strong>开发一些辅助工具</strong>：Express 可以用于开发一些辅助工具，例如快速搭建静态文件服务器、代理服务器等，提升开发效率。</p>
+</li>
+<li>
+<p><strong>自定义集成框架</strong>：Express 提供了足够的灵活性，可以根据项目需求进行定制，甚至结合其他模块，构建出符合特定要求的定制框架。</p>
+</li>
+</ol>
+<h2 id="express项目构建">Express项目构建</h2>
+<h3 id="安装express">安装Express</h3>
+<p>首先，我们需要创建一个名为 <code>express</code> 的文件夹，并在终端中进入该文件夹。接着，可以通过以下命令来初始化一个新的 Node.js 项目：</p>
+<pre><code class="language-shell">npm init -y
+</code></pre>
+<p>然后，我们安装 Express：</p>
+<pre><code class="language-shell">npm i express
+</code></pre>
+<p>这样，我们就成功地安装了 Express。我们还可以通过应用生成器工具 <a href="https://www.expressjs.com.cn/starter/generator.html">express-generator</a> 快速创建一个应用的骨架，这里先不展开叙述了。</p>
+<h3 id="创建请求">创建请求</h3>
+<p>接下来，我们将创建一个名为 <code>app.js</code> 的文件，并在其中引入 Express。随后，我们可以编写一个简单的 GET 请求处理：</p>
+<p>根目录下新建一个<code>/db.json</code>文件：</p>
+<pre><code class="language-json">{
+    &quot;user&quot;: [
+        {
+            &quot;id&quot;: 1,
+            &quot;name&quot;: &quot;zhangsan&quot;,
+            &quot;age&quot;: 18,
+            &quot;sex&quot;: &quot;男&quot;
+        }
+    ]
+}
+</code></pre>
+<p>然后在<code>/app.js</code>中添加一个<code>/user</code>的get请求接口，该接口返回刚才<code>db.json</code>中的内容：</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+const fs = require('fs')
+
+app.get('/user', (req, res) =&gt; {
+    fs.readFile('./db.json', 'utf8', (err, data) =&gt; {
+        if (err) {
+            res.status(500).json(err)
+        } else {
+            res.send(JSON.parse(data))
+        }
+    })
+})
+
+app.listen(3001, () =&gt; {
+    console.log('http://127.0.0.1:3001')
+})
+
+</code></pre>
+<p>最后，通过以下命令运行项目(之前全局安装过<code>nodemon</code>)：</p>
+<pre><code class="language-shell">nodemon app.js
+</code></pre>
+<p>访问<code>http://127.0.0.1:3001/user</code>即可获得到我们的响应数据。</p>
+<p>但是上面的写法一直是不够优雅，写了很多回调函数，这里我们可以<code>promise</code>化一下：</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+const fs = require('fs')
+//引入promisify
+const { promisify } = require('util') 
+const readFile = promisify(fs.readFile)
+
+app.get('/user', async (req, res) =&gt; {
+    try {
+        let back = await readFile('./db.json', 'utf8')
+        res.send(JSON.parse(back))
+    } catch (error) {
+        res.status(500).json({ error })
+    }
+})
+
+app.listen(3001, () =&gt; {
+    console.log('http://127.0.0.1:3001')
+})
+</code></pre>
+<p>上面我们已经建立了一个get请求，下面我们试着创建一个post请求，并接受一些参数：</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+const fs = require('fs')
+const { promisify } = require('util')
+const readFile = promisify(fs.readFile)
+
+// 解析post请求
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+
+//处理请求
+app.post('/add', async (req, res) =&gt; {
+    console.log(req.headers) //当前请求头信息
+    console.log(req.body) //当前请求体信息
+    res.send('post success')
+})
+
+app.listen(3001, () =&gt; {
+    console.log('http://127.0.0.1:3001')
+})
+
+</code></pre>
+<p>创建成功后，我们可以使用<code>postman</code>来测试我们的接口：</p>
+<ul>
+<li>
+<p>参数格式为<code>'content-type': 'application/x-www-form-urlencoded'</code><br>
+<a href="https://imgse.com/i/piUzevq"><img src="https://z1.ax1x.com/2023/11/20/piUzevq.png" alt="piUzevq.png" loading="lazy"></a></p>
+</li>
+<li>
+<p>参数格式为<code>'content-type': 'application/json'</code><br>
+<a href="https://imgse.com/i/piUzZ2n"><img src="https://z1.ax1x.com/2023/11/20/piUzZ2n.png" alt="piUzZ2n.png" loading="lazy"></a></p>
+</li>
+</ul>
+<blockquote>
+<p>介绍一下常见传参格式</p>
+</blockquote>
+<p>刚才我们只是写了一个简单的<code>post</code>请求并读取了请求中携带的参数，下面我们把拿到的参数写入到<code>db.json</code>中：</p>
+<pre><code class="language-js">const express = require('express')
+const app = express()
+const fs = require('fs')
+const { promisify } = require('util')
+const readFile = promisify(fs.readFile)
+// 1.promisify 写入文件
+const writeFile = promisify(fs.writeFile)
+
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+
+app.post('/add', async (req, res) =&gt; {
+    // 判读body是否为空
+    let body = req.body
+    if (Object.keys(body).length !== 0) {
+        try {
+            // 读取文件
+            let db = await readFile('./db.json', 'utf8')
+            let data = JSON.parse(db)
+            // 添加id
+            body.id = data.user[data.user.length - 1].id + 1
+            data.user.push(body)
+
+            // 写入文件
+            let result = await writeFile('./db.json', JSON.stringify(data), 'utf8')
+            if (!result) {
+                res.status(200).json({ message: '写入成功' })
+            } else {
+                res.status(500).json({ error: '写入失败' })
+            }
+
+        } catch (error) {
+            res.status(500).json({ error })
+        }
+    } else {
+        res.status(400).json({ error: '缺少信息' })
+    }
+})
+
+app.listen(3001, () =&gt; {
+    console.log('http://127.0.0.1:3001')
+})
+
+</code></pre>
+<p>这样我们就完成了添加用户的接口逻辑。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[简化本地Vue项目登录流程：用Node脚本一键获取Token]]></title>
+        <id>https://lonjinup.github.io/node-login/</id>
+        <link href="https://lonjinup.github.io/node-login/">
+        </link>
+        <updated>2023-11-16T02:51:10.000Z</updated>
+        <content type="html"><![CDATA[<blockquote>
+<p>最近公司有个项目是基于<code>vue</code>开发的，但部分老页面是前后端不分离的；比如登录页面。由于后端也没有相关登录接口，所以每次在本地启动服务后，需要到测试环境登陆；然后手动复制几个<code>cookie</code>粘贴到本地启动的页面中，整个过程比较繁；所以用<code>node</code>写个脚本去简化一下流程。</p>
+</blockquote>
+<h2 id="优化前">优化前</h2>
+<ul>
+<li>本地<code>npm run serve</code>启动服务</li>
+<li>登录测试环境<code>https://test.xxxx.com/login</code></li>
+<li>打开调试，找到相关cookie，复制</li>
+<li>打开本地启动的页面并打开调试；粘贴复制的cookie，刷新页面</li>
+</ul>
+<p>当然，以下是你整个脚本的逐步解释：</p>
+<h2 id="优化过程">优化过程</h2>
+<h3 id="安装puppeteer和readline">安装Puppeteer和readline</h3>
+<blockquote>
+<p><strong>Puppeteer:</strong><br>
+<a href="https://pptr.dev/">Puppeteer</a> 是一个由 Google 开发的 Node.js 库，用于控制 headless 浏览器（无图形用户界面的浏览器）。它提供了一套高级的 API，允许开发者通过程序方式操控浏览器的行为，包括导航、表单提交、截图、生成 PDF 等功能。Puppeteer通常用于执行自动化测试、屏幕截图、搜索引擎爬虫等任务。在本例中，我们使用 Puppeteer 模拟用户登录过程，获取登录后的 Cookies。<br>
+<strong>readline:</strong><br>
+<a href="https://nodejs.org/api/readline.html">readline</a> 是 Node.js 内置的模块之一，提供了一个接口来从可读流（如 <code>process.stdin</code>）读取数据。它通常用于从终端接收用户输入，使得我们可以以交互的方式与用户进行通信。在本例中，我们使用 readline 创建了一个接口，以便用户能够在终端中输入账号和密码。</p>
+</blockquote>
+<p>这两个模块的结合使用使得我们可以通过 <code>Puppeteer</code> 控制浏览器完成登录，而 <code>readline</code> 则使得用户能够在终端中直接输入账号和密码。</p>
+<p>安装并引入模块</p>
+<pre><code class="language-shell">npm i puppeteer@20.0.0
+npm i readline
+</code></pre>
+<p>引入 <code>puppeteer</code>、<code>readline</code> 和 <code>fs</code>：</p>
+<pre><code class="language-javascript">const puppeteer = require('puppeteer')
+const readline = require('readline')
+const fs = require('fs')
+</code></pre>
+<h3 id="定义登录函数">定义登录函数</h3>
+<p>我们定义一个名为 <code>login</code> 的异步函数，用于模拟用户登录和获取 cookies。</p>
+<pre><code class="language-javascript">/**
+ * 登录
+ * @param {string} url 登录页面url
+ * @param {string} usernameSelector 登录页面用户名输入框的ID
+ * @param {string} passwordSelector 登录页面密码输入框的ID
+ * @param {string} username  账号
+ * @param {string} password 密码
+ */
+async function login(url, usernameSelector, passwordSelector, username, password) {
+    // ...
+}
+</code></pre>
+<h3 id="启动浏览器">启动浏览器</h3>
+<p>在 <code>login</code> 函数中，使用 <code>puppeteer.launch()</code> 启动一个 headless 浏览器实例，然后通过<code>page.goto</code>打开我们传入的url。</p>
+<pre><code class="language-javascript">const browser = await puppeteer.launch({ headless: true })
+const page = await browser.newPage()
+await page.goto(url, { waitUntil: 'load' })
+</code></pre>
+<h3 id="输入用户名和密码">输入用户名和密码</h3>
+<p>使用 <code>page.type()</code> 模拟输入用户名和密码，其中第一个参数为输入框的选择器。登录完成后，我们再通过<code>page.click</code>去点击登录按钮。</p>
+<pre><code class="language-javascript">await page.type(usernameSelector, username)
+await page.type(passwordSelector, password)
+
+await page.click('#_btnLogin')
+await page.waitForNavigation({ waitUntil: 'load' })
+
+</code></pre>
+<h3 id="获取-cookies">获取 Cookies</h3>
+<p>使用 <code>page.cookies()</code> 获取页面的 cookies，并将我们需要的<code>token</code>提取出来。我们这里就随便以<code>APITOKEN</code> 和 <code>bpmftoken</code> 为例子；<br>
+提取后我们就可以使用<code>browser.close()</code>关闭浏览器。</p>
+<pre><code class="language-javascript">const cookies = await page.cookies()
+const tokens = {}
+for (const cookie of cookies) {
+    cookie.name === 'APITOKEN' &amp;&amp; (tokens.APITOKEN = cookie.value)
+    cookie.name === 'bpmftoken' &amp;&amp; (tokens.bpmftoken = cookie.value)
+}
+
+browser.close()
+</code></pre>
+<h3 id="写入tokens到文件">写入Tokens到文件</h3>
+<p>将获取到的<code>tokens</code>写入<code>JSON</code>文件并关闭终端。</p>
+<pre><code class="language-javascript">const tokenJSON = JSON.stringify(tokens, null, 2)
+const filePath = './src/config/tokens.json'
+
+fs.writeFile(filePath, tokenJSON, (err) =&gt; {
+    if (err) throw err
+    console.log('token已写入，请执行 npm run serve')
+    process.exit(1)
+});
+</code></pre>
+<h3 id="访问终端输入数据">访问终端输入数据</h3>
+<p>使用 <code>readline</code> 模块创建一个接口，获取用户输入的账号和密码。</p>
+<pre><code class="language-javascript">const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+let username = null;
+let password = null;
+
+const url = 'https://xxxx..com/login'; //登录页面
+const usernameSelector = '#_txtUid'; //用户名输入框ID
+const passwordSelector = '#_txtPwd'; //密码输入框ID
+
+rl.question('请输入账号:', (answer) =&gt; {
+    username = answer
+    rl.question('请输入密码:', (answer) =&gt; {
+        password = answer
+        rl.close()
+        login(url, usernameSelector, passwordSelector, username, password)
+    });
+});
+</code></pre>
+<p>终端执行下面命令即可实现获取token。</p>
+<pre><code class="language-shell">node login.js
+</code></pre>
+<p>然后在项目中通过读取<code>/src/config/tokens.json</code>中的内容去手动写入<code>token</code>即可。</p>
+<p>完整代码如下：</p>
+<pre><code class="language-javascript">const puppeteer = require('puppeteer')
+const readline = require('readline')
+const fs = require('fs')
+
+async function login(url, usernameSelector, passwordSelector, username, password) {
+    const browser = await puppeteer.launch({ headless: true })
+    const page = await browser.newPage()
+    try {
+        await page.goto(url, { waitUntil: 'load' })
+        try {
+            await page.type(usernameSelector, username)
+            await page.type(passwordSelector, password)
+        } catch (error) {
+            console.log(error)
+        }
+
+        await page.click('#_btnLogin')
+        await page.waitForNavigation({ waitUntil: 'load' })
+        console.log('登录成功')
+        await page.waitForTimeout(500)
+
+        const cookies = await page.cookies()
+        const tokens = {}
+        for (const cookie of cookies) {
+            cookie.name === 'APITOKEN' &amp;&amp; (tokens.APITOKEN = cookie.value)
+            cookie.name === 'bpmftoken' &amp;&amp; (tokens.bpmftoken = cookie.value)
+        }
+
+        await browser.close()
+
+        const tokenJSON = JSON.stringify(tokens, null, 2)
+        const filePath = './src/config/tokens.json'
+        fs.writeFile(filePath, tokenJSON, (err) =&gt; {
+            if (err) throw err;
+            console.log('token已写入, 请执行npm run serve')
+            process.exit(1)
+        });
+
+    } catch (error) {
+        console.error('Error:', error)
+        await browser.close()
+        process.exit(1)
+    }
+}
+
+
+let username = null;
+let password = null;
+const url = 'https://xxxx..com/login'; //登录页面
+const usernameSelector = '#_txtUid'; //用户名输入框ID
+const passwordSelector = '#_txtPwd'; //密码输入框ID
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+rl.question('请输入账号(默认GP00164，直接回车): ', (answer) =&gt; {
+    username = answer || 'GP00164';
+    rl.question('请输入密码: (默认GP00164，直接回车)', (answer) =&gt; {
+        password = answer || 'Xxzx2023@123'
+        rl.close()
+        login(url, usernameSelector, passwordSelector, username, password)
+    })
+})
+</code></pre>
+<h2 id="总结">总结</h2>
+<blockquote>
+<p>这样我们在本地开发过程中就不需要手动复制<code>token</code>，直接运行<code>node login.js</code>即可。<br>
+当然<code>Puppeteer</code>可以做很多事情，比如自动化测试、屏幕截图和生成 PDF、爬虫、性能测试、表单自动填写等等，更多API可以查看<a href="https://pptr.dev/">官网</a>学习。</p>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[【node学习-03】核心模块http]]></title>
+        <id>https://lonjinup.github.io/node-http/</id>
+        <link href="https://lonjinup.github.io/node-http/">
+        </link>
+        <updated>2023-11-05T07:36:29.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="nodejs-核心模块http">Node.js 核心模块http</h1>
+<blockquote>
+<p>下面我们将学习 Node.js 的 <code>http</code> 模块，通过它来实现以下功能：</p>
+</blockquote>
+<ol>
+<li>创建一个 HTTP 服务器</li>
+<li>服务器接收请求并进行处理</li>
+<li>响应并返回处理结果</li>
+</ol>
+<h2 id="get请求">get请求</h2>
+<p>新建 <code>server.js</code> 文件：</p>
+<pre><code class="language-js">// 1.导入模块
+const http = require('http')
+
+// 2.创建服务器 获取服务器的实例对象
+let server = http.createServer()
+server.listen(3000, () =&gt; {
+    console.log('http://127.0.0.1:3000')
+})
+
+// 3.接收响应
+server.on('request', (req, res) =&gt; {
+    // 4.处理响应
+    res.write('888')
+    //5.断开连接
+    res.end()
+})
+</code></pre>
+<p>然后在终端运行：</p>
+<pre><code class="language-shell">node server.js
+</code></pre>
+<p>控制台将输出 <code>http://127.0.0.1:3000</code>。</p>
+<p>在浏览器中访问，会得到我们写入的 <code>888</code>。</p>
+<blockquote>
+<p>在 Node.js 开发中，每次修改代码后都需要重启服务才能看到新的输出。为了解决这个问题，我们可以使用 <code>nodemon</code> 工具，它可以自动检测文件的变化并更新服务。安装步骤如下：</p>
+</blockquote>
+<pre><code class="language-shell">sudo npm i -g nodemon
+</code></pre>
+<p>安装完成后，通过下面命令启动项目：</p>
+<pre><code class="language-shell">nodemon server.js
+</code></pre>
+<p>当我们尝试输出中文时，可能会发现浏览器内显示的是乱码。这是因为我们没有告诉浏览器如何解析这段文本，因此我们需要设置一下响应头：</p>
+<pre><code class="language-js">server.on('request', (req, res) =&gt; {
+    res.setHeader('Content-Type', 'text/plain;charset=UTF-8'); // 设置响应头
+    res.write('你好')
+    res.end()
+})
+</code></pre>
+<p>通过修改响应头，我们就可以输出对应的内容。</p>
+<h3 id="常见请求方式">常见请求方式</h3>
+<p>以下是 Node.js 中常见的请求方法及其说明：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td>用于向指定的资源请求数据。</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>用于向指定的资源提交要被处理的数据。</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td>用于向指定的资源位置上传其最新内容。</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>删除指定的资源。</td>
+</tr>
+<tr>
+<td>HEAD</td>
+<td>类似于 GET 请求，但只返回 HTTP 报头，不返回实体主体。</td>
+</tr>
+<tr>
+<td>OPTIONS</td>
+<td>用于获取目标资源所支持的通信选项。</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td>对资源进行部分修改。</td>
+</tr>
+</tbody>
+</table>
+<p>这些方法在 HTTP 协议中定义，Node.js 提供了对这些方法的支持，可以通过构建 HTTP 请求来使用它们。例如，可以使用 <code>http</code> 或 <code>https</code> 模块创建一个服务器，然后根据接收到的请求的方法来执行相应的处理。</p>
+<p>接下来，我们将发起一个带有参数的 <code>GET</code> 请求：</p>
+<p>在 <code>server.js</code> 中：</p>
+<pre><code class="language-js">const http = require('http')
+const url = require('url') // 解析携带的参数
+
+let server = http.createServer()
+server.listen(3000, () =&gt; {
+    console.log('http://127.0.0.1:3000')
+})
+
+// 接收响应
+server.on('request', (req, res) =&gt; {
+    if (req.method === 'GET') {
+        let { query } = url.parse(req.url, true)
+        res.write('GET 请求，参数为：' + query.id)
+        res.end()
+    }
+})
+</code></pre>
+<p>在浏览器中访问：</p>
+<pre><code class="language-shell">http://127.0.0.1:3000/user?id=123
+</code></pre>
+<p>将会返回：</p>
+<pre><code class="language-shell">GET 请求，参数为：123
+</code></pre>
+<p>这个例子演示了如何使用 Node.js 发起带参数的 <code>GET</code> 请求。</p>
+<h2 id="处理-post-请求">处理 POST 请求</h2>
+<p>在 <code>server.js</code> 中：</p>
+<pre><code class="language-js">const http = require('http')
+const url = require('url')
+
+let server = http.createServer()
+server.listen(3000, () =&gt; {
+    console.log('http:127.0.0.1:3000')
+})
+
+server.on('request', (req, res) =&gt; {
+    res.setHeader('Content-Type', 'text/plain;charset=UTF-8'); // 设置响应头
+    if (req.method === 'GET') {
+        let { query } = url.parse(req.url, true)
+        res.write('get请求,参数为:' + query.id)
+        res.end()
+    } else if (req.method === 'POST') {
+        let postData = ''
+        req.on('data', chunk =&gt; {
+            postData += chunk
+        })
+        req.on('end', () =&gt; {
+            res.write('POST 请求, 参数为: ' + postData)
+            res.end();
+        })
+    }
+})
+
+</code></pre>
+<p>在处理 POST 请求时，我们通过监听 <code>data</code> 事件和 <code>end</code> 事件来获取请求的数据。在 <code>data</code> 事件中，我们将每个数据块（<code>chunk</code>）累加到 <code>postData</code> 中，最终在 <code>end</code> 事件中处理完整的请求数据。</p>
+<h3 id="代码拆分">代码拆分</h3>
+<p>以上示例演示了如何处理不同请求方法的逻辑，但在实际开发中，我们会进一步将代码拆分以保持结构清晰。</p>
+<p>我们可以创建一个 <code>router.js</code> 文件来处理路由，以及一个 <code>controller.js</code> 文件来处理具体的业务逻辑。</p>
+<ul>
+<li><code>router.js</code>：</li>
+</ul>
+<pre><code class="language-js">const fs = require('fs')
+const controller = require('./controller')
+
+module.exports = (req, res) =&gt; {
+    res.setHeader('Content-Type', 'text/plain;charset=UTF-8'); // 设置响应头
+    if (req.method === 'GET') {
+        if (req.url == '/') {
+            controller.index(res)
+        }
+
+    } else if (req.method === 'POST') {
+        let postData = ''
+        req.on('data', chunk =&gt; {
+            postData += chunk
+        })
+        req.on('end', () =&gt; {
+            controller.user(require('querystring').parse(postData), res)
+        })
+    }
+} 
+</code></pre>
+<ul>
+<li><code>controller.js</code>：</li>
+</ul>
+<pre><code class="language-js">const url = require('url')
+
+module.exports = {
+    index(req, res) {
+        let { query } = url.parse(req.url, true)
+        res.write('get请求')
+        res.end()
+    },
+
+    user(data, res) {
+        console.log(data)
+        res.end()
+    }
+}
+</code></pre>
+<p>通过将不同的逻辑模块拆分到 <code>controller.js</code> 中，我们可以更清晰地组织代码。这样在实际的开发中，也能更方便地维护和扩展应用程序。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[vue3项目如何配置ESLint和prettier]]></title>
+        <id>https://lonjinup.github.io/vue3-esilntAndPrettier/</id>
+        <link href="https://lonjinup.github.io/vue3-esilntAndPrettier/">
+        </link>
+        <updated>2023-08-23T03:14:37.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="vue3项目如何配置eslint和prettier">vue3项目如何配置ESLint和prettier</h1>
+<h2 id="配置eslint">配置eslint</h2>
+<p>安装<code>eslint</code></p>
+<pre><code class="language-js">npm add eslint -D
+</code></pre>
+<p>安装完成后进行项目初始化</p>
+<pre><code class="language-js">npm init @eslint/config
+</code></pre>
+<p>然后根据提示选择对应的选项，作者个人选择如下：</p>
+<pre><code class="language-shell">? How would you like to use ESLint? ...
+To check syntax only 
+To check syntax and find problems
+&gt; To check syntax, find problems, and enforce code style
+</code></pre>
+<ul>
+<li>
+<p>To check syntax only: 仅检查语法<br>
+这个选项只会让 ESLint 检查您的代码是否符合语法规则，不会执行其他的代码质量检查或风格强制。</p>
+</li>
+<li>
+<p>To check syntax and find problems: 检查语法并发现问题<br>
+选择这个选项后，ESLint 将检查您的代码语法，并查找可能存在的问题，如未定义的变量、未使用的变量等。</p>
+</li>
+<li>
+<p>To check syntax, find problems, and enforce code style: 检查语法、发现问题并强制代码风格。这是最全面的选项，选择后，<code>ESLint</code> 将不仅检查语法和问题，还会根据您的配置强制执行代码风格规则，确保代码在整体风格上保持一致。</p>
+</li>
+</ul>
+<p>通常，如果希望在项目中使用 <code>ESLint</code> 来保证代码的风格一致性和质量，那么直接选择第三个就好。</p>
+<p>接下来会询问您的项目使用什么类型的模块（Module）系统：</p>
+<pre><code class="language-shell">? What type of modules does your project use? ...
+&gt; JavaScript modules (import/export)
+CommonJS (require/exports)
+None of these
+</code></pre>
+<ul>
+<li>
+<p>JavaScript modules (import/export): JavaScript 模块（使用 <code>import</code> 和 <code>export</code> 语法）<br>
+如果项目使用了 JavaScript 的模块系统，即使用了 ES6 的 <code>import</code> 和 <code>export</code> 语法来组织和导入导出代码文件，那么选择这个选项。</p>
+</li>
+<li>
+<p>CommonJS (require/exports): CommonJS 模块（使用 <code>require</code> 和 <code>module.exports</code> 语法）<br>
+如果项目使用了 <code>CommonJS</code> 的模块系统，即使用了 <code>require</code> 和<code> module.exports</code> 语法来组织和导入导出代码文件，那么选择这个选项。</p>
+</li>
+<li>
+<p>None of these: 无<br>
+如果项目既不使用 <code>JavaScript</code> 的模块系统，也不使用 <code>CommonJS</code> 的模块系统，可以选择这个选项。</p>
+</li>
+</ul>
+<p>由于我是写<code>Vue</code>项目，这里我就选择第一个。</p>
+<p>接下来询问在哪个框架中使用：</p>
+<pre><code class="language-shell">? Which framework does your project use? ...
+React
+&gt; Vue.js
+None of these
+</code></pre>
+<p>这里我选择了<code> Vue.js</code>，大家按需选择就好。</p>
+<p>接下来会询问你是否使用<code>ts</code>和代码在哪里运行：</p>
+<pre><code class="language-shell">√ Does your project use TypeScript? · No / **Yes**
+√ Where does your code run? · browser, node
+</code></pre>
+<ul>
+<li>Does your project use TypeScript?<br>
+这个选项用来询问您的项目是否使用 <code>TypeScript</code>。<code>TypeScript</code> 是一个 <code>JavaScript</code> 的超集，它添加了静态类型检查和其他特性。您可以选择以下选项之一：</li>
+</ul>
+<p>No: 如果项目不使用 <code>TypeScript</code>，选择这个选项。<br>
+Yes: 如果项目使用 <code>TypeScript</code>，选择这个选项。<br>
+如果项目使用 <code>TypeScript</code>，ESLint 会结合 <code>@typescript-eslint</code> 插件来提供 <code>TypeScript</code> 相关的检查和规则。</p>
+<ul>
+<li>Where does your code run?<br>
+这个选项用来询问您的代码将在什么环境中运行。您可以选择多个环境，如浏览器、<code>Node.js</code> 等。选择适合您项目的环境类型。例如：</li>
+</ul>
+<p>browser: 如果您的代码将在浏览器环境中运行。<br>
+node: 如果您的代码将在 Node.js 环境中运行。<br>
+根据您的选择，ESLint 将会根据不同的环境提供相应的规则和检查。</p>
+<p>这里还是看项目类型按需选择。</p>
+<p>接下来问你希望如何定义项目的样式：</p>
+<pre><code class="language-shell">√ How would you like to define a style for your project? …
+  Use a popular style guide
+❯ Answer questions about your style
+  ## next
+√ How would you like to define a style for your project? · prompt
+</code></pre>
+<ul>
+<li>
+<p>Use a popular style guide: 使用一个流行的代码风格指南<br>
+如果选择了这个选项，就可以从一些已知的流行代码风格指南中进行选择，例如 Airbnb、Google、Standard 等。这将会自动为应用选定的代码风格指南，以及相关的 ESLint 规则和配置。</p>
+</li>
+<li>
+<p>Answer questions about your style: 如果选择了这个选项，将会被引导回答一系列问题，用于自定义代码风格配置。这将根据自己的偏好和项目需求，创建一个项目的 ESLint 配置。</p>
+</li>
+<li>
+<p>next: 继续<br>
+如果选择了这个选项，您将会跳过当前步骤，继续下一步的配置。</p>
+</li>
+<li>
+<p>How would you like to define a style for your project? · prompt<br>
+如果选择了这个选项，您将会使用交互式提示来自定义代码风格。这将会引导你回答一些问题，以便为你的项目生成适合的 ESLint 配置。</p>
+</li>
+</ul>
+<p>这里我们可以选择第二个。</p>
+<p>然后询问你想用什么格式的配置文件：</p>
+<pre><code class="language-shell">? What format do you want your config file to be in? ...
+&gt; JavaScript
+  YAML
+  JSON
+</code></pre>
+<p>这里我就选<code>JavaScript</code>。</p>
+<p>询问缩进风格：</p>
+<pre><code class="language-shell">? What style of indentation do you use? ...
+&gt; Tabs
+  Spaces
+</code></pre>
+<ul>
+<li>
+<p>Tabs: 使用制表符进行缩进<br>
+如果你选择了这个选项，你的代码中的缩进将使用制表符进行，每一个级别的缩进都是一个制表符。</p>
+</li>
+<li>
+<p>Spaces: 使用空格进行缩进<br>
+如果你选择了这个选项，你的代码中的缩进将使用空格进行，每一个级别的缩进通常是 <code>2</code> 个或 <code>4</code>个空格，这取决于你的偏好和项目规范。</p>
+</li>
+</ul>
+<p>由于我喜欢<code>tab</code>缩进，所以我就选择第一个。</p>
+<p>字符串使用双引号还是单引号：</p>
+<pre><code class="language-shell">? What quotes do you use for strings? ...
+  Double
+&gt; Single
+</code></pre>
+<ul>
+<li>
+<p>Double: 使用双引号表示字符串<br>
+如果你选择了这个选项，你的代码中的字符串将使用双引号包裹，例如 &quot;Hello, World!&quot;。</p>
+</li>
+<li>
+<p>Single: 使用单引号表示字符串<br>
+如果你选择了这个选项，你的代码中的字符串将使用单引号包裹，例如 'Hello, World!'。</p>
+</li>
+</ul>
+<p>这里看个人or团队习惯，这里我就选择了单引号。</p>
+<p>用哪种结束符：</p>
+<pre><code class="language-shell">? What line endings do you use? ...
+&gt; Unix
+  Windows
+</code></pre>
+<ul>
+<li>
+<p>Unix: 使用 Unix 风格的换行符<br>
+如果你选择了这个选项，你的代码中的换行符将采用 <code>Unix</code> 风格，即 <code>LF</code>（换行<code> Line Feed</code>）。</p>
+</li>
+<li>
+<p>Windows: 使用 Windows 风格的换行符<br>
+如果你选择了这个选项，你的代码中的换行符将采用 <code>Windows</code> 风格，即 <code>CRLF</code>（回车换行 <code>Carriage Return Line Feed</code>）。</p>
+</li>
+</ul>
+<p>这里我选择<code>Unix</code>。</p>
+<p>是否使用分号：</p>
+<pre><code class="language-shell">? Do you require semicolons? » No / Yes
+</code></pre>
+<p>我个人不喜欢使用分号，所以选择<code>No</code></p>
+<p>然后会问你是否安装依赖：</p>
+<pre><code class="language-shell">@typescript-eslint/eslint-plugin@latest eslint-plugin-vue@latest @typescript-eslint/parser@latest
+? Would you like to install them now? » No / Yes   
+</code></pre>
+<p>这里我们选择<code>Yes</code>，然后会询问你用什么包管理器去安装依赖：</p>
+<pre><code class="language-shell">? Which package manager do you want to use? ...
+  npm
+  yarn
+&gt; pnpm 
+</code></pre>
+<p>这里我选择<code>npm</code>。</p>
+<p>安装完成后我们项目的根目录会生成<code>.eslintrc.js</code>文件：</p>
+<pre><code class="language-js">module.exports = {
+	env: {
+		browser: true,
+		es2021: true
+	},
+	extends: ['eslint:recommended', 'plugin:vue/vue3-essential'],
+	overrides: [
+		{
+			env: {
+				node: true
+			},
+			files: ['.eslintrc.{js,cjs}'],
+			parserOptions: {
+				sourceType: 'script'
+			}
+		}
+	],
+	parserOptions: {
+		ecmaVersion: 'latest',
+		sourceType: 'module'
+	},
+	plugins: ['vue'],
+	rules: {
+		indent: ['error', 'tab'],
+		'linebreak-style': ['error', 'unix'],
+		quotes: ['error', 'single'],
+		semi: ['error', 'never']
+	}
+}
+</code></pre>
+<p>有时候我们希望它可以忽略一些检查，所以我们可以在根目录建立一个<code>.eslintignore</code>文件用来忽略一些检查，这里根据个人需求进行配置即可，我的配置如下：</p>
+<pre><code class="language-js">*.sh
+node_modules
+*.md
+*.woff
+*.ttf
+.vscode
+.idea
+dist
+/public
+/docs
+.husky
+.local
+/bin
+Dockerfile
+</code></pre>
+<h2 id="配置prettier">配置Prettier</h2>
+<p>尽管 <code>ESLint</code> 和 <code>Prettier</code> 都具备代码质量和维护性方面的功能，但它们的焦点不同。通过同时使用 <code>ESLint</code> 和 <code>Prettier</code>，可以获得代码质量的全面检查，同时确保代码风格的一致性。通常的做法是将 <code>ESLint</code> 用于检测代码问题和逻辑错误，而 <code>Prettier</code> 则用于自动格式化代码，以便代码在不同人之间保持一致的外观。这样可以最大限度地提高代码质量和可维护性。</p>
+<p>安装：</p>
+<pre><code class="language-shell">npm add prettier -D
+</code></pre>
+<p>安装完成后，在项目根目录新建<code>.prettierrc.js</code>文件，这里简单列一下常用的，剩下的可以到官网查看</p>
+<pre><code class="language-js">module.exports = {
+    printWidth: 100, //一行的字符数
+    tabWidth: 4, // 一个tab代表几个空格数
+    useTabs: true, //是否使用tab进行缩进
+    singleQuote: true, //字符串是否使用单引号
+    semi: false, // 行尾是否使用分号，默认为true
+    trailingComma: &quot;none&quot;, // 是否使用尾逗号
+    htmlWhitespaceSensitivity: &quot;strict&quot;, // HTML空白敏感度
+    bracketSpacing: true, // 对象大括号直接是否有空格，默认为 true，效果：{ a: 1 }
+    proseWrap: &quot;never&quot;, // 换行设置
+}
+</code></pre>
+<p>同时也可以在根目录下建立忽略文件<code>.prettierignore</code>：</p>
+<pre><code class="language-js">/dist/*
+.local
+.output.js
+/node_modules/**
+**/*.svg
+**/*.sh
+/public/*
+</code></pre>
+<h2 id="eslint与prettier相结合">eslint与Prettier相结合</h2>
+<p>我们可以使用<code>eslint-config-prettier</code>和<code>eslint-plugin-prettier</code>来结合eslint与Prettier。</p>
+<p><code>eslint-config-prettier</code>用来覆盖 <code>ESLint</code> 本身的规则配置，</p>
+<p><code>eslint-plugin-prettier</code>则是用于让 <code>Prettier</code> 来接管<code>eslint --fix</code>即修复代码的能力。</p>
+<p>安装：</p>
+<pre><code class="language-shell">npm i eslint-config-prettier eslint-plugin-prettier -D
+</code></pre>
+<p>最终代码如下：</p>
+<pre><code class="language-js">module.exports = {
+	env: {
+		browser: true,
+		es2021: true
+	},
+	extends: ['eslint:recommended', 'plugin:vue/vue3-essential', 'plugin:prettier/recommended'],
+	overrides: [
+		{
+			env: {
+				node: true
+			},
+			files: ['.eslintrc.{js,cjs}'],
+			parserOptions: {
+				sourceType: 'script'
+			}
+		}
+	],
+	// 参考vue官方推荐,替换默认parser
+	parser: 'vue-eslint-parser',
+	parserOptions: {
+		ecmaVersion: 'latest',
+		sourceType: 'module'
+	},
+	plugins: ['vue'],
+	rules: {
+		indent: ['error', 'tab'],
+		'linebreak-style': ['error', 'unix'],
+		quotes: ['error', 'single'],
+		semi: ['error', 'never']
+	}
+}
+</code></pre>
+<p>然后在项目的<code>package.json</code>中配置一条命令：</p>
+<pre><code class="language-shell">{
+    &quot;scripts&quot;: {
+        &quot;lint:script&quot;: &quot;eslint --ext .js,.jsx --fix --quiet ./&quot;,
+    }
+}
+</code></pre>
+<p>该命令于检查和修复代码该命令的作用是在指定的文件扩展名（.js、.jsx）下，运行 <code>ESLint</code> 来检查并尝试修复当前目录及其子目录中的代码问题。命令的目标是自动化代码质量检查和格式修复的过程，以确保代码符合规范和最佳实践。</p>
+<p>但还有一个问题就是，目前只会检测<code>.js</code>、<code>.jsx</code>文件，并不会检测<code>.vue</code>文件，这里我们还需要借助一些插件来实现。</p>
+<h3 id="支持vue文件">支持.vue文件</h3>
+<p>安装下面插件:</p>
+<pre><code class="language-shell">npm install eslint-plugin-vue vue-eslint-parser --save-dev
+</code></pre>
+<p>配置<code>.eslintrc.js</code>，在<code>extends</code>中添加这两个插件，最终配置如下：</p>
+<pre><code class="language-js">module.exports = {
+	env: {
+		browser: true,
+		es2021: true,
+		node: true
+	},
+	extends: [
+		'eslint:recommended',
+		'plugin:vue/vue3-essential',
+		//新增插件
+		'plugin:prettier/recommended',
+		'plugin:vue/recommended'
+	],
+	overrides: [
+		{
+			env: {
+				node: true
+			},
+			files: ['.eslintrc.{js,cjs}'],
+			parserOptions: {
+				sourceType: 'script'
+			}
+		},
+		{
+			files: ['*.vue'],
+			rules: {
+				'no-undef': 'off',
+				'vue/no-setup-props-destructure': 'off',
+				'vue/multi-word-component-names': 'off',
+				'vue/no-mutating-props': 'off',
+				'no-unused-vars': 0,
+				'vue/valid-attribute-name': 'off'
+			}
+		}
+	],
+	// 参考vue官方推荐,替换默认parser
+	parser: 'vue-eslint-parser',
+	parserOptions: {
+		ecmaVersion: 'latest',
+		sourceType: 'module'
+	},
+	plugins: ['vue'],
+	rules: {
+		'prettier/prettier': 'error',
+		indent: ['error', 'tab'],
+		'linebreak-style': ['error', 'unix'],
+		quotes: ['error', 'single'],
+		semi: ['error', 'never'],
+		'no-console': 'off',
+		'no-debugger': 'off'
+	}
+}
+</code></pre>
+<p>然后修改命令为：</p>
+<pre><code class="language-shell">&quot;scripts&quot;: {
+	&quot;lint:script&quot;: &quot;eslint --ext .js,.jsx,.vue --fix --quiet ./&quot;
+},
+</code></pre>
+<h2 id="运行时实时验证">运行时实时验证</h2>
+<p>如果使用<code>vscode</code>编辑器，可以下载<code>ESLint</code>和<code>Prettier-Code formatter</code>进行验证，该插件会检测项目根目录是否存在相关配置文件，如果有相关配置文件则会根据配置文件在保存的时候进行检测，如果不用<code>vscode</code>开发也没关系，可以借助一些插件实现运行时代码保存时候根据规则进行验证。</p>
+<pre><code class="language-shell">npm i vite-plugin-prettier 
+</code></pre>
+<p>在<code>vite.config.js文件中引入插件</code>文件中引入插件：</p>
+<pre><code class="language-js">import VitePrettier from 'vite-plugin-prettier'
+export default defineConfig({
+  plugins: [
+    VitePrettier({
+      singleQuote: true,// 字符串是否使用单引号
+      //...更多规则
+    })
+  ],
+})
+</code></pre>
+<p>配置后重启项目，只要项目在运行中，保存代码就会通过<code>prettier</code>进行代码格式化处理。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[【node学习-02】如何搭建自己的脚手架]]></title>
+        <id>https://lonjinup.github.io/node-02-cli/</id>
+        <link href="https://lonjinup.github.io/node-02-cli/">
+        </link>
+        <updated>2023-08-22T14:31:55.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="如何搭建自己的脚手架">如何搭建自己的脚手架</h1>
+<h2 id="概要">概要</h2>
+<h3 id="什么是脚手架">什么是脚手架？</h3>
+<ul>
+<li><strong>脚手架</strong>是一种工具，通常是一个全局命令行工具，用于帮助开发人员快速创建和初始化项目文件和目录结构。</li>
+</ul>
+<h3 id="脚手架的基本能力">脚手架的基本能力</h3>
+<ul>
+<li>
+<p><strong>命令行执行能力：</strong> 脚手架具备能够在命令行中执行的能力，允许用户通过命令行命令来触发脚手架的各种功能。</p>
+</li>
+<li>
+<p><strong>命令行交互能力：</strong> 脚手架可以与用户进行命令行交互，提示用户提供必要的信息或选项，以便根据用户的输入进行项目初始化。</p>
+</li>
+<li>
+<p><strong>项目初始化代码下载能力：</strong> 脚手架能够从远程代码仓库下载项目的初始化代码，以便在本地创建项目。</p>
+</li>
+</ul>
+<h3 id="如何实现一个自己的脚手架工具">如何实现一个自己的脚手架工具</h3>
+<p>要实现一个自己的脚手架工具，可以按照以下步骤进行实现</p>
+<ol>
+<li>
+<p><strong>创建自定义全局命令：</strong> 使用Node.js或其他适合的编程语言创建一个全局命令行工具，这个命令可以在任何地方通过命令行调用。通常需要使用包管理器（如npm）来安装全局命令。</p>
+</li>
+<li>
+<p><strong>命令参数接受处理：</strong> 在您的脚手架工具中，编写代码以接受命令行参数，这些参数将指导脚手架执行不同的操作。您可以使用命令行解析库来帮助处理和解释这些参数。</p>
+</li>
+<li>
+<p><strong>下载远程项目代码：</strong> 实现代码下载功能，您可以使用Git或其他版本控制工具来从远程仓库中获取项目的初始化代码。确保您的脚手架可以处理不同的代码源（例如GitHub、GitLab等）。</p>
+</li>
+<li>
+<p><strong>项目初始化完成提示：</strong> 在项目初始化完成后，向用户提供适当的提示信息，指导他们下一步的操作。这可以包括运行项目、安装依赖项或其他相关任务。</p>
+</li>
+<li>
+<p><strong>测试和文档：</strong> 编写测试用例来确保脚手架的稳定性和可靠性。另外，提供清晰的文档，解释如何安装、使用和定制您的脚手架工具。</p>
+</li>
+<li>
+<p><strong>发布和分享：</strong> 将您的脚手架工具发布到适当的包管理器（如npm），以便其他开发人员可以轻松安装和使用它。分享您的脚手架的代码和文档，以促进社区的贡献和改进。</p>
+</li>
+</ol>
+<p>通过遵循这些步骤，您可以创建一个功能强大的脚手架工具，使项目初始化和开发过程更加高效和方便。</p>
+<h2 id="创建自定义全局命令">创建自定义全局命令</h2>
+<ol>
+<li>
+<p><strong>创建文件结构：</strong> 我们首先需要设置一个适当的文件结构来开始创建自定义全局命令。在这个过程中，我们会新建一个名为<code>code</code>的文件夹，然后在其中创建一个名为<code>bin</code>的子文件夹。在<code>bin</code>文件夹中，我们将建立一个名为<code>cli.js</code>的文件。这个<code>cli.js</code>文件将包含我们自定义命令的执行逻辑。</p>
+</li>
+<li>
+<p><strong>项目初始化：</strong> 接下来，我们要初始化一个npm项目，以便管理我们的全局命令。在命令行中，我们进入项目的根目录（在<code>code</code>文件夹下），并执行以下命令：</p>
+</li>
+</ol>
+<pre><code class="language-shell">npm init -y
+</code></pre>
+<p>在这一步中，我们可以将项目命名为<code>my-cli</code>，并且对其他项目选项采用默认值，因为这些选项可以稍后在<code>package.json</code>中修改。</p>
+<ol start="3">
+<li><strong>配置全局命令：</strong> 在我们的项目的<code>package.json</code>文件中，有一个特殊的字段叫做<code>bin</code>，它用于配置全局命令。我们将在这里定义我们的全局命令与<code>cli.js</code>文件之间的关联，这样npm就知道如何将我们的命令映射到全局环境中。</li>
+</ol>
+<pre><code class="language-json">{
+    &quot;name&quot;: &quot;my-cli&quot;,
+    &quot;version&quot;: &quot;1.0.0&quot;,
+    &quot;description&quot;: &quot;&quot;,
+    &quot;main&quot;: &quot;index.js&quot;,
+    &quot;bin&quot;: {
+        &quot;my-cli&quot;: &quot;bin/cli.js&quot;
+    },
+    &quot;scripts&quot;: {
+        &quot;test&quot;: &quot;echo \&quot;Error: no test specified\&quot; &amp;&amp; exit 1&quot;
+    },
+    &quot;author&quot;: &quot;&quot;,
+    &quot;license&quot;: &quot;ISC&quot;
+}
+</code></pre>
+<ol start="4">
+<li><strong>挂载全局命令：</strong> 最后，为了使我们的自定义全局命令在系统中可用，我们需要在命令行中执行以下命令，这将使我们的全局命令链接到全局npm包：</li>
+</ol>
+<pre><code class="language-shell">npm link
+</code></pre>
+<p>这一步骤完成后，我们就可以在任何地方使用<code>my-cli</code>命令来执行我们在<code>cli.js</code>文件中定义的逻辑了。</p>
+<p>比如我们可以在<code>cli.js</code>中写点代码：</p>
+<pre><code class="language-js">#! /usr/bin/env node
+
+console.log('我的cli')
+</code></pre>
+<p>然后运行命令：</p>
+<pre><code class="language-js">my-cli
+</code></pre>
+<p>此时我们就会在控制它上看到我们的打印内容：<code>我的cli</code>。</p>
+<blockquote>
+<p><code>#! /usr/bin/env node</code> 是一个在Unix-like操作系统中用于指定脚本的解释器的特殊注释。这个注释的作用是告诉操作系统使用哪个解释器来执行脚本文件。在这种情况下，它指定了使用Node.js作为解释器来执行该脚本。</p>
+</blockquote>
+<p>具体解释如下：</p>
+<ul>
+<li>
+<p><code>#!</code>：这个字符序列称为&quot;shebang&quot;，它告诉操作系统以下内容是用于解释执行脚本的命令。</p>
+</li>
+<li>
+<p><code>/usr/bin/env</code>：这是一个可执行文件，通常用于在系统的环境变量中查找指定的命令或程序。在这里，它被用于寻找可用的<code>node</code>命令。</p>
+</li>
+<li>
+<p><code>node</code>：这是Node.js的可执行文件。当操作系统执行这个脚本时，它会找到<code>/usr/bin/env node</code>，然后使用Node.js来解释和执行接下来的脚本内容。</p>
+</li>
+</ul>
+<p>因此，<code>#! /usr/bin/env node</code> 帮助我们确保无论用户的系统上Node.js的安装路径如何，都可以正确地执行我们的Node.js脚本。这对于全局命令行工具非常有用，因为它们需要在不同的系统上运行，而这些系统可能有不同的Node.js安装路径。这个shebang注释确保了脚本的可移植性和跨平台兼容性。</p>
+<ol start="5">
+<li><strong>获取命令行参数：</strong></li>
+</ol>
+<p>在我们的自定义全局命令中，通常需要获取和解析命令行参数，以便根据用户的输入来执行不同的操作。我们可以在<code>cli.js</code>文件中编写如下代码来获取命令行参数：</p>
+<pre><code class="language-javascript">console.log(process.argv);
+</code></pre>
+<p>当我们运行像<code>my-cli --help</code>这样的命令时，控制台将会打印出以下内容：</p>
+<pre><code class="language-javascript">[ '/usr/local/bin/node', '/usr/local/bin/my-cli', '--help' ]
+</code></pre>
+<p>在这个输出中，<code>process.argv</code>数组包含了命令行中的所有参数。具体来说：</p>
+<ul>
+<li><code>process.argv[0]</code> 是 Node.js 的可执行文件路径（在这里是<code>/usr/local/bin/node</code>）。</li>
+<li><code>process.argv[1]</code> 是我们的全局命令的路径（在这里是<code>/usr/local/bin/my-cli</code>）。</li>
+<li>后续项包含传递给命令的参数，例如<code>--help</code>。</li>
+</ul>
+<p>我们可以根据这些参数来编写逻辑，以决定如何处理用户的输入。这是实现命令行交互能力的一部分，允许我们根据用户的需求来执行不同的功能操作。比如：</p>
+<pre><code class="language-js">if(process.argv[2] === '--help'){
+    console.log('获取到了参数')
+}
+</code></pre>
+<p>但在实际情况中，我们可以使用一些第三方的包去管理我们的指令；比如：<code>commander</code>（命令参数处理工具）。</p>
+<h2 id="commander命令参数处理工具">Commander命令参数处理工具</h2>
+<p><a href="https://www.npmjs.com/package/commander">Commander</a> 是一个强大的Node.js模块，用于处理命令行参数。以下是使用Commander的基本步骤：</p>
+<h3 id="安装commander">安装Commander</h3>
+<p>首先，我们需要在npm上搜索并安装Commander模块，这可以通过以下命令完成：</p>
+<pre><code class="language-shell">npm install commander
+</code></pre>
+<h3 id="引入和使用commander">引入和使用Commander</h3>
+<p>在我们的项目中，我们可以引入Commander模块并开始使用它来处理命令行参数。通常，我们会在脚本的开头加上如下注释来指定Node.js作为解释器：</p>
+<pre><code class="language-javascript">#! /usr/bin/env node
+</code></pre>
+<p>接下来，在我们的<code>cli.js</code>文件中，引入Commander并调用<code>program.parse(process.argv)</code>来处理命令行参数：</p>
+<pre><code class="language-javascript">const { program } = require('commander');
+
+program.parse(process.argv);
+</code></pre>
+<h4 id="添加命令和选项">添加命令和选项</h4>
+<p>现在，我们可以添加命令和选项来定制我们的命令行工具的行为。例如，我们可以使用<code>program.option()</code>来定义选项：</p>
+<pre><code class="language-javascript">program.option('-f --framework &lt;framework&gt;', '设置框架')
+</code></pre>
+<p>这个例子中，我们定义了一个名为<code>-f</code>或<code>--framework</code>的选项，还提供了一个描述。这将允许用户在命令行中设置一个框架参数。</p>
+<p><code>program.option('-f --framework &lt;framework&gt;', '设置框架')</code> 是使用Commander库定义命令行选项的语句。让我们解释这行代码的作用：</p>
+<ul>
+<li>
+<p><code>program.option()</code>：这是Commander库提供的一个方法，用于定义命令行选项。</p>
+</li>
+<li>
+<p><code>-f</code> 和 <code>--framework</code>：这两个部分是选项的名称，它们以两种形式存在，一种是短格式（单字符，前面带一个短划线 <code>-</code>），一种是长格式（多字符，前面带两个短划线 <code>--</code>）。用户可以使用其中任何一种形式来指定选项。</p>
+</li>
+<li>
+<p><code>&lt;framework&gt;</code>：这是用尖括号括起来的参数占位符，表示该选项需要一个参数值。在这种情况下，用户需要在选项后面提供一个框架名称作为参数。</p>
+</li>
+<li>
+<p><code>'设置框架'</code>：这是选项的描述文本，用于向用户解释选项的用途或目的。在帮助信息中，这个描述文本将帮助用户了解选项的含义。</p>
+</li>
+</ul>
+<p>综合起来，这行代码的作用是定义一个名为<code>-f</code>（或<code>--framework</code>）的命令行选项，该选项需要用户提供一个框架名称作为参数。用户可以通过命令行来设置这个框架选项，而描述文本 <code>'设置框架'</code> 会在帮助信息中显示，以帮助用户理解这个选项的目的。</p>
+<p>示例用法：</p>
+<pre><code class="language-shell">my-cli --framework react
+</code></pre>
+<p>在这个示例中，<code>--framework</code>选项后面的<code>react</code>是用户提供的参数值，用来指定所选的框架。</p>
+<h4 id="显示帮助信息">显示帮助信息</h4>
+<p>使用Commander，我们还可以轻松地为我们的命令行工具生成帮助信息。只需在脚本中调用<code>program.parse(process.argv)</code>后，运行时，如果用户输入<code>--help</code>选项，将会显示帮助信息。例如：</p>
+<pre><code class="language-shell">my-cli --help
+</code></pre>
+<p>这将在终端中显示以下信息：</p>
+<pre><code class="language-shell">Usage: my-cli [options]
+
+Options:
+  -f --framework &lt;framework&gt;  设置框架
+  -h, --help                 display help for command
+</code></pre>
+<h4 id="处理命令行输入">处理命令行输入</h4>
+<p>最后，我们可以通过检查命令行输入来执行不同的操作。在我们的例子中，如果用户没有提供<code>-f</code>或<code>--framework</code>参数，Commander会提示错误，要求用户输入框架参数：</p>
+<pre><code class="language-shell">my-cli -f
+</code></pre>
+<p>这将导致终端显示以下错误消息：</p>
+<pre><code class="language-shell">error: option '-f --framework &lt;framework&gt;' argument missing
+</code></pre>
+<p>用户可以通过在<code>-f</code>后面输入框架参数来解决此错误，如：</p>
+<pre><code class="language-shell">my-cli -f hello
+</code></pre>
+<p>这样，我们就可以使用Commander轻松处理命令行参数，增加命令和选项，以及生成帮助信息，从而更好地控制和定制我们的命令行工具的行为。</p>
+<h3 id="如何处理自定义命令参数">如何处理自定义命令参数</h3>
+<p>在命令行工具开发中，我们经常需要处理自定义的命令参数，以满足用户的需求。在这篇文章中，我们将探讨如何使用Node.js和Commander库来实现这一目标。我们的目标是创建一个命令行工具，允许用户通过输入<code>my-cli create xxx</code>来创建一个项目。同时，我们将通过<code>--help</code>命令自动生成帮助信息。</p>
+<p>首先，让我们来看看在<code>bin/cli.js</code>中的代码：</p>
+<pre><code class="language-javascript">#! /usr/bin/env node
+
+const { program } = require('commander');
+
+// 定义一个选项
+program.option('-f --framework &lt;framework&gt;', '设置框架');
+
+// 定义一个自定义命令
+program
+  .command('create &lt;project&gt; [other...]') //定义命令
+  .alias('crt') //设置别名
+  .description('创建项目') //备注
+  .action((project, args) =&gt; { //回调函数
+    console.log(project);
+    console.log(args);
+  });
+
+// 解析命令行参数
+program.parse(process.argv);
+</code></pre>
+<ul>
+<li>
+<p>我们首先引入了Commander库，并定义了一个选项，使用了<code>-f</code>（短格式）和<code>--framework</code>（长格式），允许用户设置一个框架名称作为参数。</p>
+</li>
+<li>
+<p>接着，我们使用<code>program.command()</code>定义了一个名为<code>create</code>（或别名<code>crt</code>）的自定义命令。这个命令接受一个<code>project</code>参数和可选的<code>other</code>参数。</p>
+</li>
+<li>
+<p>我们定义了一个<code>.action()</code>回调函数，用于处理命令的实际操作。在这里，我们简单地打印了<code>project</code>参数和<code>args</code>参数，以便演示如何访问这些自定义命令参数。</p>
+</li>
+<li>
+<p>最后，我们使用<code>program.parse(process.argv)</code>来解析命令行参数。</p>
+</li>
+</ul>
+<p>现在，让我们运行以下命令来测试：</p>
+<pre><code class="language-shell">my-cli create myproject otherOptions
+</code></pre>
+<p>结果将是：</p>
+<pre><code class="language-shell">myproject
+[ 'otherOptions' ]
+</code></pre>
+<p>我们成功地捕获和处理了命令行参数。</p>
+<p>另外，我们可以运行<code>--help</code>命令来查看自动生成的帮助信息：</p>
+<pre><code class="language-shell">my-cli --help
+</code></pre>
+<p>输出内容：</p>
+<pre><code class="language-shell">Options:
+  -f --framwork &lt;framwork&gt;          设置框架
+  -h, --help                        display help for command
+
+Commands:
+  create|crt &lt;product&gt; [orther...]  创建项目
+  help [command]                    display help for command
+</code></pre>
+<p>你会发现，Commander自动将我们的自定义命令和选项集成到了帮助信息中，以帮助用户了解如何正确使用我们的命令行工具。</p>
+<p>通过这个例子，我们学到了如何使用Node.js和Commander库来处理自定义命令参数，以及如何生成帮助信息，使我们的命令行工具更加友好和易用。</p>
+<h3 id="逻辑代码模块化拆分">逻辑代码模块化拆分</h3>
+<p>在开发命令行工具时，将代码模块化拆分是一个良好的实践，有助于保持代码的可维护性和可扩展性。下面，我们将根据不同的功能进行拆分，并创建模块化的代码结构。</p>
+<p>首先，我们新建一个<code>lib/core</code>文件夹，并在其中创建以下模块。</p>
+<h4 id="1-helpjs-模块">1. <code>help.js</code> 模块</h4>
+<p>在<code>lib/core</code>文件夹下创建一个<code>help.js</code>文件，其内容如下：</p>
+<pre><code class="language-javascript">const setupHelp = (program) =&gt; {
+    program.option('-f --framework &lt;framework&gt;', '设置框架');
+};
+
+module.exports = setupHelp;
+</code></pre>
+<p>此模块用于配置命令行工具的帮助选项，并将其导出供其他模块使用。</p>
+<h4 id="2-mycommanderjs-模块">2. <code>myCommander.js</code> 模块</h4>
+<p>接下来，在<code>lib/core</code>文件夹中创建一个<code>myCommander.js</code>文件：</p>
+<pre><code class="language-javascript">const setupMyCommander = (program) =&gt; {
+    program.command('create &lt;project&gt; [other...]')
+        .alias('crt')
+        .description('创建项目')
+        .action((project, args) =&gt; {
+            console.log(project);
+            console.log(args);
+        });
+};
+
+module.exports = setupMyCommander;
+</code></pre>
+<p>这个模块用于配置自定义命令，并将其导出供其他模块使用。</p>
+<h4 id="3-actionjs-模块">3. <code>action.js</code> 模块</h4>
+<p>最后，在<code>lib/core</code>文件夹下创建一个<code>action.js</code>文件，其中包含命令的实际操作逻辑：</p>
+<pre><code class="language-javascript">const performAction = (project, args) =&gt; {
+    console.log(project);
+    console.log(args);
+};
+
+module.exports = performAction;
+</code></pre>
+<p>这个模块包含了实际操作的代码，并将其导出供其他模块使用。</p>
+<p>接下来，让我们在 <code>/bin/cli.js</code> 中引入这些模块，并将它们组合在一起：</p>
+<pre><code class="language-javascript">#! /usr/bin/env node
+const { program } = require('commander');
+
+// 导入模块
+const setupHelp = require('../lib/core/help');
+const setupMyCommander = require('../lib/core/myCommander');
+const performAction = require('../lib/core/action');
+
+// 配置帮助选项
+setupHelp(program);
+
+// 配置自定义命令
+setupMyCommander(program);
+
+// 设置命令的实际操作
+program.action(performAction);
+
+// 解析命令行参数
+program.parse(process.argv);
+</code></pre>
+<p>通过这种方式，我们将代码逻辑模块化拆分，使其更易于理解和维护。同时，也提供了更好的可扩展性，以便将来添加更多功能或命令时能够更轻松地扩展我们的命令行工具。</p>
+<h3 id="命令行交互问答工具-inquirer">命令行交互问答工具: Inquirer</h3>
+<p>通常，在命令行中需要与用户进行交互式的操作，比如询问用户一些问题，获取输入等。这时候，我们可以使用 <a href="https://www.npmjs.com/package/inquirer">Inquirer</a> 库来方便地实现这些功能。</p>
+<h4 id="安装-inquirer">安装 Inquirer</h4>
+<p>首先，我们需要安装 Inquirer 库，可以通过以下命令进行安装：</p>
+<pre><code class="language-shell">npm install --save inquirer@^8.0.0
+</code></pre>
+<h4 id="使用示例">使用示例</h4>
+<p>安装完成后，我们可以在根目录下创建一个 <code>/test/inquirer.js</code> 文件来测试一下：</p>
+<pre><code class="language-javascript">const inquirer = require('inquirer');
+
+inquirer.prompt([
+    {
+        type: 'input',
+        name: 'username',
+        message: '你的名字',
+    }
+]).then(res =&gt; {
+    console.log(res);
+});
+</code></pre>
+<p>在当前文件夹内运行以下命令：</p>
+<pre><code class="language-shell">node inquirer.js
+</code></pre>
+<p>这将提示你输入名字，然后打印出你输入的内容：</p>
+<pre><code class="language-shell">{ username: '11' }
+</code></pre>
+<h4 id="创建一个交互式命令">创建一个交互式命令</h4>
+<p>接下来，我们可以尝试改造之前的 <code>create</code> 命令。</p>
+<p>打开 <code>/lib/core/action.js</code> 文件，引入 <code>inquirer</code>，同时在根目录下创建 <code>/config.js</code> 用于保存一些配置项：</p>
+<pre><code class="language-javascript">/** action.js */
+const inquirer = require('inquirer');
+const config = require('../../config');
+
+const myAction = (project, args) =&gt; {
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'framework',
+            message: '请选择你使用的框架',
+            choices: config.framework,
+        }
+    ]).then(res =&gt; {
+        console.log(res);
+    });
+}
+
+module.exports = myAction;
+</code></pre>
+<p><code>config.js</code> 文件内容如下：</p>
+<pre><code class="language-javascript">module.exports = {
+    framework: ['egg', 'koa', 'express']
+}
+</code></pre>
+<p>然后在 <code>/bin/cli.js</code> 文件中引入并使用这个模块：</p>
+<pre><code class="language-javascript">const { program } = require('commander');
+
+const setupHelp = require('../lib/core/help');
+const setupMyCommander = require('../lib/core/myCommander');
+const performAction = require('../lib/core/action');
+
+setupHelp(program);
+setupMyCommander(program);
+
+program.action(performAction);
+
+program.parse(process.argv);
+</code></pre>
+<p>现在，在项目根目录下运行以下命令：</p>
+<pre><code class="language-shell">my-cli create nodetest
+</code></pre>
+<p>将会在控制台中出现一个选项供你选择，选择完成后回车，你将得到你选择的值：</p>
+<pre><code class="language-shell">? 请选择你使用的框架 koa
+{ framework: 'koa' }
+</code></pre>
+<p>通过这样的方式，我们使用 Inquirer 实现了一个交互式命令，使我们的命令行工具更加灵活和友好。</p>
+<blockquote>
+<p>当使用<code>inquirer.prompt()</code>时，我们可以传递一个配置对象，以定制交互式的提示。以下是一些常用的配置项及其说明：</p>
+</blockquote>
+<ol>
+<li>
+<p><code>type</code>（类型）: 定义了用户交互的类型。常用的类型包括：</p>
+<ul>
+<li><code>input</code>: 接收用户的文本输入。</li>
+<li><code>list</code>: 提供一个列表供用户选择。</li>
+<li><code>checkbox</code>: 提供一个多选框列表供用户选择。</li>
+<li><code>confirm</code>: 提供一个是/否 的确认选择。</li>
+</ul>
+</li>
+<li>
+<p><code>name</code>（名称）: 定义了交互结果在返回的对象中的键名。</p>
+</li>
+<li>
+<p><code>message</code>（消息）: 显示给用户的问题或提示信息。</p>
+</li>
+<li>
+<p><code>default</code>（默认值）: 设定一个默认值，如果用户直接按下回车，则使用该值。</p>
+</li>
+<li>
+<p><code>choices</code>（选项）: 用于<code>list</code>和<code>checkbox</code>类型的交互，提供可供选择的选项。</p>
+</li>
+<li>
+<p><code>validate</code>（验证）: 可以是一个函数，用于验证用户的输入，返回 <code>true</code> 表示合法，返回错误消息字符串表示非法。</p>
+</li>
+<li>
+<p><code>filter</code>（过滤）: 可以是一个函数，用于对用户的输入进行处理，返回处理后的值。</p>
+</li>
+<li>
+<p><code>when</code>（条件）: 可以是一个函数，根据前一个问题的答案来确定是否需要显示当前问题。</p>
+</li>
+<li>
+<p><code>pageSize</code>（分页大小）: 用于<code>list</code>类型的交互，设置显示的选项数量。</p>
+</li>
+<li>
+<p><code>prefix</code>（前缀）: 在问题显示前，可添加一个前缀。</p>
+</li>
+<li>
+<p><code>suffix</code>（后缀）: 在问题显示后，可添加一个后缀。</p>
+</li>
+<li>
+<p><code>transformer</code>（转换器）: 用于对用户输入和交互结果的进一步处理。</p>
+</li>
+<li>
+<p><code>loop</code>（循环）: 当<code>type</code>为<code>list</code>时，选择到最后一个选项会回到第一个选项。</p>
+</li>
+<li>
+<p><code>validate</code>（验证）: 可以是一个函数，用于对用户的输入进行验证。</p>
+</li>
+<li>
+<p><code>default</code>（默认值）: 设置一个默认值，如果用户直接按下回车，则使用该值。</p>
+</li>
+</ol>
+<p>这些参数可以根据需求组合使用，以实现丰富的交互体验。</p>
+<p>示例:</p>
+<pre><code class="language-javascript">inquirer.prompt([
+    {
+        type: 'input',
+        name: 'username',
+        message: '请输入你的名字',
+        default: 'John Doe', // 默认值
+        validate: function (value) {
+            if (value.length) {
+                return true; // 输入合法
+            }
+            return '请输入你的名字'; // 输入非法时的错误消息
+        }
+    },
+    {
+        type: 'list',
+        name: 'color',
+        message: '选择一种颜色',
+        choices: ['Red', 'Green', 'Blue'], // 提供的选项
+        pageSize: 5 // 分页大小
+    },
+    // ...
+]).then(answers =&gt; {
+    console.log(answers);
+});
+</code></pre>
+<h3 id="如何下载远程项目代码">如何下载远程项目代码</h3>
+<p><a href="https://www.npmjs.com/package/download-git-repo">download-git-repo</a>是一个用于从 Git 仓库下载代码的 Node.js 模块。它可以将远程仓库中的代码下载到本地的文件夹中。</p>
+<h4 id="安装插件">安装插件：</h4>
+<pre><code class="language-shell">npm install download-git-repo
+</code></pre>
+<h4 id="使用方法">使用方法</h4>
+<p>首先，在我们之前创建的 <code>/config.js</code> 文件中添加了远程项目的仓库地址：</p>
+<pre><code class="language-js">module.exports = {
+    framwork: ['egg', 'koa', 'express'],
+    framworkUrl: {
+        'egg': 'https://github.com/LonJinUp/lonjin-helper',
+        'koa': 'https://github.com/LonJinUp/wxTabBar',
+        'express': 'https://github.com/LonJinUp/vue-prettier-plugin'
+    }
+}
+</code></pre>
+<p>接着，我们创建了 <code>/lib/core/download.js</code> 文件，引入了 <code>download-git-repo</code> 并定义了一个函数：</p>
+<pre><code class="language-js">const download = require('download-git-repo')
+const downFramwork = (url, project) =&gt; {
+    download(`direct:${url}`, project, { clone: true }, (error) =&gt; {
+        console.log(error)
+    })
+}
+
+module.exports = downFramwork
+</code></pre>
+<blockquote>
+<p>关于<code>download-git-repo</code>中<code>download</code>参数详细解释如下：</p>
+</blockquote>
+<pre><code class="language-javascript">download(repository, destination, options, callback)
+</code></pre>
+<ul>
+<li>
+<p><code>repository</code>: 一个字符串，表示 Git 仓库的地址。可以是 HTTPS 或者 SSH 形式的 Git 仓库地址，也可以是 GitHub、GitLab 或者 Bitbucket 等托管服务的地址。</p>
+</li>
+<li>
+<p><code>destination</code>: 一个字符串，表示目标文件夹的路径，代码将会下载到该文件夹中。</p>
+</li>
+<li>
+<p><code>options</code>: 一个包含配置选项的对象，可以用来定制下载的行为。常用选项包括：</p>
+<ul>
+<li>
+<p><code>clone</code>: 一个布尔值，表示是否使用 Git 的克隆功能，默认为 <code>false</code>。如果设置为 <code>true</code>，将会使用 Git 克隆整个仓库，否则将会直接下载 ZIP 归档文件（速度更快，但不支持私有仓库）。</p>
+</li>
+<li>
+<p><code>checkout</code>: 一个字符串，表示在下载后将会检出的分支或标签名。</p>
+</li>
+<li>
+<p><code>depth</code>: 一个整数，表示 Git 克隆时的深度（即历史记录的数量），默认为 <code>undefined</code>，表示克隆完整的历史记录。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>callback</code>: 一个回调函数，当下载完成时会调用该函数，可以获取到错误信息。</p>
+</li>
+</ul>
+<p>最后，我们回到了 <code>/lib/core/action.js</code> 中，导入了我们编写好的函数，并做了一些调整。我们也将之前的 <code>inquirer</code> 改成了 <code>await</code> 的写法以提高代码的可读性。</p>
+<pre><code class="language-js">const inquirer = require('inquirer')
+const config = require('../../config')
+const download = require('./download')
+
+const myAction = async (project, args) =&gt; {
+    const answer = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'framework',
+            message: '请选择你使用的框架',
+            choices: config.framework
+        }
+    ])
+    // 下载模板
+    download(config.frameworkUrl[answer.framework], project)
+}
+
+module.exports = myAction
+</code></pre>
+<p>最后，我们执行如下命令：</p>
+<pre><code class="language-shell">my-cli create text-download-1 
+</code></pre>
+<p>然后根据你的选择，会下载相应的远程代码，并且文件夹的名称将与 <code>create</code> 命令后面的参数一致。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ vue2项目如何在运行时通过prettier格式化代码]]></title>
+        <id>https://lonjinup.github.io/vue-prettier-plugin/</id>
+        <link href="https://lonjinup.github.io/vue-prettier-plugin/">
+        </link>
+        <updated>2023-08-17T13:54:43.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="vue2项目如何在运行时通过prettier格式化代码">vue2项目如何在运行时通过prettier格式化代码</h1>
+<blockquote>
+<p>今天遇到一个问题，老vue2项目由于之前没有使用<code>eslint</code>和<code>prettier</code>进行代码检查和格式化，随着开发人员增加，每个开发人员使用的编辑器不同、格式化插件不同，提交代码时候老会冲突，调研了几个方案，具体如下：</p>
+</blockquote>
+<ol>
+<li>团队统一使用<code>vscode</code>，添加<code>vscode</code>中的<code>prettier</code>插件，添加<code>.vscode</code>文件夹，统一设置配置文件。</li>
+<li>项目安装<code>perttier</code>，提交代码前通过命令进行代码格式化。</li>
+<li>项目安装<code>perttier</code>，同时使用<code>vscode</code>中的<code>prettier</code>插件，运行时也可以进行格式化。</li>
+<li>项目安装<code>perttier</code>和<code>eslint</code>，配合<code>vscode</code>中的两个插件进行处理。</li>
+</ol>
+<p>方案1和方案3比较依赖编辑器，如果开发人员不用<code>vscode</code>进行开发，那么就无法进行格式化；方案2每次提交之前都需要运行命令，不够方便；方案4也比较依赖编辑器，而且如果使用<code>eslint</code>，之前的代码肯需要进行一些处理，或者把大部分<code>eslint</code>规则关闭，不够灵活，且折腾下来比较耗时。</p>
+<p>那么有没有一种方案，配置简单，且不依赖编辑器上的插件，在运行时只要保存代码即可进行格式化呢？</p>
+<h2 id="vue-prettier-plugin">vue-prettier-plugin</h2>
+<p>在项目初始化生命周期中启动插件，使用<code>chokidar</code>对整个目录的文件进行监听，发现文件有变化就使用<code>prettier</code>进行格式后进行覆盖保存。</p>
+<p>安装插件</p>
+<pre><code class="language-shell">npm install vue-prettier-plugin --save-dev
+</code></pre>
+<p>在<code>vue.config.js</code>或<code>webpack.js</code>中引入插件，并初始化：</p>
+<pre><code class="language-js">const VuePrettierPlugin = require('vue-prettier-plugin')
+module.exports = {
+  // ...其他配置
+  configureWebpack: {
+    plugins: [
+      new VuePrettierPlugin(
+        {
+          // Prettier 格式化选项
+          printWidth: 100,
+          tabWidth: 4,
+          // ...其他选项
+        },
+        'src/',//格式化文件路径，默认 src/
+      ),
+    ],
+  },
+};
+</code></pre>
+<p>运行项目，如果代码有更改，插件就会根据配置项自动格式化文件。</p>
+<h2 id="结尾">结尾</h2>
+<p>通过这个插件，我们即可不依赖编辑器、在运行时修改文件即可进行格式化代码。</p>
+<p>插件<code>npm</code>地址： <a href="https://www.npmjs.com/package/vue-prettier-plugin?activeTab=readme">vue-prettier-plugin</a><br>
+插件<code>github</code>地址： <a href="https://github.com/LonJinUp/vue-prettier-plugin">vue-prettier-plugin</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[如何封装优雅、高效的uni-app请求：让开发更轻松]]></title>
+        <id>https://lonjinup.github.io/uni-request/</id>
+        <link href="https://lonjinup.github.io/uni-request/">
+        </link>
+        <updated>2023-07-25T07:14:41.000Z</updated>
+        <content type="html"><![CDATA[<p>#封装优雅、高效的uni-app请求：让开发更轻松</p>
+<blockquote>
+<p>大家好，今天我想分享一些关于uni-app开发中封装高效、优雅的request请求的经验。之前我在<a href="https://lonjinup.github.io/uni-app-template-01/">uni-app开发小程序：项目架构以及经验分享<br>
+</a>的文章中，已经分享了一些有用的经验技巧，包括二次封装uni-app的API。下面我将详细介绍如何封装一个强大且易用的request请求，希望能够对你的开发工作有所帮助。</p>
+</blockquote>
+<h2 id="为什么需要封装request请求">为什么需要封装request请求？</h2>
+<p>在uni-app开发中，我们经常需要与后端服务器进行数据交互。为了提高开发效率、代码的可维护性以及降低重复代码的使用，我们通常会对网络请求进行封装。</p>
+<p>封装request请求的好处有很多：</p>
+<ul>
+<li>简化代码：将一些重复性的请求处理逻辑抽离出来，使得业务代码更加清晰简洁，易于阅读和维护。</li>
+<li>易于管理：统一管理接口地址、错误处理和请求拦截，方便后期维护和更新。<br>
+增强可扩展性：如果后端接口发生变化，只需要修改请求封装的部分而不影响业务代码。</li>
+<li>支持 async、await，以提高代码的可读性和简洁性。</li>
+<li>在请求库中实现全局的 loading 功能，让用户在发送请求时能够看到加载动画，增强用户体验。</li>
+<li>统一处理请求错误，例如网络连接失败时，给予用户友好的错误提示，提高用户满意度。</li>
+<li>考虑实现多种请求方式，包括 GET、POST、PUT 等，以满足不同场景下的需求。</li>
+<li>为了避免重复请求，可以实现请求拦截功能，在请求发送前判断是否已经在进行相同的请求，如果是，则取消重复请求。</li>
+</ul>
+<p>先上一下最终的使用方式：</p>
+<p>api.js</p>
+<pre><code class="language-js">// 引入请求
+import request from '@/utils/request'
+
+//接口示例
+export const info = data =&gt; request.post('/v1/api/info', data)
+</code></pre>
+<p>页面中使用</p>
+<pre><code class="language-js">&lt;script&gt;
+import { info } from '@/api/user.js'
+export default {
+	methods: {
+		async getUserinfo() {
+			let res = await info()
+		}
+	}
+}
+&lt;/script&gt;
+</code></pre>
+<h2 id="coding">coding</h2>
+<h3 id="1创建基础请求">1.创建基础请求</h3>
+<p>首先，我们导入了一些公共方法，比如<code>toast</code>用于显示提示信息，<code>clearStorageSync</code>和<code>getStorageSync</code>用于操作本地缓存，还有<code>useRouter</code>用于跳转页面等。</p>
+<p>然后，我们定义了一个名为<code>baseRequest</code>的异步函数。这个函数接收四个参数：<code>url</code>表示请求的地址，<code>method</code>表示请求方法，默认<code>GET</code>请求，<code>data</code>表示要发送的数据，默认为空对象，<code>loading</code>表示是否显示加载动画，默认为<code>true</code>。</p>
+<p>在函数内部，我们构建了一个<code>Promise</code>对象，用于支持<code>async</code> 、<code>await</code>调用。</p>
+<p>在异步请求中，我们使用了<code>uni.request</code>方法发送请求。我们在请求中传入了请求地址、请求方法、请求头、数据、和超时时间等信息。</p>
+<p>如果请求成功，并且状态码为<code>200</code>，那么我们会处理返回的数据。这里的处理逻辑可以根据实际业务需求来修改。如果返回的<code>resultCode</code>为<code>PA-G998</code>(业务逻辑)，表示用户未登录或登录过期，我们会清除本地缓存并跳转到登录页面。否则，我们会将请求成功返回的数据传递给Promise对象的reslove方法。</p>
+<p>如果请求失败，我们会显示网络连接失败的提示，并将错误信息传递给<code>Promise</code>对象的<code>reject</code>方法。</p>
+<pre><code class="language-js">import {toast, clearStorageSync, getStorageSync, useRouter} from './utils' // 公共方法
+import {BASE_URL} from '@/config/index' //获取请求域名
+
+const baseRequest = async (url, method, data = {}, loading = true) =&gt;{
+	let header = {}
+	return new Promise((reslove, reject) =&gt; {
+		uni.request({
+			url: BASE_URL + url,
+			method: method || 'GET',
+			header: header,
+			timeout: 10000,
+			data: data || {},
+			success: (successData) =&gt; {
+				const res = successData.data
+				if(successData.statusCode == 200){
+					// 业务逻辑，自行修改
+					if(res.resultCode == 'PA-G998'){
+						clearStorageSync()
+						useRouter('/pages/login/index', 'reLaunch')
+					}else{
+						reslove(res.data)
+					}
+				}else{
+					toast('网络连接失败，请稍后重试')
+					reject(res)
+				}
+			},
+			fail: (msg) =&gt; {
+				toast('网络连接失败，请稍后重试')
+				reject(msg)
+			}
+		})
+	})
+}
+</code></pre>
+<h3 id="2简化入参">2.简化入参</h3>
+<p>上面只是封装了一个最最基础的请求，该方法接受的参数比较多，这个时候我们就需要去做一次简化参数的操作：</p>
+<p>首先我们创建一个名为<code>request</code>的对象，并使用<code>forEach</code>方法遍历包含不同<code>HTTP</code>请求方法的数组。对于每个HTTP请求方法，它会定义一个对应的函数，并将其作为<code>request</code>对象的属性。</p>
+<p>这样，在使用<code>request</code>对象时，可以直接调用<code>request.GET()</code>、<code>request.POST()</code>等方法来发起不同类型的HTTP请求，而不需要每次都显式地指定请求的方法。这样可以使代码更加简洁和易于维护。</p>
+<p>最后导出<code>request</code>对象</p>
+<pre><code class="language-js">const request = {}
+
+['options', 'get', 'post', 'put', 'head', 'delete', 'trace', 'connect'].forEach((method) =&gt; {
+	request[method] = (api, data, loading) =&gt; baseRequest(api, method, data, loading)
+})
+
+export default request
+</code></pre>
+<p>使用方式如下：</p>
+<p><code>/api/user.js</code> 文件</p>
+<pre><code class="language-js">import request from '@/utils/request'
+
+//个人信息
+export const info = data =&gt; request.post('/v1/api/info', data)
+</code></pre>
+<p>页面使用：</p>
+<pre><code class="language-js">import { info } from '@/api/user.js'
+export default {
+	onLoad() {
+		this.getUserinfo()
+	},
+	methods: {
+		async getUserinfo() {
+			let res = await info()
+		}
+	}
+}
+</code></pre>
+<h3 id="禁止重复请求">禁止重复请求</h3>
+<p>为了节省网络资源、提高性能和响应速度以及避免数据错误，我们需要对发起的请求做一些限制来避免重复请求，常见的限制方法如下：</p>
+<p>1.使用防抖和节流：可以使用防抖和节流的技术来控制请求的触发频率，确保在一段时间内只发起一次请求。<br>
+2.设置请求锁：可以在发起请求之前设置一个请求锁，防止重复触发请求。<br>
+3.合理设计页面和交互逻辑：在页面设计和交互逻辑中，合理安排请求的时机，避免不必要的重复请求。</p>
+<p>我们可以在封装的接口请求中添加一个请求队列，如果有当前发起且没有返回结果的，就不允许再次请求，具体实现思路如下：</p>
+<p>1.创建一个存放唯一ID的<code>Map</code>对象<br>
+2.当请求接口时候通过拿到的<code>method</code>、<code>url</code>、<code>params</code>、来生成唯一<code>ID</code><br>
+3.请求完成后，把当前<code>ID</code>从对象中删除。</p>
+<p>我们把检测唯一<code>ID</code>这个功能提炼出来，单独去封装一个<code>class</code>去实现；具体实现代码如下：</p>
+<p>新建<code>/utils/requestManager.js</code>文件，创建一个对象，并初始化一个名为<code>idMap</code>的对象，最后导出对象</p>
+<pre><code class="language-js">class RequestManager {
+    constructor() {
+        this.idMap = new Map()
+    }
+}
+
+export default RequestManager
+</code></pre>
+<p>根据<code>method</code>、<code>url</code>、<code>params</code>、来生成唯一<code>ID</code>，这里要注意的是我们的<code>params</code>需要进行序列化处理，不然如果同一个接口、相同的请求方式、参数顺序不同也会判断为不同的请求。</p>
+<pre><code class="language-js">class RequestManager {
+    /**
+     * 生成唯一ID的方法
+     * @param {string} method - 请求方法
+     * @param {string} url - 请求URL
+     * @param {object} params - 请求参数
+     * @returns {string} - 生成的唯一ID
+     */
+    generateUniqueId(method, url, params) {
+        const idString = `${method}-${url}-${this.serializeObject(params)}`
+        let id = 0;
+        for (let i = 0; i &lt; idString.length; i++) {
+            id = ((id &lt;&lt; 5) - id) + idString.charCodeAt(i)
+            id |= 0;
+        }
+        return id.toString()
+    }
+
+	 /**
+     * 序列化对象为字符串
+     * @param {object} obj - 要序列化的对象
+     * @returns {string} - 序列化后的字符串
+     */
+    serializeObject(obj) {
+        const keys = Object.keys(obj).sort()
+        const serializedObj = {}
+        for (let key of keys) {
+            const value = obj[key]
+            if (value !== null &amp;&amp; typeof value === 'object') {
+                serializedObj[key] = this.serializeObject(value)
+            } else {
+                serializedObj[key] = value
+            }
+        }
+        return JSON.stringify(serializedObj)
+    }
+}
+</code></pre>
+<p>写完生成方法，相对应的实现一下删除方法：</p>
+<pre><code class="language-js">class RequestManager {
+    /**
+     * 根据ID删除map对象中的请求信息
+     * @param {string} id - 要删除的唯一ID
+     */
+    deleteById(id) {
+        this.idMap.delete(id)
+    }
+}
+</code></pre>
+<p>上面就实现了基本的功能，下面我们写一个方法，去组合一下上面的功能，简化使用：</p>
+<pre><code class="language-JS">class RequestManager {
+    /**
+     * 生成唯一ID，并将ID和请求信息存储到map对象中
+     * @param {string} method - 请求方法
+     * @param {string} url - 请求URL
+     * @param {object} params - 请求参数
+     * @returns {string|boolean} - 生成的唯一ID，如果存在相同id则返回false
+     */
+    generateId(method, url, params) {
+        const id = this.generateUniqueId(method, url, params)
+        if (this.idMap.has(id)) {
+            return false
+        }
+        this.idMap.set(id, { method, url, params })
+        return id
+    }
+}
+</code></pre>
+<p>到这里我们的方法就写完了，下面来看一下如何使用：</p>
+<pre><code class="language-js">//引入方法
+import RequestManager from '@/utils/requestManager.js' 
+
+const manager = new RequestManager() //创建
+
+const baseRequest = async (url, method, data = {}, loading = true) =&gt;{
+
+	// 生成唯一ID, 如果返回false 代表重复请求
+	let requestId = manager.generateId(method, url, data)
+	if(!requestId) {
+		console.log('重复请求')
+		return false
+	}
+	return new Promise((reslove, reject) =&gt; {
+		uni.request({
+			complete: ()=&gt;{
+				// 请求完成，清除当前请求的唯一ID
+				manager.deleteById(requestId)
+			},
+		})
+	})
+}
+</code></pre>
+<h3 id="添加全局loading">添加全局loading</h3>
+<p>添加全局<code>loading</code>就比较简单了，我们前面定义了入参数<code>loading</code>，如果为<code>true</code>，在创建<code>Promise</code>后，调用<code>uni.showLoading</code>即可。<br>
+同时需要在<code>uni.request</code>中添加<code>complete</code>方法，在请求完成后去关闭<code>loading</code>。</p>
+<pre><code class="language-js">const baseRequest = async (url, method, data = {}, loading = true) =&gt;{
+	return new Promise((reslove, reject) =&gt; {
+		// 开启loading
+		loading &amp;&amp; uni.showLoading({title: 'loading'})
+		uni.request({
+			// ...
+			complete: ()=&gt;{
+				// 关闭loading
+				uni.hideLoading()
+			},
+			// ...省略下方代码
+		})
+	})
+}
+</code></pre>
+<h2 id="结尾">结尾</h2>
+<p>所有代码已放到<code>github</code>；请访问 <a href="https://github.com/LonJinUp/uni-app-template">uni-app-template</a>，如果觉得不做，记得给个<code>star</code></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[【node学习-01】node.js基础]]></title>
+        <id>https://lonjinup.github.io/node-01/</id>
+        <link href="https://lonjinup.github.io/node-01/">
+        </link>
+        <updated>2023-05-10T16:00:32.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="node基础">node基础</h1>
+<h2 id="node是什么">node是什么？</h2>
+<blockquote>
+<p>Node.js 不是一门语言，是一个运行时，和浏览器更像，只不过运行在服务端。<br>
+这个运行时的方言是 JavaScript（不包含 BOM、DOM API，增加了 Stream、网络等 API）。<br>
+Node.js 是靠 Chrome V8 引擎运行 JavaScript。</p>
+</blockquote>
+<blockquote>
+<p>对应到 Java 我们可以理解 Node.js 是 JDK，装上就能在服务端跑 JavaScript 代码了。Chrome 和 Node.js 同样是 JavaScript 运行时，都使用了 V8 引擎，主要区别在于 V8 只实现了 ECMAScript 的数据类型、对象和方法，Chrome 运行时提供了 Window、DOM、BOM，而 Node.js 运行时提供了global、 Buffer、net 等模块</p>
+</blockquote>
+<h2 id="node可以干什么">node可以干什么？</h2>
+<ul>
+<li>后端web服务器开发与网络爬虫开发</li>
+<li>脚手架命令行工具开发</li>
+<li>图形界面应用程序开发</li>
+</ul>
+<h2 id="环境搭建与基础入门">环境搭建与基础入门</h2>
+<h2 id="安装node">安装node</h2>
+<p>打开 <a href="https://nodejs.org/zh-cn">node.js</a>官网，选择长期维护版进行安装。</p>
+<p>终端下输入</p>
+<pre><code class="language-node">node -v
+</code></pre>
+<p>可以输出版本号即可证明安装成功</p>
+<h2 id="如何使用nodejs-运行javascript代码">如何使用node.js 运行JavaScript代码</h2>
+<ul>
+<li>新建 <code>index.js</code> 文件，写入如下内容：</li>
+</ul>
+<pre><code class="language-js">let a = 1
+console.log(a)
+</code></pre>
+<ul>
+<li>终端下输入：</li>
+</ul>
+<pre><code class="language-js">node index.js
+</code></pre>
+<p>控制台就会打出<code>1</code></p>
+<h2 id="文件操作与模块化的概念">文件操作与模块化的概念</h2>
+<h3 id="读取文件内容">读取文件内容</h3>
+<p>新建<code>read.js</code>，引入<code>fs</code>模块，通过<code>fs</code>下的<code>readFile</code>进行读取：</p>
+<pre><code class="language-js">// 引入fs 模块
+var fs = require('fs')
+
+// 文件路径 编码格式 回调函数（异常，文件内容）
+fs.readFile('./index.txt', 'utf8', function (error, data) {
+    console.log(error) // null
+    console.log(data) // txt 文件中的内容
+})
+</code></pre>
+<h3 id="写入文件内容">写入文件内容</h3>
+<p>写入文件依旧通过<code>fs</code>下的<code>writeFile</code>来实现，代码如下：</p>
+<pre><code class="language-js">// 引入fs 模块
+var fs = require('fs')
+
+// 文件路径 内容 回调函数（异常）
+fs.writeFile('./index.txt', 'hello lonjin', function (error) {
+    !error &amp;&amp; console.log('写入成功')
+})
+</code></pre>
+<h3 id="追加内容">追加内容</h3>
+<p>通过上面内容我们可以完成文件的读取与写入，那么追加就比较简单了，具体代码如下：</p>
+<pre><code class="language-js">// 引入fs 模块
+var fs = require('fs')
+
+fs.readFile('./index.txt', 'utf8', function (error, data) {
+    if (!error) {
+        let newData = data + new Date()
+        fs.writeFile('./index.txt', newData, function (error) {
+            !error &amp;&amp; console.log('追加成功')
+        })
+    }
+}) 
+</code></pre>
+<h3 id="模块化编程的概念">模块化编程的概念</h3>
+<p>当我们在<code>Node.js</code>中写代码时，我们通常需要使用不同的模块来完成不同的任务。<code>require('fs')</code>就是<code>Node.js</code>中的模块系统，通过它我们可以引入其他模块，例如fs模块来进行文件操作。</p>
+<p>为什么我们需要模块化呢？在<code>JavaScript</code>中，如果我们把所有代码都写在一个文件中，那么文件将变得非常大且难以维护。同时，如果我们需要在多个文件中重复使用某个功能，那么我们需要在每个文件中都写入这个功能，这样会导致代码冗余和维护成本的增加。因此，我们需要一种能够拆分代码、相互独立、导入导出的方式来进行模块化编程。</p>
+<p>在<code>JavaScript</code>中，有多种模块化的概念，比如CommonJS、AMD、ES6等。<code>Node.js</code>采用了CommonJS规范，即通过<code>require()</code>来引入模块，通过<code>module.exports</code>来导出模块。在ES6中，我们可以使用<code>import</code>和<code>export</code>来进行模块化编程。而AMD则是另外一种模块化方案，它采用了异步模块定义，适合在浏览器端进行模块化编程。</p>
+<p>通俗一点的说，模块化编程其实就是拆分代码、相互独立、导入导出；好比造车，汽车轮胎算一个模块，汽车引擎算一个模块、汽车车体算一个模块，通过各个模块的组装，最终生产出一辆汽车。<code>JavaScript</code>中的模块化的概念也是近几年才出现的，之前的js并没有模块化的概念。</p>
+<h2 id="npm包管理器">npm包管理器</h2>
+<blockquote>
+<p>npm（Node Package Manager）是 Node.js 的包管理器，用于管理和共享 JavaScript 代码。它是 Node.js 官方提供的默认包管理工具，用于安装、发布、更新和管理 JavaScript 包和依赖项。</p>
+</blockquote>
+<h3 id="作用">作用</h3>
+<ul>
+<li>包管理：npm 允许开发者在项目中安装、更新和卸载依赖的第三方包或模块，提供了一个方便的方式来管理项目的依赖关系。</li>
+<li>代码共享：开发者可以通过 npm 发布自己编写的模块或应用，并将其共享给其他开发者使用。</li>
+<li>版本控制：npm 提供了丰富的版本管理功能，开发者可以指定安装特定版本的包，以确保项目的稳定性和兼容性。</li>
+</ul>
+<h3 id="常用命令">常用命令</h3>
+<ul>
+<li><code>npm init</code>：初始化一个新的项目，生成 package.json 文件。</li>
+<li><code>npm install</code>：安装项目依赖，根据 package.json 中的配置自动下载并安装依赖。</li>
+<li><code>npm install &lt;package&gt;</code>：安装指定的包。</li>
+<li><code>npm install --save-dev &lt;package&gt;</code>：安装开发环境依赖，仅在开发阶段使用。</li>
+<li><code>npm update</code>：更新项目依赖的包到最新版本。</li>
+<li><code>npm uninstall &lt;package&gt;</code>：卸载指定的包。</li>
+<li><code>npm run &lt;script&gt;</code>：运行项目中定义的脚本命令，可以在 package.json 的 scripts 部分定义自定义命令。</li>
+<li><code>npm publish</code>：将自己编写的模块发布到 npm 公共注册表，供其他人使用。</li>
+<li><code>npm search</code> <package>：在 npm 注册表中搜索指定的包。</li>
+<li><code>npm outdated</code>：检查项目中已安装包的更新状态。<br>
+这只是一些常用的 npm 命令，npm 还提供了其他许多命令和功能，可以根据具体需求参考官方文档或使用 <code>npm help</code> 命令获取更多信息。</li>
+</ul>
+<h2 id="管理npm包">管理npm包</h2>
+<p>新建一个<code>time</code>文件夹，文件夹下建立<code>index.js</code>，下面我们输出一个当前日期：</p>
+<pre><code class="language-js">let time = Date.now()
+console.log(time) //1692708681030
+</code></pre>
+<p>如果我们想输出一个<code>年-月-日 时：分：秒</code>的格式，则可以利用<code>npm</code>上的包进行处理，比如<code>moment</code>。</p>
+<p>安装：</p>
+<pre><code class="language-shell">npm i moment
+</code></pre>
+<p>引入&amp;&amp;使用：</p>
+<pre><code class="language-js">const moment = require('moment')
+
+let time = Date.now()
+console.log(moment(time).format('YYYY-MM-DD HH:mm:ss')) //2023-08-22 20:51:21
+</code></pre>
+<p>这就是<code>npm</code>包最简单的一个使用。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[uni-app开发小程序：项目架构以及经验分享]]></title>
+        <id>https://lonjinup.github.io/uni-app-template-01/</id>
+        <link href="https://lonjinup.github.io/uni-app-template-01/">
+        </link>
+        <updated>2023-02-21T07:40:10.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="uni-app开发小程序项目架构以及经验分享">uni-app开发小程序：项目架构以及经验分享</h1>
+<blockquote>
+<p><code>2022</code>年的时候，公司为了快速完成产品并上线，所以选用微信小程序为载体；由于后期还是打算开发<code>App</code>；虽然公司有<code>ios</code>和<code>Android</code>，但是如果能一套代码打包多端，一定程度上可以解决成本。前端技术栈也是<code>vue</code>，在考察选择了<code>uni-app</code>。后来多个小程序项目都采用了<code>uni-app</code>开发，积累了一定的经验以及封装了较多业务组件，这里就分享一下<code>uni-app</code>项目的整体架构、方法封装组件库选择以及注意事项。全文代码都会放到<code>github</code>，先赞后看，月入百万！</p>
+</blockquote>
+<h2 id="创建项目">创建项目</h2>
+<p><code>uni-app</code>提供了两种创建项目的方式：</p>
+<ul>
+<li>1.通过<a href="https://zh.uniapp.dcloud.io/quickstart-hx.html">HBuilderX</a>可视化工具创建</li>
+<li>2.通过<a href="https://zh.uniapp.dcloud.io/quickstart-cli.html">vue-cli</a>命令创建</li>
+</ul>
+<blockquote>
+<p>⚠️需要注意的是，一定要根据项目需求来选择项目的创建方式；如果只是单独的开发<code>小程序</code>或<code>App</code>，且开发环境单一，可以使用<code>HBuilderX</code>可视化工具创建。如果多端开发，以及同一套代码可能会打包生成<code>多个</code>小程序建议使用<code>vue-cli</code>进行创建，不然后期想搞自动化构建以及按指定条件进行编译比较痛苦。关于按条件编译，文章后面会有详细说明。</p>
+</blockquote>
+<p>使用<code>vue-cli</code>安装和运行：</p>
+<p>1.全局安装 vue-cli</p>
+<pre><code class="language-js">npm install -g @vue/cli
+</code></pre>
+<p>2.创建uni-app</p>
+<pre><code class="language-js">vue create -p dcloudio/uni-preset-vue 项目名称
+</code></pre>
+<p>3.进入项目文件夹</p>
+<pre><code class="language-js">cd 项目名称
+</code></pre>
+<p>4.运行项目，如果是已微信小程序为主，可以在<code>package.json</code>中的命令改为：</p>
+<pre><code class="language-json">&quot;scripts&quot;: {
+    &quot;serve&quot;: &quot;npm run dev:mp-weixin&quot;
+}
+</code></pre>
+<p>然后执行</p>
+<pre><code class="language-js">npm run serve
+</code></pre>
+<p>使用<code>cli</code>创建项目默认不带<code>css</code>预编译，需要手动安装一下，这里已<code>sass</code>为例：</p>
+<pre><code class="language-js">npm i sass --save-dev
+npm i sass-loader --save-dev
+</code></pre>
+<h2 id="整体项目架构">整体项目架构</h2>
+<p>通过<code>HBuilderX</code>或者<code>vue-cli</code>创建的项目，目录结构有稍许不同，但基本没什么差异，这里就按<code>vue-cli</code>创建的项目为例，整体架构配置如下：</p>
+<pre><code class="language-tree">    ├──dist 编译后的文件路径
+    ├──package.json 配置项
+	├──src 核心内容
+        ├──api 项目接口
+        ├──components 全局公共组件
+        ├──config 项目配置文件
+        ├──pages 主包
+        ├──static 全局静态资源
+        ├──store vuex
+        ├──mixins 全局混入
+        ├──utils 公共方法
+        ├──App.vue 应用配置，配置App全局样式以及监听
+        ├──main.js Vue初始化入口文件
+        ├──manifest.json 配置应用名称、appid等打包信息
+        ├──pages.json 配置页面路由、导航条、选项卡等页面类信息
+        └──uni.scss 全局样式
+</code></pre>
+<h2 id="封装方法">封装方法</h2>
+<p>工欲善其事，必先利其器。在开发之前，我们可以把一些全局通用的方法进行封装，以及把<code>uni-app</code>提供的<code>api</code>进行二次封装，方便使用。全局的公共方法我们都会放到<code>/src/utils</code>文件夹下。</p>
+<h3 id="封装常用方法">封装常用方法</h3>
+<p>下面这些方法都放在<code>/src/utils/utils.js</code>中，文章末尾会提供<code>github</code>链接方便查看。如果项目较大，建议把方法根据功能定义不同的<code>js</code>文件。</p>
+<p>小程序<code>Toast</code>提示</p>
+<pre><code class="language-js">/**
+ * 提示方法
+ * @param {String} title 提示文字
+ * @param {String}  icon icon图片
+ * @param {Number}  duration 提示时间
+ */
+export function toast(title, icon = 'none', duration = 1500) {
+	if(title) {
+		uni.showToast({
+		    title,
+		    icon,
+		    duration
+		})
+	}
+}
+</code></pre>
+<p>缓存操作（设置/获取/删除/清空）</p>
+<pre><code class="language-js">/**
+ * 缓存操作
+ * @param {String} val
+ */
+export function setStorageSync(key, data) {
+    uni.setStorageSync(key, data)
+}
+
+export function getStorageSync(key) {
+    return uni.getStorageSync(key)
+}
+
+export function removeStorageSync(key) {
+    return uni.removeStorageSync(key)
+}
+
+export function clearStorageSync() {
+    return uni.clearStorageSync()
+}
+</code></pre>
+<p>页面跳转</p>
+<pre><code class="language-js">/**
+ * 页面跳转
+ * @param {'navigateTo' | 'redirectTo' | 'reLaunch' | 'switchTab' | 'navigateBack' | number } url  转跳路径
+ * @param {String} params 跳转时携带的参数
+ * @param {String} type 转跳方式
+ **/
+export function useRouter(url, params = {}, type = 'navigateTo') {
+    try {
+        if (Object.keys(params).length) url = `${url}?data=${encodeURIComponent(JSON.stringify(params))}`
+        if (type === 'navigateBack') {
+            uni[type]({ delta: url })
+        } else {
+            uni[type]({ url })
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+</code></pre>
+<p>图片预览</p>
+<pre><code class="language-js">/**
+ * 预览图片
+ * @param {Array} urls 图片链接
+ */
+export function previewImage(urls, itemList = ['发送给朋友', '保存图片', '收藏']) {
+    uni.previewImage({
+        urls,
+        longPressActions: {
+            itemList,
+            fail: function (error) {
+                console.error(error,'===previewImage')
+            }
+        }
+    })
+}
+</code></pre>
+<p>图片下载</p>
+<pre><code class="language-js">/**
+ * 保存图片到本地
+ * @param {String} filePath 图片临时路径
+ **/
+export function saveImage(filePath) {
+    if (!filePath) return false
+    uni.saveImageToPhotosAlbum({
+        filePath,
+        success: (res) =&gt; {
+            toast('图片保存成功', 'success')
+        },
+        fail: (err) =&gt; {
+            if (err.errMsg === 'saveImageToPhotosAlbum:fail:auth denied' || err.errMsg === 'saveImageToPhotosAlbum:fail auth deny') {
+                uni.showModal({
+                    title: '提示',
+                    content: '需要您授权保存相册',
+                    showCancel: false,
+                    success: (modalSuccess) =&gt; {
+                        uni.openSetting({
+                            success(settingdata) {
+                                if (settingdata.authSetting['scope.writePhotosAlbum']) {
+                                    uni.showModal({
+                                        title: '提示',
+                                        content: '获取权限成功,再次点击图片即可保存',
+                                        showCancel: false
+                                    })
+                                } else {
+                                    uni.showModal({
+                                        title: '提示',
+                                        content: '获取权限失败，将无法保存到相册哦~',
+                                        showCancel: false
+                                    })
+                                }
+                            },
+                            fail(failData) {
+                                console.log('failData', failData)
+                            }
+                        })
+                    }
+                })
+            }
+        }
+    })
+}
+</code></pre>
+<p>更多函数就不在文章中展示了，已经放到<code>/src/utils/utils,js</code>里面，具体可以到github查看。</p>
+<h3 id="请求封装">请求封装</h3>
+<p>为了减少在页面中的请求代码，所以我们要对<code>uni-app</code>提供的请求方式进行二次封装，在<code>/src/utils</code>文件夹下建立<code>request.js</code>，具体代码如下：</p>
+<pre><code class="language-js">
+import {toast, clearStorageSync, getStorageSync, useRouter} from './utils'
+import {BASE_URL} from '@/config/index'
+
+const baseRequest = async (url, method, data, loading = true) =&gt;{
+	header.token = getStorageSync('token') || ''
+	return new Promise((reslove, reject) =&gt; {
+		loading &amp;&amp; uni.showLoading({title: 'loading'})
+		uni.request({
+			url: BASE_URL + url,
+			method: method || 'GET',
+			header: header,
+			timeout: 10000,
+			data: data || {},
+			success: (successData) =&gt; {
+				const res = successData.data
+				uni.hideLoading()
+				if(successData.statusCode == 200){
+                    // 这里根据自己的业务逻辑去调整
+					if(res.resultCode == 'PA-G998'){
+						clearStorageSync()
+						useRouter('/pages/login/index', 'reLaunch')
+					}else{
+						reslove(res.data)
+					}
+				}else{
+					toast('网络连接失败，请稍后重试')
+					reject(res)
+				}
+			},
+			fail: (msg) =&gt; {
+				uni.hideLoading()
+				toast('网络连接失败，请稍后重试')
+				reject(msg)
+			}
+		})
+	})
+}
+
+const request = {};
+
+['options', 'get', 'post', 'put', 'head', 'delete', 'trace', 'connect'].forEach((method) =&gt; {
+	request[method] = (api, data, loading) =&gt; baseRequest(api, method, data, loading)
+})
+
+export default request
+</code></pre>
+<p>请求封装好以后，我们在<code>/src/api</code>文件夹下按业务模块建立对应的<code>api</code>文件，拿获取用户信息接口举例子：</p>
+<p>在<code>/src/api</code>文件夹下建立<code>user.js</code>，然后引入<code>request.js</code></p>
+<pre><code class="language-js">import request from '@/utils/request'
+
+//个人信息
+export const info = data =&gt; request.post('/v1/api/info', data)
+</code></pre>
+<p>在页面中直接使用：</p>
+<pre><code class="language-js">import {info} from '@/api/user.js'
+
+export default {
+	methods: {
+		async getUserinfo() {
+			let info = await info()
+			console.log('用户信息==', info)
+		}
+	}
+}
+</code></pre>
+<h2 id="自定义tabbar">自定义<code>tabBar</code></h2>
+<p>写<code>uni-app</code>或者<code>小程序</code>基本避不开这个话题了，很多情况下，官方提供的<code>tabBar</code>方案并不能满足产品需求/ui要求，官方也提供了<a href="https://uniapp.dcloud.net.cn/collocation/pages.html#tabbar">自定义tabBar</a>的方案，但此方案有很多弊端，比如：切换时候会<code>tabBar</code>会有明显的闪动。可以参考之前写的文章<a href="https://juejin.cn/post/6976072584127315999">小程序自定义TabBar 如何实现“keep-alive”</a>，文章中是原生小程序，但思路在<code>uni-app</code>中同样适用，如果感兴趣，可以评论区提问。</p>
+<h2 id="版本切换">版本切换</h2>
+<p>很多场景下，需要根据不同的环境去切换不同的请求域名、<code>APPID</code>等字段，这时候就需要通过环境变量来进行区分。下面案例我们就分为三个环境：开发环境(<code>dev</code>)、测试环境(<code>test</code>)、生产环境(<code>prod</code>)。</p>
+<h3 id="建立env文件">建立<code>env</code>文件</h3>
+<p>在项目根目录建立下面三个文件并写入内容(常量名要以VUE开头命名)：</p>
+<p><code>.env.dev</code>(开发环境)</p>
+<pre><code class="language-ini">VUE_APP_MODE=build
+VUE_APP_ID=wxbb53ae105735a06b
+VUE_APP_BASE=https://www.baidu.dev.com
+</code></pre>
+<p><code>.env.test</code>(测试环境)</p>
+<pre><code class="language-ini">VUE_APP_MODE=build
+VUE_APP_ID=wxbb53ae105735a06c
+VUE_APP_BASE=https://www.baidu.test.com
+</code></pre>
+<p><code>.env.prod</code>(生产环境)</p>
+<pre><code class="language-ini">VUE_APP_MODE=wxbb53ae105735a06d
+VUE_APP_ID=prod
+VUE_APP_BASE=https://www.baidu.prod.com
+</code></pre>
+<h3 id="修改packagejson文件">修改<code>package.json</code>文件</h3>
+<pre><code class="language-json">&quot;scripts&quot;: {
+    &quot;dev:mp-weixin&quot;: &quot;cross-env UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch --mode dev&quot;,
+    &quot;build:mp-weixin&quot;: &quot;cross-env UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch --mode prod&quot;
+},
+</code></pre>
+<p>然后执行</p>
+<pre><code class="language-js">npm run dev:mp-weixin
+</code></pre>
+<p>在<code>/src/pages/index/index.vue</code>下，打印：</p>
+<pre><code class="language-js">onLoad() {
+    console.log(process.env.VUE_APP_MODE, '====VUE_APP_BASE')
+    console.log(process.env.VUE_APP_BASE, '====VUE_APP_BASE')
+},
+</code></pre>
+<p>此时输出结果就是</p>
+<pre><code class="language-js">dev ====VUE_APP_BASE
+https://www.baidu.dev.com ====VUE_APP_BASE
+</code></pre>
+<h2 id="动态修改appid">动态修改appid</h2>
+<p>如果同一套代码，需要打包生成多个小程序，就需要动态修改<code>appid</code>了；文章开头说过appid在<code>/src/manifest.json</code>文件中配置，但<code>json</code>文件又不能直接写变量，这时候就可以参考<a href="https://uniapp.dcloud.net.cn/collocation/vue-config.html">官方</a> 提出的解决方案：建立<code>vue.config.js</code>文件，具体操作如下。</p>
+<p>在根目录下建立<code>vue.config.js</code>文件写入以下内容：</p>
+<pre><code class="language-js">// 读取 manifest.json ，修改后重新写入
+const fs = require('fs')
+
+const manifestPath = './src/manifest.json'
+let Manifest = fs.readFileSync(manifestPath, { encoding: 'utf-8' })
+function replaceManifest(path, value) {
+    const arr = path.split('.')
+    const len = arr.length
+    const lastItem = arr[len - 1]
+    let i = 0
+    let ManifestArr = Manifest.split(/\n/)
+    for (let index = 0; index &lt; ManifestArr.length; index++) {
+        const item = ManifestArr[index]
+        if (new RegExp(`&quot;${arr[i]}&quot;`).test(item)) ++i
+        if (i === len) {
+            const hasComma = /,/.test(item)
+            ManifestArr[index] = item.replace(
+            new RegExp(`&quot;${lastItem}&quot;[\\s\\S]*:[\\s\\S]*`),
+            `&quot;${lastItem}&quot;: ${value}${hasComma ? ',' : ''}`
+            )
+            break
+        }
+    }
+
+Manifest = ManifestArr.join('\n')
+}
+// 读取环境变量内容
+replaceManifest('mp-weixin.appid', `&quot;${process.env.VUE_APP_ID}&quot;`)
+
+fs.writeFileSync(manifestPath, Manifest, {
+  flag: 'w'
+})
+</code></pre>
+<p>如果是通过<a href="https://zh.uniapp.dcloud.io/quickstart-hx.html">HBuilderX</a>可视化工具创建的项目，则无法去自动根据环境去修改<code>appid</code>，只能去手动修改。</p>
+<h2 id="组件库">组件库</h2>
+<p><code>uni-app</code>最受欢迎的可能就是插件市场了，插件市场提供了很多优秀的插件/组件库供我们选择，比较火的就是自家的<a href="https://ext.dcloud.net.cn/plugin?id=55">uni-ui</a>以及<a href="https://ext.dcloud.net.cn/plugin?id=1593">uView UI</a>，大部分组件还是比较好用的，如果做中大型项目以及UI要求较高的情况下，还是比较推荐自己搭一套组件库，方便扩展以及维护。</p>
+<h2 id="结尾">结尾</h2>
+<p>关于<code>uni-app</code>项目的起步工作就到这里了，后面有机会写一套完整的<code>uni</code>搭建电商小程序项目，记得关注。代码已经提交到<a href="https://github.com/LonJinUp/uni-app-template">github</a>，如果对你有帮助，记得点个<code>star</code>!</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[优秀技术博客的持续创作技巧]]></title>
+        <id>https://lonjinup.github.io/blogstudy/</id>
+        <link href="https://lonjinup.github.io/blogstudy/">
+        </link>
+        <updated>2023-01-15T06:46:45.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="如何写作如何持续性创作">如何写作？如何持续性创作</h1>
+<blockquote>
+<p>最近看了<code>张鑫旭</code>大佬写的<code>《技术写作指南》</code>；在这里总结一下，顺便聊一聊写博客这个话题。</p>
+</blockquote>
+<h2 id="为什么要写">为什么要写</h2>
+<p>关于为什么要写博客，每个人都有不同的答案；有的人可能是为了记录一下学习总结，有的人可能是希望自己的文章可以给别人带来一定的帮助，也有可能是为了获得一定的知名度，发展自媒体。<br>
+我为什么要写博客呢？这得从刚入行说起了。刚入行的前两年感觉非常迷茫，呆的公司技术老旧，只能在下班时间去自己学习，那时候基本都是看别人的视频课程；学习过程中记录笔记是非常有必要的。再后来接触了<code>掘金</code>，发现了很多优质文章，所以写博客的念头愈演愈烈。所以就在网上简单的搭建了一个博客。</p>
+<h2 id="如何定标题">如何定标题</h2>
+<p>虽然常说<code>内容为王</code>，但是好的标题能让你的文章有更多的点击率，如果标题不吸引人，那么读者可能都不会点进详情去看。我想很多人起标题时候都会头疼，这个问题也经常困扰着我，如何能让标题更有吸引力。下面分享一下我起标题的一些经验和方法。</p>
+<h3 id="标题与文章关联">标题与文章关联</h3>
+<p>首先我很讨厌标题党，标题为深入了解xxxx，结果进去查看文章没有一点深度，这样的文章很让人讨厌，所以我建议文章标题最起码要符合内容。同时标题内尽量包含整篇文章的关键字，这样便于搜索引擎抓取，同时也考虑用户搜索习惯。下面用我之前写的一篇文章<a href="https://juejin.cn/post/6963194943506645005">小程序实现TabBar创意动画(文末附完整源代码)</a>来举例子。</p>
+<p>先解析一下标题关键词：<code>小程序</code>、<code>TabBar</code>、<code>创意动画</code>、<code>附完整源代码</code>，这个标题基本上涵盖了我上面讲的要领，而且很符合用户的搜索习惯，用户搜索<code>小程序TabBar动画</code>、<code>小程序TabBar技巧</code>等基本都可以显示在第一位。</p>
+<figure data-type="image" tabindex="1"><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ef76b692bbe3454d9f8c4b860dbacaaf~tplv-k3u1fbpfcp-watermark.image?" alt="image.png" loading="lazy"></figure>
+<h3 id="适当性的修饰">适当性的修饰</h3>
+<p>如果发布在第三方平台，有时候标题起的太过死板点击率少的可怜；在掘金上看过不少优秀的标题，本人这方面经验也不是很多，可以参考一下掘金2022榜单：</p>
+<figure data-type="image" tabindex="2"><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fedee45199e84c7b94ae3be22232c3ce~tplv-k3u1fbpfcp-watermark.image?" alt="image.png" loading="lazy"></figure>
+<p>总结一下：这些标题要么是疑问句？引起读者的好奇心；要么就是事件的起因+解决方案+结果。</p>
+<h3 id="使用黑科技">使用黑科技</h3>
+<p>前段时间大火的<code>openai</code>不就可以派上用场了吗？下面试一下效果：</p>
+<figure data-type="image" tabindex="3"><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/df0aa31b0719449ba4ec4fa50e1ffdb2~tplv-k3u1fbpfcp-watermark.image?" alt="image.png" loading="lazy"></figure>
+<p>优化过的标题，基本上比我之前起的标题要好一些，再自己修改修改就可以直接用了。</p>
+<h2 id="写作框架">写作框架</h2>
+<p>一篇好文章一定具备以下特征：</p>
+<ul>
+<li>1.文章连贯，前后呼应，在整篇文章中，每段文字最好有一定的连贯性，也就是小时候写作文老师经常提到的承上启下。</li>
+<li>2.突出重点，在写文章时候一定不要忘了核心主题，切记不要脱离文章主题。所以在写文章之前，可以给自己列一个大纲，避免写着写着跑题了。</li>
+</ul>
+<h3 id="具体的写作套路">具体的写作套路</h3>
+<p>下面罗列了不同类型文章的写作框架，大家写文章时候可以参考一下：</p>
+<h4 id="1技术科普">1.技术科普</h4>
+<figure data-type="image" tabindex="4"><a href="https://imgse.com/i/pSQs941"><img src="https://s1.ax1x.com/2023/01/15/pSQs941.png" alt="pSQs941.png" loading="lazy"></a></figure>
+<h3 id="2原理剖析">2.原理剖析</h3>
+<figure data-type="image" tabindex="5"><a href="https://imgse.com/i/pSQsP9x"><img src="https://s1.ax1x.com/2023/01/15/pSQsP9x.png" alt="pSQsP9x.png" loading="lazy"></a></figure>
+<h3 id="3功能实现">3.功能实现</h3>
+<figure data-type="image" tabindex="6"><a href="https://imgse.com/i/pSQsSE9"><img src="https://s1.ax1x.com/2023/01/15/pSQsSE9.png" alt="pSQsSE9.png" loading="lazy"></a></figure>
+<h3 id="4使用教程">4.使用教程</h3>
+<figure data-type="image" tabindex="7"><a href="https://imgse.com/i/pSQrxHJ"><img src="https://s1.ax1x.com/2023/01/15/pSQrxHJ.png" alt="pSQrxHJ.png" loading="lazy"></a></figure>
+<h3 id="5问题解决">5.问题解决</h3>
+<figure data-type="image" tabindex="8"><a href="https://imgse.com/i/pSQspNR"><img src="https://s1.ax1x.com/2023/01/15/pSQspNR.png" alt="pSQspNR.png" loading="lazy"></a></figure>
+<h2 id="如何坚持">如何坚持</h2>
+<p>说实话，坚持一个事情是非常难的，尤其是写作这种事情。因为写作给作者带来的汇报/反馈短期内表现不出来，一旦没有结果反馈，慢慢就会失去兴趣。比如游戏；在我们玩游戏时候为什么能够那么上瘾呢？因为短期内的付出都会带来一定的结果反馈。既然我们可以乐此不疲的玩游戏、刷视频、追剧，那么我相信也可以进行坚持写作。</p>
+<p>关于这方面的经验，本人也不是很多；今年也没写几篇文章。不过还是在<code>2023</code>年打算坚持一下写作。这里我总结了一下<code>张鑫旭</code>大佬提供的方法：</p>
+<ul>
+<li>多多奖励自己，每写完一篇文章，都要给自己一些奖励，比方说奖励自己玩一盘游戏</li>
+<li>学会任务分解，比如每天坐地铁上班时候先罗列一下文章选题/框架，在公司摸鱼时候可以搜集一下相关资料，下班吃完饭再一气呵成。</li>
+<li>敢于放纵自己，如果平时工作或者加班太忙，确实没有时间；也不必勉强自己，该放松的时候就放松。</li>
+</ul>
+<h2 id="总结">总结</h2>
+<p>写技术类博客，当时可能不会有什么技术反馈，但是只要你能坚持<code>1周</code>一篇的稳定更新，<code>2</code>年内绝对可以超过绝大多数人。而且你的博客有一定的曝光，也可能会给你带来一些不错的工作机会。不管出于什么原因，希望各位可以坚持输出，加油吧！</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[vuepress自动化部署到github]]></title>
+        <id>https://lonjinup.github.io/vuepress-setting/</id>
+        <link href="https://lonjinup.github.io/vuepress-setting/">
+        </link>
+        <updated>2022-12-12T13:53:53.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="vuepress自动化部署github">vuepress自动化部署github</h1>
+<blockquote>
+<p>最近打算把一些项目中常用的函数方法统一封装一下，同时发布到npm，以便于项目中使用。<code>vuepress</code>使用上相对简单，就不做过多的演示了，这里主要讲解一下如何自动化部署到<code>github</code>,生成预览地址。</p>
+</blockquote>
+<h2 id="生成token">生成TOKEN</h2>
+<ul>
+<li>登录<code>github</code>，点击右侧头像,点击Settings</li>
+<li>左侧菜单下找到 Developer settings，点击进入</li>
+<li>在 Personal access tokens 分类下找到 Tokens (classic)，点击进入</li>
+<li>点击 Generate new token 按钮，点击 Generate new token (classic)</li>
+<li>设置 token名称为 <code>ACCESS_TOKEN</code>，把生成的token复制一下</li>
+</ul>
+<h2 id="设置token">设置TOKEN</h2>
+<ul>
+<li>进该项目的仓库中，点击settings</li>
+<li>点击左侧 Secrets</li>
+<li>点击右侧按钮 new repository secret</li>
+<li>创建的名字和 .yml 中的 secret.xxx 要对应，值就写刚刚生成的 Github 密钥</li>
+</ul>
+<h2 id="创建配置文件">创建配置文件</h2>
+<ul>
+<li>在根目录下创建配置文件</li>
+</ul>
+<pre><code class="language-js">.github/workflows/jekyll-gh-pages.yml
+</code></pre>
+<ul>
+<li>添加配置</li>
+</ul>
+<pre><code class="language-yml"># action 的名称
+name: Deploy GitHub Pages
+
+# 触发条件：在 push 到 master 分支后
+on:
+  push:
+    branches:
+      - master
+
+# 任务
+jobs:
+  build-and-deploy:
+    # 服务器环境：最新版 Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      # 拉取代码
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      # 生成静态文件
+      - name: Build
+        run: npm install &amp;&amp; npm run docs:build
+
+      # 部署到 GitHub Pages
+      - name: Deploy
+        # 使用别人写好的一个 action
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          # 这里的 ACCESS_TOKEN 名字需要和下文中的相对应
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          # 打包后的文件部署到哪个分支上
+          BRANCH: gh-pages
+          # 打包后的文件在哪里
+          FOLDER: docs/.vuepress/dist
+
+</code></pre>
+<h2 id="设置github-pages">设置GitHub Pages</h2>
+<ul>
+<li>进该项目的仓库中，点击settings</li>
+<li>点击项目左侧的Pages</li>
+<li>找到Build and deployment这一项，Source选择<code>Deploy from a branch</code></li>
+<li>Branch选择<code>gh-pages</code> <code>/(root)</code>然后保存即可</li>
+</ul>
+<h2 id="结尾">结尾</h2>
+<blockquote>
+<p>到这里就已经配置结束了，只要master分支有变化，就会自动化执行一次，生成新的文档。</p>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[vueRouter实现原理]]></title>
+        <id>https://lonjinup.github.io/vuerouter/</id>
+        <link href="https://lonjinup.github.io/vuerouter/">
+        </link>
+        <updated>2022-08-11T15:03:31.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="vuerouter-实现原理">vueRouter 实现原理</h1>
+<h2 id="前置知识">前置知识</h2>
+<p>想了解<code>vueRouter</code>，需要先了解<code>vue</code>中的<strong>插件</strong>、<strong>混入</strong>、<strong>Vue.observable</strong>、<strong>插槽</strong>、<strong>render函数</strong>、<strong>运行时和完整版Vue的概念</strong>，如果没有了解，可以先在官网复习一波。</p>
+<h3 id="vuerouter两种模式">vueRouter两种模式</h3>
+<p>总所周知，<code>vueRouter</code>分为<code>hash</code>模式和<code>history</code>模式；两种区别如下：</p>
+<table>
+<thead>
+<tr>
+<th>模式名称</th>
+<th>实现原理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hash模式</td>
+<td>hash模式以url中#号后面的内容作为路径，通过监听hashchange事件获取到当前路由地址然后找到对应的组件进行渲染</td>
+</tr>
+<tr>
+<td>history模式</td>
+<td>通过popstate事件，根据当前路由地址找到相应的组件进行渲染(需要服务端支持)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="实现思路">实现思路</h2>
+<p>先看一下我们平时使用<code>vueRouter</code>的关键代码：</p>
+<pre><code class="language-js">// router/index.js
+// 1.引入VueRouter
+import VueRouter from 'vue-router'
+// 2.引入vue
+import Vue from 'vue'
+// 3. 注册路由插件
+Vue.use(VueRouter)
+// 4.添加路由规则
+const routes = [
+    {
+        path: '/',
+        name: 'index',
+        component: Layout
+    },
+]
+// 5.创建路由对象，传入路由规则
+const router = new VueRouter({routes})
+// 6.导出router
+export default router
+
+// main.js
+import Vue from 'vue'
+import router from './router'
+new Vue({
+  // 7. 注册 router 对象
+  router,
+  render: h =&gt; h(App)
+}).$mount('#app')
+
+</code></pre>
+<ul>
+<li>这里我们需要解一下<code>Vue.use()</code>方法：该方法至少传入一个参数，该参数类型必须是 <strong>Object</strong> 或 <strong>Function</strong>，如果是 <strong>Object</strong> 那么这个 <strong>Object</strong> 需要定义一个 <strong>install</strong> 方法，如果是 <strong>Function</strong> 那么这个函数就被当做 <strong>install</strong> 方法。在<code>Vue.use()</code>执行时 <strong>install</strong> 会默认执行，当 <strong>install</strong> 执行时第一个参数就是 <strong>Vue</strong>，其他参数是 <code>Vue.use()</code>执行时传入的其他参数；同时<code>Vue.use()</code>会自动阻止多次注册相同插件。</li>
+</ul>
+<p>了解完使用流程，我们来分析一下它的实现思路：</p>
+<ul>
+<li>创建<code>VueRouter</code>插件，静态方法<code>install</code>，在<code>install</code>方法中，判断插件是否已经被加载，同时在<code>vue</code>加载的时候把传入的<code>router</code>对象挂载到<code>vue</code>实例上。</li>
+<li>创建<code>VueRouter</code>类:
+<ul>
+<li>初始化<code>options</code>(记录构造函数中传入的对象)、<code>routeMap</code>(记录路由地址和组件的对应关系)、<code>data</code>(相应式的对象，可以记录当前路由地址，当路由地址变化时候，对应的组件做相应的更新)</li>
+<li>创建<code>initRouteMap()</code>方法，遍历所有路由信息，把组件和路由的映射记录到<code>routeMap</code>对象中</li>
+<li>注册<code>popstate</code>事件，当路由地址发生变化，重新记录当前的路径</li>
+<li>创建<code>router-link</code>和<code>router-view</code>组件</li>
+<li>当路径改变的时候通过当前路径在<code>routerMap</code>对象中找到对应的组件，渲染<code>router-view</code></li>
+</ul>
+</li>
+</ul>
+<p>分析完大概思路，我们就可以创建文件开始编写。</p>
+<h2 id="实现-install-方法">实现 install 方法</h2>
+<p>首先我们需要创建一个<code>vueRouter</code>文件夹，里面创建一个<strong>index.js</strong> 文件，我们在上面分析了一下<code>VueRouter</code>在使用时候有<code>new</code>的操作，所以我们使用<code>ES6</code>中<code>class</code>来实现。具体步骤如下：</p>
+<pre><code class="language-JS">// 设置全局变量
+let _Vue = null
+class VueRouter {
+    static install(Vue) {
+        // 1.判断当前插件是否安装
+        if(VueRouter.install.isInstalled) return;
+        VueRouter.install.isInstalled = true
+        // 2.把vue构造函数记录到全局变量
+        _Vue = Vue
+        // 3.把创建vue实例的时候传入的router对象挂载到vue全局对象上
+        _Vue.mixin[{
+            beforeCreate() {
+              // 判断当前实例上是否有router
+                if(this.$options.router) {
+                    _Vue.prototype.$router = this.$options.router
+                }
+            }
+        }]
+    }
+    constructor(options) {
+        this.options = options;
+        this.routerMap = {}
+    }
+}
+</code></pre>
+<h2 id="constructor-构造函数">constructor 构造函数</h2>
+<p>在<code>constructor</code>构造函数中，首先我们先把传入的<code>options</code>保存，然后初始化<code>routerMap</code>，到时候需要便利传入进来的路由规则，然后以键值对的形式存入到<code>routerMap</code>中，最后，我们需要创建一个响应式的<code>data</code>对象，<code>Vue</code>中提供了 <a href="https://cn.vuejs.org/v2/api/index.html#Vue-observable">observable</a> 方法来帮助我们创建响应式的对象，使用方法也比较简单，在<code>data</code>中我们设置一个变量<code>current</code>来记录当前路由。</p>
+<pre><code class="language-JS">constructor(options) {
+	// 记录构造函数中传入的options属性
+	this.options = options
+	// 初始化routerMap，用于记录路由表
+	this.routerMap = {}
+	// 创建响应式的data对象
+	this.data = _Vue.observable({
+	// 当前路由对象,用于记录当前路由
+		current: '/'
+	})
+}
+</code></pre>
+<h2 id="createroutermap-便利路由规则">createRouterMap 便利路由规则</h2>
+<p>在上一步我们已经在构造函数中初始化了<code>routerMap</code>对象，这里我们需要写个方法去便利路由规则，然后存储到<code>routerMap</code>中。代码如下：</p>
+<pre><code class="language-JS">createRouterMap() {
+	// 便利路由规则，吧路由规则挂载到routerMap上
+	this.$options.router.forEach(item =&gt; {
+		this.routerMap[item.path] = item.component
+	})
+}
+</code></pre>
+<h2 id="创建组件">创建组件</h2>
+<p>在使用<code>vueRouter</code>时，我们会用到<code>router-link</code>组件和<code>router-view</code>组件，这俩功能就不细说了，创建组件也是比较简单的，<code>vue</code>提供了 <a href="https://cn.vuejs.org/v2/api/index.html#Vue-component">Vue.component</a>方法，使用方式如下：</p>
+<pre><code class="language-js">initComponents(Vue) {
+	Vue.component('router-link',{
+		props: {
+			to: String
+		},
+		render(h) {
+			return h('a',{
+				attrs: {
+					href: this.to
+				},
+			},this.$slots.default)
+		},
+	})
+	Vue.component('router-view',{
+		render(h) {
+			// 获取当前路由匹配到的组件
+			const component = self.routerMap[self.data.current]
+			return h(component)
+		}
+	})
+}
+</code></pre>
+<p>创建完成后，我们还需要调用一下，目前初始化函数有两个：便利路由规则方法、创建组件方法，我们可以再写一个<code>init</code>方法，来调用初始化的函数：</p>
+<pre><code class="language-JS">// 初始化方法
+init() {
+	this.createRouterMap()
+	this.initComponents(_Vue)
+}
+</code></pre>
+<ul>
+<li>同时我们需要在<code>constructor</code>构造函数中调用一下：</li>
+</ul>
+<pre><code class="language-JS">constructor(options) {
+    this.options = options
+    this.routerMap = {}
+    this.data = _Vue.observable({
+      current: '/'
+    })
+    // 初始化方法
+    this.init()
+}
+</code></pre>
+<p>接下来我们可以试着在<code>router</code>文件夹中把引入的<code>VueRouter</code>插件改成我们写的插件：</p>
+<pre><code class="language-JS">// router/index.js
+import VueRouter from '../vueRouter'
+</code></pre>
+<p>然后运行项目看是否显示成功。</p>
+<h2 id="实现点击事件">实现点击事件</h2>
+<p>前面我们已经添加了<code>router-link</code>组件，接下来我们需要点击的时候去更改<code>data</code>中的<code>current</code>来记录当前的路径：</p>
+<pre><code class="language-JS">Vue.component('router-link',{
+	props: {
+		to: String
+	},
+	render(h) {
+		return h('router-link',{
+			attrs: {
+				href: this.to
+			},
+			on: {
+				click: this.clickHandler
+			}
+		},this.$slots.default)
+	},
+	methods: {
+		clickHandler(e) {
+			// 改变url中的路径
+			history.pushState({}, '', this.to)
+			// 修改响应式data中的current
+			self.data.current = this.to
+			// 阻止a标签默认事件
+			e.preventDefault()
+		}
+	}
+})
+</code></pre>
+<p>我们还需要添加一个监听事件，如果点击浏览器左侧的前进和后退按钮，我们的页面也应该做出相应的变化：</p>
+<pre><code class="language-JS">initEvent() {
+	window.addEventListener('popstate', () =&gt; {
+		this.data.current = window.location.pathname
+	})
+}
+</code></pre>
+<p>最后在<code>init</code>方法中调用一下即可</p>
+<pre><code class="language-JS">init() {
+	this.createRouterMap()
+	this.initComponents(_Vue)
+	this.initEvent()
+}
+</code></pre>
+<p>这样一个小型的<code>vueRouter</code>基本就完成了，<code>hash</code>模式也比较简单，我们只需要把点击事件方法改变一下即可：</p>
+<pre><code class="language-JS">Vue.component('router-link',{
+	props: {
+		to: String
+	},
+	render(h) {
+		return h('router-link',{
+			attrs: {
+				href: this.to
+			},
+			on: {
+				click: this.clickHandler
+			}
+		},this.$slots.default)
+	},
+	methods: {
+		clickHandler(e) {
+			// 判断模式
+			self.options.mode == 'history' &amp;&amp; history.pushState({}, '', this.to)
+            self.options.mode == 'hash' &amp;&amp; (window.location.hash = `#${this.to}`)
+			self.data.current = this.to
+			e.preventDefault()
+		}
+	}
+})
+</code></pre>
+<p>同时修改一下监听事件</p>
+<pre><code class="language-JS">initEvent() {
+	if(this.options == 'history') {
+		window.addEventListener('popstate', () =&gt; {
+			this.data.current = window.location.pathname
+		})
+	}else{
+		window.addEventListener('hashchange', () =&gt; {
+			this.data.current = window.location.hash.substr(1) ? window.location.hash.substr(1) : '/'
+		})
+	}
+}
+</code></pre>
+<h2 id="结尾">结尾</h2>
+<blockquote>
+<p>这样我们的<code>hash</code>模式和<code>history</code>模式就实现完成了，关于一些细节方面的东西就不进行模拟了，感兴趣的可以尝试实现一下。</p>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[TypeScript基础速览]]></title>
+        <id>https://lonjinup.github.io/typescript-ji-chu-su-lan/</id>
+        <link href="https://lonjinup.github.io/typescript-ji-chu-su-lan/">
+        </link>
+        <updated>2022-07-25T13:14:49.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="typescript">TypeScript</h1>
+<blockquote>
+<p><code>TypeScript</code>解决<code>JavaScript</code>类型系统的问题TS大大提高代码的可靠程度。<code>JavaScript</code>自有类型系统的问题，所以我们可以使用<code>TypeScript</code>来健壮我们的代码。首先我们需要了解<strong>强类型</strong>和<strong>弱类型</strong>语言的区别。</p>
+</blockquote>
+<ul>
+<li>
+<p><strong>强类型</strong>：语言层面限制函数的实参类型和形参类型类型必须一致，可以说强类型不允许随意的隐式转换。</p>
+</li>
+<li>
+<p><strong>弱类型</strong>：若类型语言不会限制实参的类型，允许隐式类型的转换</p>
+</li>
+</ul>
+<h2 id="前置知识">前置知识</h2>
+<h3 id="静态类型与动态类型">静态类型与动态类型</h3>
+<ul>
+<li>
+<p><strong>静态类型</strong>：一个变量声明时它的类型就是明确的，声明过后，他的类型就不允许再修改。</p>
+</li>
+<li>
+<p><strong>动态类型</strong>：在运行阶段才能明确变量类型，变量的类型随时可以改变。也可以说变量是没有类型的，变量中存放的值是有类型的。</p>
+</li>
+</ul>
+<h3 id="javascript类型系统特征">JavaScript类型系统特征</h3>
+<p><code>JavaScript</code>是弱类型且动态语言，<code>JavaScript</code>早期需求很简答；脚本语言, 没有编译环节。</p>
+<p>而强类型的优势在于：</p>
+<p>1、错误更早暴露</p>
+<p>2、代码更智能，编码更准确</p>
+<p>3、重构更牢靠</p>
+<p>4、减少不必要的类型判断</p>
+<h2 id="typescript概述">TypeScript概述</h2>
+<blockquote>
+<p><code>TypeScript</code>是<code>JavaScript</code>的超集，同时<code>TypeScript</code>功能更强大，生态也健全更完善。说了那么多优点，它的缺点是语言本身多了许多概念（接口、泛型等），在项目初期，<code>TS</code>会增加一些成本。</p>
+</blockquote>
+<h2 id="准备工作安装与编译">准备工作(安装与编译)</h2>
+<h3 id="全局安装">全局安装</h3>
+<pre><code class="language-js">    npm install -g typescript //mac下安装前面需要加sudo。也可以在项目中局部安装
+</code></pre>
+<h3 id="编译">编译</h3>
+<ul>
+<li>可以执行下面命令进行编译，会在当前目录下产生一个<code>test.js</code>文件</li>
+</ul>
+<pre><code class="language-js">    tsc test.ts
+</code></pre>
+<p>这样可能还是比较麻烦，我们可以借助插件方便我们提高效率：</p>
+<pre><code class="language-js">    npm install -g ts-node
+</code></pre>
+<p>安装完后只需执行<code>ts-node test.ts</code>就可以在控制台查看输出结果。</p>
+<h2 id="tsconfigjson配置">tsconfig.json配置</h2>
+<h3 id="生成配置文件">生成配置文件</h3>
+<ul>
+<li>我们可以通过<strong>tsc --init</strong>去生成ts配置文件:</li>
+</ul>
+<pre><code class="language-ts">   tsc --init
+</code></pre>
+<h3 id="编译文件">编译文件</h3>
+<ul>
+<li>会生成一个t<code>sconfig.json</code>文件，我们在ts文件中可以随便写点什么：</li>
+</ul>
+<pre><code class="language-ts">    //测试tsconfig.json
+    const test:string='tsconfig.json';
+</code></pre>
+<ul>
+<li>然后打开<code>tsconfig.json</code>文件，找到<code>complilerOptions</code>属性下的<code>removeComments:true</code>（这个配置是编译后不输出注释），取消掉注释，然后执行命令：</li>
+</ul>
+<pre><code class="language-ts">    tsc
+</code></pre>
+<ul>
+<li>这时候打开生成的js文件，发现没有注释，说明成功。</li>
+</ul>
+<h3 id="tsconfigjson配置项">tsconfig.json配置项</h3>
+<p>下面给列一下常用的配置项，更多可以查看 <a href="https://www.tslang.cn/docs/handbook/compiler-options.html">配置查询网站</a></p>
+<h4 id="include-exclude-和-files">include 、exclude 和 files</h4>
+<ul>
+<li>如果有多个ts文件，只想编译一个可以在ts配置项中加入<code>include</code>：</li>
+</ul>
+<pre><code class="language-ts">    &quot;include&quot;:[&quot;text.ts&quot;],
+</code></pre>
+<ul>
+<li>如果想除了某个文件不编译，剩下的都编译，可以使用<code>exclude</code>：</li>
+</ul>
+<pre><code class="language-ts">     &quot;exclude&quot;:[&quot;text.ts&quot;],
+</code></pre>
+<ul>
+<li><code>files</code>和<code>include</code>没有什么区别：</li>
+</ul>
+<pre><code class="language-ts">     &quot;files&quot;:[&quot;text.ts&quot;],
+</code></pre>
+<h4 id="removecomments">removeComments</h4>
+<ul>
+<li>这个配置意思就是编译后不输出注释</li>
+</ul>
+<h4 id="strict">strict</h4>
+<ul>
+<li>这个设置为<strong>true</strong>,就代表严格执行ts语法，要严格按照ts语法来编写。</li>
+</ul>
+<h4 id="noimplicitany">noImplicitAny</h4>
+<ul>
+<li>允许你的注解类型 any 不用特意表明，如果此时设置了<strong>true</strong>,看例子：</li>
+</ul>
+<pre><code class="language-ts">    //这时候编译会报错
+    function test(name) {
+         return name;
+    }
+   
+    //正确
+     function test(name:any) {
+         return name;
+    }
+</code></pre>
+<h4 id="strictnullchecks">strictNullChecks</h4>
+<ul>
+<li>意思就是，不强制检查<strong>null</strong>类型,此时如果配置为<strong>true</strong>看例子:</li>
+</ul>
+<pre><code class="language-ts">    //此时就不会报错
+    const test: string = null;
+</code></pre>
+<h4 id="outdir和rootdir">outDir和rootDir</h4>
+<ul>
+<li>此项配置是来指定文件目录和打包后存放目录，<strong>rootDir</strong>为文件目录，<strong>outDir</strong>为打包后保存的目录</li>
+</ul>
+<pre><code class="language-ts">    {
+        &quot;outDir&quot;: &quot;./build&quot; ,
+        &quot;rootDir&quot;: &quot;./src&quot; ,
+    }
+</code></pre>
+<h4 id="编译es6语法">编译ES6语法</h4>
+<ul>
+<li>可以使用<code>target</code>和<code>allowJs</code>，target默认为<code>true</code></li>
+</ul>
+<pre><code class="language-ts">    &quot;target&quot;:'es5' ,  // 可以转化为目标标准
+    &quot;allowJs&quot;:true,   // 这个配置项的意思是联通
+</code></pre>
+<h4 id="sourcemap">sourceMap</h4>
+<ul>
+<li><code>sourceMap</code>简单说，<code>Source map</code> 就是一个信息文件，里面储存着位置信息。也就是说，转换后的代码的每一个位置，所对应的转换前的位置。调试的时候就可以使用<code>sourceMap</code>文件来调试ts源代码。</li>
+</ul>
+<h4 id="nounusedlocals">noUnusedLocals</h4>
+<ul>
+<li>设置<code>noUnusedLocals</code>为true，编译代码：</li>
+</ul>
+<pre><code class="language-ts">    const name:tring='111';
+    export const age = &quot;text&quot;;
+</code></pre>
+<ul>
+<li>这时候就会报错，因为有<code>name</code>变量没有使用。</li>
+</ul>
+<h2 id="原始数据类型">原始数据类型</h2>
+<pre><code class="language-js">let a:string='lonjin';
+
+let b:number=100; //NaN Infinity
+
+let c:boolean=true;
+
+let g:void=undefined; //空值,常用于表述没有任何返回值的函数
+
+let h:null=null;
+
+let i:undefined=undefined;
+</code></pre>
+<p>在非严格模式（<code>strictNullChecks</code>）下，<code>string</code>, <code>number</code>, <code>boolean</code> 都可以为<code>null</code></p>
+<pre><code class="language-js">let d:string=null;
+let e:number=null;
+let f:boolean=null;
+</code></pre>
+<p>如果想使用<code>Symbol</code>,必须在<code>tsconfig.json</code>中修改<code>lib</code>包含<code>ES2015</code>:</p>
+<pre><code class="language-js">let j:symbol=Symbol();
+</code></pre>
+<p>如果想使用<code>console.log</code>,也需要在<code>tsconfig.json</code>中<code>lib</code>中添加<code>dom</code>选项</p>
+<pre><code class="language-js">//tsconfig.json
+&quot;lib&quot;: [&quot;es2015&quot;,&quot;dom&quot;],
+
+//index.ts
+console.log(111)
+</code></pre>
+<h2 id="typescript作用域问题">TypeScript作用域问题</h2>
+<p>在<code>ts</code>中，默认文件中的成员会作为全局成员，所以多个文件中有相同成员就会出现冲突(尤其在小程序项目中使用<code>ts</code>时)，解决方法如下：</p>
+<ul>
+<li>方法1:创建一个立即执行函数，隔离作用域</li>
+</ul>
+<pre><code class="language-js">(function () {
+  const a = 123
+})()
+</code></pre>
+<ul>
+<li>方法2:在当前文件使用 <code>export</code>，也就是把当前文件变成一个模块。在小程序中，每个<code>page</code>下的<code>index.ts</code>中如果不写<code>export</code>就会报作用域错误。</li>
+</ul>
+<pre><code class="language-js">const a = 123
+export {}
+</code></pre>
+<h2 id="typescript中object类型">TypeScript中Object类型</h2>
+<p><code>ts</code>中的<code>Object</code>类型并不单指对象类型，而是泛指非原始类型，也就是对象、数组、还有函数。</p>
+<pre><code class="language-js">// object 类型是指除了原始类型以外的其它类型,所以可以为函数，数组这种值
+let obj:object=function(){};
+let obj2:object=[1,2,3];
+</code></pre>
+<p>如果需要明确限制对象类型，则应该使用这种类型对象字面量的语法，或者是「接口」</p>
+<pre><code class="language-js">let obj3:{name:string,age:number}={name:'lonjin',age:18}
+</code></pre>
+<h2 id="typescript中数组类型">TypeScript中数组类型</h2>
+<p>数组类型的两种表示方式:</p>
+<pre><code class="language-js">//方式1
+let arr:Array&lt;number&gt;=[1,2,3,4,5];
+//方式2
+let arr2:number[]=[1,2,3,4,5];
+</code></pre>
+<p>如果数组中又有<strong>number</strong>类型又有<strong>string</strong>类型，则可以用<strong>｜</strong>符号来区别定义</p>
+<pre><code class="language-js">let arr:(number|string)[]=['tom',1];
+</code></pre>
+<p>项目中经常遇到数组中有对象的存在，可以使用下面方法去定义：</p>
+<pre><code class="language-js">let arr:{name:string,age:number}[]=[
+    {name:'tom',age:18}
+]
+</code></pre>
+<p>这样写起来会很麻烦，我们可以使用<code>ts</code>中的<strong>类型别名</strong>来解决这个问题(后面会详细讲解)</p>
+<pre><code class="language-js">type PeopleType={name:String,age:Number};
+
+let arr:PeopleType[]=[
+    {name:'lonjin',age:18}
+]
+</code></pre>
+<h2 id="元组类型">元组类型</h2>
+<p>在数组中如果里面又有<strong>string</strong>和<strong>number</strong>,可以使用<strong>｜</strong>来进行定义，但一定程度上并不严格。比如改成下面这种格式：</p>
+<pre><code class="language-ts">    let arr:(number|string)[]=[111,'222',111];
+</code></pre>
+<p><code>ts</code>并没有报错，如果想要严格限制，则可以使用元组来进行约束，元组就是明确元素数量和类型的一个数组</p>
+<pre><code class="language-ts">    let arr:[number,string,number]=[111,'222',111];
+</code></pre>
+<h2 id="enum枚举">Enum枚举</h2>
+<p>平时我们可能需要定义多种状态来表示对应的含义，大多数情况下我们会这么写：</p>
+<pre><code class="language-js">const Status={
+    ONE:0,
+    TWO:1,
+    THREE:2
+}
+
+function getName(status:any){
+    if(status===Status.ONE){
+        return 'one'
+    }else if(status===Status.TWO){
+        return 'two'
+    }else{
+        return 'three'
+    }
+}
+</code></pre>
+<p>这时候枚举就派上用场了：</p>
+<pre><code class="language-js">//默认为数字，从0开始
+enum Status{
+    one,
+    two,
+    three,
+}
+
+console.log(Status.one,Status.two,Status.three)
+//0 1 2
+
+//也可以为字符串
+
+const enum PropStatus{
+    one='a',
+    two='b',
+    three='c'
+}
+
+console.log(PropStatus.one,PropStatus.two,PropStatus.three)
+//a b c
+</code></pre>
+<p>细心的童鞋可以看到我在后面的枚举前面加了<code>const</code>，我们编译一下看看有什么不同：</p>
+<pre><code class="language-js">var Status;
+(function (Status) {
+    Status[Status[&quot;one&quot;] = 0] = &quot;one&quot;;
+    Status[Status[&quot;two&quot;] = 1] = &quot;two&quot;;
+    Status[Status[&quot;three&quot;] = 2] = &quot;three&quot;;
+})(Status || (Status = {}));
+console.log(Status.one, Status.two, Status.three);
+
+console.log(&quot;a&quot; /* one */, &quot;b&quot; /* two */, &quot;c&quot; /* three */);
+</code></pre>
+<ul>
+<li>可以看到，第一个没加<code>const</code>，它编译后会<code>入侵编译结果</code>，而如果使用<code>常量枚举</code>，就不会入侵编译结果。</li>
+</ul>
+<h2 id="typescript函数类型">TypeScript函数类型</h2>
+<p>函数类型比较简单，主要就是参数的约定以及返回值约定：</p>
+<pre><code class="language-js">function fn(num:number,num2:number,...args:number[]):string{
+    return 'fn'
+};
+fn(1,2)
+fn(1,2,3)
+fn(1,2,3,4)
+</code></pre>
+<p>箭头函数：</p>
+<pre><code class="language-js">const fn4=(a:number,b:number):string=&gt;{
+    return 'lonjin'
+}
+</code></pre>
+<p>可选参数和默认参数：</p>
+<pre><code class="language-js">function fn2(a:number,b?:number,c:number=4,...agrs:number[]){
+    console.log(a,b,c,agrs)
+}
+
+fn2(1,2)//1 2 4 []
+fn2(1,2,3)//1 2 3 []
+fn2(1,2,3,4,5)//1 2 3 [ 4, 5 ]
+</code></pre>
+<h2 id="typescript任意类型">TypeScript任意类型</h2>
+<p>很多场景下我们并不需要对类型有明确的约束，这时候就可以使用<code>any</code>，<code>any</code>虽好，可不要过度使用哦！</p>
+<pre><code class="language-js">function fn(val:any){
+    console.log(val)
+}
+//可以传任意类型
+fn(1)
+fn('lonjin')
+fn(true)
+</code></pre>
+<h2 id="typescript隐式类型推断">TypeScript隐式类型推断</h2>
+<p>隐式类型推断很好理解，如果我们在声明一个变量时候没有定义它的类型，<code>ts</code>根据变量后的值进行类型推断：</p>
+<pre><code class="language-js">let n=100;
+//相当于
+let n:number=100;
+</code></pre>
+<p>如果我们在声明时候没有赋值，则会被推断为<code>any</code>：</p>
+<pre><code class="language-js">let n;
+// 相当于 let n:any;可以赋值任意类型数据
+n=100;
+n='lonjin';
+n=true;
+</code></pre>
+<h2 id="typescript类型断言">TypeScript类型断言</h2>
+<p>在实际场景中，我们可能会遇到以下情况：从接口中获取到一个数组，数组中存放的都是都是数字，我们需要取到某个值然后再进行一系列的计算：</p>
+<pre><code class="language-js">//接口中返回的数组
+let arr=[1,2,3,4,5];
+
+let num=arr.find(n=&gt;n&gt;4);
+
+//报错：ts并不确定num是不是一个number let num: number | undefined
+let num2=num+1
+</code></pre>
+<p>这时候我们就可以使用类型断言进行处理，告诉<code>ts</code>这确定是一个数字</p>
+<pre><code class="language-js">let arr=[1,2,3,4,5];
+
+let num =arr.find(n=&gt;n&gt;4);
+
+let num2=num as number
+
+let num3=num2+1
+</code></pre>
+<p>断言除了<code>as</code>，还有另外一种书写方法：</p>
+<pre><code class="language-js">let arr=[1,2,3,4,5];
+
+let num =arr.find(n=&gt;n&gt;4);
+
+let num3=&lt;number&gt;num+1
+</code></pre>
+<h2 id="typescript接口">TypeScript接口</h2>
+<p>接口主要约束对象中的数据类型，基本使用如下：</p>
+<pre><code class="language-js">interface People{
+    name:string,
+    age:number,
+}
+
+const people:People={
+    name:'lonjin',
+    age:18
+}
+</code></pre>
+<p>很多情况下，我们可能确定不了是否会有某个值，这时候我们就需要使用可选参数了：</p>
+<pre><code class="language-js">interface People{
+    name:string,
+    age:number,
+    sex?:boolean,
+}
+
+const people:People={
+    name:'lonjin',
+    age:18,
+}
+</code></pre>
+<p>有时候我们根本不知道这个对象中要放什么，可以理解为动态场景，可以给对象任意添加一些数值：</p>
+<pre><code class="language-js">interface People{
+    name:string,
+    [prop:string]:any
+};
+
+const people:People={
+    name:'lonjin',
+};
+
+people.say=function(){
+    console.log('hello')
+};
+
+people.home='beijing'
+</code></pre>
+<p>如果我们希望某些值设置为只读，可以在接口中加入修饰符<code>readonly</code>:</p>
+<pre><code class="language-js">interface People{
+    name:string,
+    age:number,
+    readonly hasCar:boolean,
+}
+
+const people:People={
+    name:'lonjin',
+    age:18,
+    hasCar:false
+}
+//报错：无法分配到 &quot;hasCar&quot; ，因为它是只读属性。
+people.hasCar=true;
+</code></pre>
+<h2 id="typescript类的基本使用">TypeScript类的基本使用</h2>
+<p>基本使用比较简单，我们直接看代码：</p>
+<pre><code class="language-js">class People{
+class People{
+    name:string;
+    age:number;
+    constructor(name:string,age:number){
+        this.name=name;
+        this.age=age;
+    }
+    say(message:string):void{
+        console.log(`my name is ${this.name},${message}`)
+    }
+}
+
+let tom=new People('tom',18)
+</code></pre>
+<h3 id="类的修饰符">类的修饰符</h3>
+<p>在类中，一共有三个修饰符：</p>
+<ul>
+<li>
+<p><code>pubilc</code>:公有成员,如果没有加修饰符，则默认为<code>pubilc</code>。</p>
+</li>
+<li>
+<p><code>private</code>:只能在成员方法内部访问</p>
+</li>
+<li>
+<p><code>protected</code>:也不能在外部访问，和<code>private</code>的区别就是，<code>protected</code>是只允许在子类中访问成员</p>
+</li>
+</ul>
+<pre><code class="language-ts">class People{
+    public name:string;
+    private age:number;
+    protected sex:boolean;
+    constructor(name:string,age:number){
+        this.name=name;
+        this.age=age;
+        this.sex=true;
+    }
+    say(message:string):void{
+        console.log(`my name is ${this.name},${message}`)
+    }
+}
+
+class Son extends People{
+    constructor(name:string,age:number){
+        super(name,age);
+        console.log(this.sex)//true
+    }
+}
+</code></pre>
+<p>除了上面提到的，还可以设置只读属性<code>readonly</code>。顾名思义，只允许读取，不允许修改。如果前面有修饰符，就跟在修饰符后面：</p>
+<pre><code class="language-ts">    public name:string;
+    private age:number;
+    protected readonly sex:boolean;//只读属性
+    constructor(name:string,age:number){
+        this.name=name;
+        this.age=age;
+        this.sex=true;
+    }
+    say(message:string):void{
+        console.log(`my name is ${this.name},${message}`)
+    }
+}
+</code></pre>
+<h2 id="类与接口">类与接口</h2>
+<ul>
+<li>如果类与类之间有共同特性，可以使用<code>类</code>来进行抽离，举个例子，人会吃东西，也会跑，车只会跑，但不会吃东西，所以我们可以把这些抽离出来：</li>
+</ul>
+<pre><code class="language-js">interface Eat{
+    eat(food:string):void;
+}
+
+interface Run{
+    run(type:string):void;
+}
+
+class People implements Eat,Run{
+    eat(food:string):void{
+        console.log(`eat ${food}`)
+    };
+    run(type:string){
+        console.log(`people ${type}`)
+    }
+}
+
+class Car implements Run{
+    run(type:string):void{
+        console.log(`car is ${type}`)
+    }
+}
+</code></pre>
+<h2 id="抽象类">抽象类</h2>
+<p>抽象类也用来约束子类当中某些成员，与接口不同的是，抽象类可以包含具体的实现,也可以只约束方法，具体例子如下：</p>
+<pre><code class="language-js">//抽象类
+abstract class Eat{
+    eat(food:string):void{
+        console.log(`eat ${food}`)
+    }
+    //约束People中必须有run方法
+    abstract run(type:number):void;
+}
+
+class People extends Eat{
+    run(type: number): void {
+       console.log(`run ${type}`)
+    }
+}
+
+let tom=new People();
+tom.eat('foods');
+tom.run(100)
+</code></pre>
+<h2 id="泛型">泛型</h2>
+<p>泛型就是在定义函数、接口、或者类的时候没有具体定义类型，在使用时候才进行定义：</p>
+<pre><code class="language-ts">//比如我们写一个函数，函数中接收两个值，最终return一个数组回去，我们接收的参数可能是字符串，也可能是数字
+
+function add&lt;T&gt;(n:T,m:T):T[]{
+    let a=[n,m];
+    return a;
+}
+
+let str=add&lt;number&gt;(1,2)
+
+let num=add&lt;string&gt;('one','two')
+</code></pre>
+]]></content>
+    </entry>
+</feed>
