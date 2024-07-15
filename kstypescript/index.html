@@ -1,0 +1,2999 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>快速入门TypeScript | 陇锦</title>
+
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1721035381798">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://lonjinup.github.io/aboutme" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1721035381798" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    快速入门TypeScript
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2021-04-01 ·
+                    </time>
+                    
+                        <a href="https://lonjinup.github.io/TypeScript/" class="post-tags">
+                            # TypeScript
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="typescript基础知识梳理">TypeScript基础知识梳理</h1>
+<blockquote>
+<p>之前一直打算看看ts，但一直沉迷摸🐟无法自拔，公司目前项目中也没有ts项目。今年手上正好有两个小程序项目，于是打算用ts写一下，感受一下ts的“魅力”。顺便整理了一下学习笔记，希望能帮到有需要的人。同时也用<strong>XMind</strong>做了知识图谱，有需要源文件的可以联系我。</p>
+</blockquote>
+<h2 id="安装与编译">安装与编译</h2>
+<h3 id="安装">安装</h3>
+<pre><code class="language-js">    npm install -g typescript //mac下安装前面需要加sudo
+</code></pre>
+<h3 id="编译">编译</h3>
+<ul>
+<li>可以执行下面命令进行编译，会在当前目录下产生一个<code>test.js</code>文件</li>
+</ul>
+<pre><code class="language-js">    tsc test.ts
+</code></pre>
+<ul>
+<li>这样可能还是比较麻烦，我们可以借助插件方便我们提高效率：</li>
+</ul>
+<pre><code class="language-js">    npm install -g ts-node
+</code></pre>
+<ul>
+<li>安装完后只需执行<code>ts-node test.ts</code>就可以在控制台查看输出结果。</li>
+</ul>
+<h2 id="原始数据类型">原始数据类型</h2>
+<ul>
+<li>js中数据类型分两种，原始数据类型和对象类型，原始类型包括：布尔值、数字、字符串、null、undefined以及Symbol。</li>
+</ul>
+<h3 id="布尔值">布尔值</h3>
+<ul>
+<li>在TypeScript中，使用<strong>boolean</strong>定义布尔值类型</li>
+</ul>
+<pre><code class="language-ts">    let isStatus:boolean=true;
+</code></pre>
+<h3 id="数字">数字</h3>
+<ul>
+<li>使用<strong>number</strong>定义数值类型</li>
+</ul>
+<pre><code class="language-ts">    let isNumber:number=1;
+
+    //16进制(编译后显示10进制数字)
+    let isNumber16:number:=0b1010;
+
+</code></pre>
+<h3 id="字符串">字符串</h3>
+<ul>
+<li>使用<strong>string</strong>定义字符串类型：</li>
+</ul>
+<pre><code class="language-ts">    let isString:string='hello word';
+
+    let year:number=2020;
+
+    let add:string=`${isString},${year}!`;
+</code></pre>
+<h3 id="空值">空值</h3>
+<ul>
+<li>JavaScript 没有空值（Void）的概念，在TypeScript中，可以用<strong>void</strong>表示没有任何返回值的函数.</li>
+</ul>
+<pre><code class="language-ts">    function alertName():void{
+
+        alert(&quot;my name is tom&quot;)
+
+    }
+</code></pre>
+<ul>
+<li>声明一个 void 类型的变量没有什么用，因为你只能将它赋值为 undefined 和 null。</li>
+</ul>
+<pre><code class="language-ts">    let unusable: void = undefined;
+</code></pre>
+<h3 id="null-和-undefined">Null 和 Undefined</h3>
+<ul>
+<li>在TypeScript中可以使用<strong>null</strong>和<strong>undefined</strong>来定义这两个原始数据类型</li>
+</ul>
+<pre><code class="language-ts">    let u:undefined=undefined;
+
+    let n:null=null;
+</code></pre>
+<ul>
+<li>与 void 的区别是，undefined 和 null 是所有类型的子类型。也就是说<strong>undefined</strong>类型的变量，可以赋值给<strong>number</strong>类型的变量，而<strong>void</strong>类型的变量不能赋值给<strong>number</strong>类型的变量：</li>
+</ul>
+<pre><code class="language-ts">    let num:number=undefined;//不会报错
+
+    let u:undefined;
+
+    let num: number = u;//也不会报错
+
+    let u:void;
+
+    let num:number=u;// Type 'void' is not assignable to type 'number'.
+
+</code></pre>
+<h2 id="任意值">任意值</h2>
+<ul>
+<li>任意值（Any）用来表示允许赋值为任意类型。</li>
+</ul>
+<h3 id="什么是任意值类型">什么是任意值类型</h3>
+<ul>
+<li>如果是一个普通类型，在赋值过程中改变类型是不被允许的：</li>
+</ul>
+<pre><code class="language-js">    let renyiString:string='string';
+
+    renyiString=8;
+
+    //Type 'number' is not assignable to type 'string'.
+</code></pre>
+<ul>
+<li>但如果类型是<strong>Any</strong>,类型，则允许被赋值为任意类型:</li>
+</ul>
+<pre><code class="language-ts">    let renyiString:any='string';
+
+    renyiString=8;
+</code></pre>
+<ul>
+<li>在任意值上访问任何属性都是允许的：</li>
+</ul>
+<pre><code class="language-ts">    let anyThis:any='hello';
+
+    console.log(anyThis.myName)
+
+    console.log(anyThis.myName.firstName)
+</code></pre>
+<ul>
+<li>也允许调用任何方法：</li>
+</ul>
+<pre><code class="language-ts">    let anyThing: any = 'Tom';
+
+    anyThing.setName('Jerry');
+
+    anyThing.setName('Jerry').sayHello();
+
+    anyThing.myName.setFirstName('Cat');
+</code></pre>
+<ul>
+<li>可以认为，声明一个变量为任意值之后，对它的任何操作，返回的内容的类型都是任意值。</li>
+</ul>
+<h3 id="未声明类型的变量">未声明类型的变量</h3>
+<ul>
+<li>变量如果在声明的时候，未指定其类型，那么它会被识别为任意值类型：</li>
+</ul>
+<pre><code class="language-js">    let something;
+
+    something = 'seven';
+
+    something = 7;
+
+    something.setName('Tom');
+</code></pre>
+<ul>
+<li>等于</li>
+</ul>
+<pre><code class="language-ts">    let something: any;
+
+    something = 'seven';
+
+    something = 7;
+
+    something.setName('Tom');
+</code></pre>
+<h2 id="数组的类型">数组的类型</h2>
+<h3 id="基础表示">基础表示</h3>
+<ul>
+<li>「类型 + 方括号」表示法</li>
+</ul>
+<pre><code class="language-ts">    let numbers:number[]=[1,2,3,4,5]
+</code></pre>
+<ul>
+<li>此时不允许出现其他类型，而且如果使用数组中push等方法，添加元素也得符合相应类型。</li>
+</ul>
+<h3 id="数组泛型">数组泛型</h3>
+<ul>
+<li>我们也可以使用数组泛型（Array Generic） Array&lt;elemType&gt; 来表示数组</li>
+</ul>
+<pre><code class="language-ts">    let fibonacci:Array&lt;number&gt;=[1,2,3,4,]
+</code></pre>
+<ul>
+<li>如果数组中又有<strong>number</strong>类型又有<strong>string</strong>类型，则可以用<strong>｜</strong>符号来区别定义：</li>
+</ul>
+<pre><code class="language-ts">    let arr:(number|string)[]=['tom',1];
+</code></pre>
+<h3 id="数组中对象类型的定义">数组中对象类型的定义</h3>
+<ul>
+<li>项目中经常遇到数组中有对象的存在，对于这种就比较麻烦了，比如：</li>
+</ul>
+<pre><code class="language-ts">let arr:{name:string,age:number}[]=[
+    {name:'tom',age:18}
+]
+</code></pre>
+<ul>
+<li>这样就比较麻烦了，我们可以使用ts中的<strong>类型别名</strong>来解决这个问题：</li>
+</ul>
+<pre><code class="language-ts">    type PeopleType={name:String,age:Number};
+
+    let arr:PeopleType[]=[
+        {name:'bob',age:19}
+    ]
+</code></pre>
+<ul>
+<li>也可以用类型定义也可以解决：</li>
+</ul>
+<pre><code class="language-ts">    class PeopleType{
+        name:string;
+        age:number
+    }
+
+    let arr:PeopleType[]=[
+        {name:'bob',age:19}
+    ]
+</code></pre>
+<h2 id="元组的使用和类型约束">元组的使用和类型约束</h2>
+<ul>
+<li>在数组中如果里面又有<strong>string</strong>和<strong>number</strong>,可以使用<strong>｜</strong>来进行定义，但一定程度上并不严格。比如改成下面这种格式：</li>
+</ul>
+<pre><code class="language-ts">    let arr:(number|string)[]=[111,'222',111];
+</code></pre>
+<ul>
+<li>ts并没有报错，如果想要严格限制，则可以这样进行约束：</li>
+</ul>
+<pre><code class="language-ts">    let arr:[number,string,number]=[111,'222',111];
+</code></pre>
+<h2 id="interface接口">Interface接口</h2>
+<ul>
+<li>比如我们要做一个筛选，吧不符合条件的过滤出去，我们可能会这样写：</li>
+</ul>
+<pre><code class="language-ts">const types=(name:string,age:number,height:number)=&gt;{
+    age&gt;=20 &amp;&amp; height&gt;=180 &amp;&amp; console.log('符合条件');
+
+    age&lt;=20 &amp;&amp; height &lt;180 &amp;&amp;console.log('不符合')
+};
+
+types('tom',20,180) //符合条件
+</code></pre>
+<ul>
+<li>但如果又修改了一些需求，可能还会去大量变更代码，在开发中，代码能复用肯定是最好的，所以可以把一些重复的代码抽离出来：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string;
+        age:number;
+        height:number;
+    }
+
+    const types=(people:People)=&gt;{
+        people.age&gt;=20 &amp;&amp; people.height&gt;=180 &amp;&amp; console.log('符合条件');
+
+        people.age&lt;=20 &amp;&amp; people.height &lt;180 &amp;&amp;console.log('不符合')
+    };
+
+    const choose=(people:People)=&gt;{
+        console.log(people.name+'----'+people.age+'---'+people.height)
+    }
+
+    const people={
+        name:'tom',
+        age:18,
+        height:178
+    }
+
+    types(people);
+
+    choose(people);
+</code></pre>
+<h3 id="接口与类型别名的区别">接口与类型别名的区别</h3>
+<ul>
+<li>看起来两者没有什么区别，但有个小细节：<strong>类型别名可以直接给类型，接口必须代表对象</strong></li>
+</ul>
+<pre><code class="language-ts">    type People=string;
+
+    interface People{
+        name:string;
+        age:number;
+        height:number;
+    }
+</code></pre>
+<ul>
+<li>如果传入的参数中有不确定项，我们可以使用 <strong>?:</strong> 来进行处理：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string;
+        age:number;
+        height:number;
+        say?:string
+    };
+
+    const types=(people:People)=&gt;{
+        people.age&gt;=20 &amp;&amp; people.height&gt;=180 &amp;&amp; console.log('符合条件');
+
+        people.age&lt;=20 &amp;&amp; people.height &lt;180 &amp;&amp;console.log('不符合')
+    };
+
+    const people={
+        name:'tom',
+        age:18,
+        height:178
+    }
+    const people2={
+        name:'tom',
+        age:18,
+        height:178,
+        say:'hello'
+    }
+
+    types(people);
+
+    types(people2);
+</code></pre>
+<ul>
+<li>这时候又有新需求了，如何在后面加入任意多的字段？这时候我们就可以这么写：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string;
+        age:number;
+        height:number;
+        say?:string;
+        [propname:string]:any;
+    }
+
+
+    const types=(people:People)=&gt;{
+        people.age&gt;=20 &amp;&amp; people.height&gt;=180 &amp;&amp; console.log('符合条件');
+
+        people.age&lt;=20 &amp;&amp; people.height &lt;180 &amp;&amp;console.log('不符合')
+    };
+
+    const people={
+        name:'tom',
+        age:18,
+        height:178,
+        say:'hello',
+        add:'new add',
+        addNumber:123
+    }
+
+    types(people);
+</code></pre>
+<h3 id="接口里的方法">接口里的方法</h3>
+<ul>
+<li>接口不仅仅可以存属性，也可以存方法：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string;
+        age:number;
+        height:number;
+        goto():string;
+    }
+
+    const types=(people:People)=&gt;{
+        people.age&gt;=20 &amp;&amp; people.height&gt;=180 &amp;&amp; console.log('符合条件');
+
+        people.age&lt;=20 &amp;&amp; people.height &lt;180 &amp;&amp;console.log('不符合')
+    };
+
+    const people={
+        name:'tom',
+        age:18,
+        height:178,
+        goto(){
+            return 'hello'
+        }
+    }
+
+    types(people)
+</code></pre>
+<h3 id="接口和类的约束">接口和类的约束</h3>
+<ul>
+<li>在ES6中是有类的概念，类可以和接口相结合：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string;
+        age:number;
+        height:number;
+        goto():string;
+    }
+    const types=(people:People)=&gt;{
+        people.age&gt;=20 &amp;&amp; people.height&gt;=180 &amp;&amp; console.log('符合条件');
+
+        people.age&lt;=20 &amp;&amp; people.height &lt;180 &amp;&amp;console.log('不符合')
+    };
+
+    const people={
+        name:'tom',
+        age:18,
+        height:178,
+        say:'hello',
+        add:'new add',
+        addNumber:123,
+        goto(){
+            return 'hello'
+        }
+    };
+
+    class newPeople implements People{
+        name='bob';
+        age=19;
+        height:190;
+        say:'hello';
+        add:'new add2';
+        addNumber:123;
+        goto(){
+            return 'hi'
+        }
+    };
+
+    let a=new newPeople();
+    console.log(a.goto())
+    types(people)
+</code></pre>
+<h3 id="接口的继承">接口的继承</h3>
+<ul>
+<li>接口与接口也是可以继承的：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string;
+        age:number;
+        height:number;
+        say?:string;
+        [propname:string]:any;
+        goto():string;
+    }
+
+
+    const types=(people:newPeople)=&gt;{
+        people.age&gt;=20 &amp;&amp; people.height&gt;=180 &amp;&amp; console.log('符合条件');
+
+        people.age&lt;=20 &amp;&amp; people.height &lt;180 &amp;&amp;console.log('不符合')
+    };
+
+    const people={
+        name:'tom',
+        age:18,
+        height:178,
+        say:'hello',
+        add:'new add',
+        addNumber:123,
+        goto(){
+            return 'hello'
+        },
+        back(){
+            console.log(1)
+        }
+    }
+
+    interface newPeople extends People{
+        back():void
+    }
+    types(people)
+</code></pre>
+<h2 id="类的基本使用">类的基本使用</h2>
+<ul>
+<li>首先，我们先创建一个类：</li>
+</ul>
+<pre><code class="language-ts">    class Test{
+        name='say'
+        say(){
+            return this.name
+        }
+    };
+</code></pre>
+<ul>
+<li>这就是平时所写的类，在ts中的继承和<strong>ES6</strong>的继承是一样的，关键字也是<strong>extends</strong>，比如我们这里新建个类，继承<strong>Text</strong>;</li>
+</ul>
+<pre><code class="language-ts">    class Test{
+        name='say'
+        say(){
+            return this.name
+        }
+    };
+    class NewTest extends Test{
+        back(){
+            return 'hello'
+        }
+    }
+
+    const tom=new NewTest();
+
+    console.log(tom.say());
+    console.log(tom.back());
+</code></pre>
+<h3 id="super关键字的使用">super关键字的使用</h3>
+<ul>
+<li>如果想在<strong>say</strong>方法中后面加点东西，可以这么操作：</li>
+</ul>
+<pre><code class="language-ts">    class Test{
+        name='say'
+        say(){
+            return this.name
+        }
+    };
+
+    class NewTest extends Test{
+        back(){
+            return 'hello'
+        }
+        say(){
+            return super.say()+'----hello'
+        }
+    }
+
+    const tom=new NewTest();
+
+    console.log(tom.say());
+    console.log(tom.back());
+</code></pre>
+<h2 id="ts中类的访问类型">ts中类的访问类型</h2>
+<ul>
+<li>ts中的访问类型就是基于三个关键字：<strong>private</strong>、<strong>protected</strong>以及<strong>pubilc</strong>这三种访问类型。看例子，先定义一个类，然后用这个类的对象，进行赋值：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+         name:string
+    }
+
+    const person=new Person();
+
+    person.name='tom';
+
+    console.log(person.name)
+</code></pre>
+<h3 id="pubilc">pubilc</h3>
+<ul>
+<li>运行可以看到正常的输出内容，这是因为如果不对name的访问属性进行定义，那么他的默认属性就是<strong>pubilc</strong>,从字面意思来看，它的意思就是公用的，允许在类的内部和外部被调用。</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+    public name:string
+    }
+
+    const person=new Person();
+
+    person.name='tom';
+
+    console.log(person.name)
+</code></pre>
+<h3 id="private">private</h3>
+<ul>
+<li>private的属性意思就是只允许在类的内部调用，不能在外部调用</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        private name:string;
+        public say(){
+            console.log(this.name+'-----hello');
+        }
+    }
+
+    const person=new Person();
+
+    person.name='tom';//报错
+
+    console.log(person.name)//报错
+</code></pre>
+<h3 id="protected">protected</h3>
+<ul>
+<li>protected允许在类内以及继承的子类中使用，把刚刚的<strong>name</strong>改成<strong>protected</strong>属性，这时候在外部就会报错，这时候再写一个继承，代码如下：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        protected name:string;
+        public say(){
+            console.log(this.name+'-----hello');
+        }
+
+    }
+
+    const person=new Person();
+
+    person.name='tom';//报错
+
+    console.log(person.name)//报错
+
+
+    class NewPerson extends Person{
+        public back(){
+            console.log(this.name)
+        }
+    }
+
+    const newperson=new NewPerson();
+
+    newperson.back()//正常
+</code></pre>
+<h2 id="类的构造函数">类的构造函数</h2>
+<ul>
+<li>首先新建一个类：<strong>Person</strong>,定义一个name，并在new的时候进行参数传递，然后打印出来，这时候我们就可以使用构造函数<strong>constructor</strong> :</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        pubilc name:string;
+        constructor(name){
+            this.name=name
+        }
+    };
+
+    const person=new Person('tom');
+    console.log(person.name);
+
+</code></pre>
+<ul>
+<li>可以看到可以打印出来，但是上面写法有点麻烦，还可以再进行简化：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(pubilc name:string){}
+    };
+    const person=new Person('tom');
+    console.log(person.name);
+</code></pre>
+<h3 id="类继承中的构造器写法">类继承中的构造器写法</h3>
+<ul>
+<li>普通的书写方法上面已经演示了，在子类中使用构造函数需要用**super()**调用父类的构造函数，直接看代码：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(pubilc name:string){}
+    };
+
+    class Teacher extends Person{
+        constructor(pubilc age:number){
+            super()
+        }
+    };
+
+    const teacher=new Teacher(18);
+    console.log(teacher.age+'---'+teacher.name);
+</code></pre>
+<h2 id="ts中类的getter-setter-static以及readonly">ts中类的Getter、Setter、static以及readonly</h2>
+<ul>
+<li>在上面中提到了访问类型<strong>private</strong>,它的最大用处就是封装一个书写，然后通过<strong>Getter</strong>和<strong>Setter</strong>去访问和修改：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(private _age:number){
+
+        }
+    }
+</code></pre>
+<ul>
+<li>如果想让别人知道，就可以使用<strong>Getter</strong>来实现，他并不是一个方法，只是一个属性：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(private _age:number){
+
+        };
+        get age(){
+            return this._age
+        }
+    };
+
+    const person=new Person(30);
+    console.log(person.age)
+</code></pre>
+<ul>
+<li>这时候你可能会觉得这不是多此一举吗？但在<strong>Getter</strong>中可以对 <strong>_age</strong>进行处理：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(private _age:number){
+
+        };
+        get age(){
+            return this._age-10
+        }
+    };
+
+    const person=new Person(30);
+    console.log(person.age)
+</code></pre>
+<ul>
+<li>既然 <strong>_age</strong>是私有的，我们无法进行改变，这时候就可以用<strong>Setter</strong>进行改变：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(private _age:number){
+
+        };
+        get age(){
+            return this._age
+        }
+        set age(age:number){
+            this._age=age
+        }
+    };
+
+    const person=new Person(30);
+
+    person.age=20;
+
+    console.log(person.age)
+</code></pre>
+<ul>
+<li>在类中，如果想用这个类的实例，就必须先进行<strong>new</strong>操作，但有没有一种方法不需要<strong>new</strong>就可以？</li>
+</ul>
+<pre><code class="language-ts">    //常规方法 
+    class Person{
+        say(){
+            return 'say hello'
+        }
+    };
+
+    const person=new Person();
+    console.log(person.say());
+</code></pre>
+<ul>
+<li>在ts中，我们不想<strong>new</strong>的话可以这么写：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+    static  say(){
+            return 'say hello'
+        }
+    };
+
+    console.log(Person.say())
+</code></pre>
+<ul>
+<li><strong>readonly</strong>在初始化后赋值，以后就不能进行修改</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(readonly name:string){}
+    }
+    let p=new Person('tom');
+
+    p.name='bob'//报错
+
+    console.log(p.name);
+</code></pre>
+<h2 id="类的抽象类">类的抽象类</h2>
+<ul>
+<li>
+<p>abstract 用于定义抽象类和其中的抽象方法。它有几个特点：</p>
+</li>
+<li>
+<p>抽象类是不允许实例化的</p>
+</li>
+</ul>
+<pre><code class="language-ts">    //错误演示
+    abstract class Person {
+        public abstract say()
+    }
+    const tom=new Person()//无法创建抽象类的实例
+</code></pre>
+<ul>
+<li>抽象类中的抽象方法必须被子类实现：</li>
+</ul>
+<pre><code class="language-ts">    //错误演示
+    abstract class Person {
+         abstract say(){
+             console.log('hello')
+         }
+    }
+    class Tom extends Person{
+        say(){
+            console.log('say hello')
+        }
+    };
+    //正确方法
+    abstract class Person {
+         abstract say()
+    }
+    class Tom extends Person{
+        say(){
+            console.log('say hello')
+        }
+    };
+</code></pre>
+<h2 id="tsconfigjson配置">tsconfig.json配置</h2>
+<h3 id="生成">生成</h3>
+<ul>
+<li>我们可以通过<strong>tsc --init</strong>去生成ts配置文件:</li>
+</ul>
+<pre><code class="language-ts">   tsc --init //终端执行
+</code></pre>
+<h3 id="编译-2">编译</h3>
+<ul>
+<li>会生成一个tsconfig.json文件，我们在ts文件中可以随便写点什么：</li>
+</ul>
+<pre><code class="language-ts">    //测试tsconfig.json
+    const test:string='tsconfig.json';
+</code></pre>
+<ul>
+<li>然后打开<strong>tsconfig.json</strong>文件，找到<strong>complilerOptions</strong>属性下的<strong>removeComments:true</strong>（这个配置是编译后不输出注释），取消掉注释，然后执行命令：</li>
+</ul>
+<pre><code class="language-ts">    tsc
+</code></pre>
+<ul>
+<li>这时候打开生成的js文件，发现没有注释，说明成功。</li>
+</ul>
+<h3 id="include-exclude-和-files">include 、exclude 和 files</h3>
+<ul>
+<li>如果有多个ts文件，只想编译一个可以在ts配置项中加入<strong>include</strong>：</li>
+</ul>
+<pre><code class="language-ts">    &quot;include&quot;:[&quot;text.ts&quot;],
+</code></pre>
+<ul>
+<li>如果想除了某个文件不编译，剩下的都编译，可以使用<strong>exclude</strong>：</li>
+</ul>
+<pre><code class="language-ts">     &quot;exclude&quot;:[&quot;text.ts&quot;],
+</code></pre>
+<ul>
+<li><strong>files</strong>和<strong>include</strong>没有什么区别：</li>
+</ul>
+<pre><code class="language-ts">     &quot;files&quot;:[&quot;text.ts&quot;],
+</code></pre>
+<h3 id="compileroptions配置">compilerOptions配置</h3>
+<h4 id="removecomments">removeComments</h4>
+<ul>
+<li>这个配置意思就是编译后不输出注释</li>
+</ul>
+<h4 id="strict">strict</h4>
+<ul>
+<li>这个设置为<strong>true</strong>,就代表严格执行ts语法，要严格按照ts语法来编写。</li>
+</ul>
+<h4 id="noimplicitany">noImplicitAny</h4>
+<ul>
+<li>允许你的注解类型 any 不用特意表明，如果此时设置了<strong>true</strong>,看例子：</li>
+</ul>
+<pre><code class="language-ts">    //这时候编译会报错
+    function test(name) {
+         return name;
+    }
+   
+    //正确
+     function test(name:any) {
+         return name;
+    }
+</code></pre>
+<h4 id="strictnullchecks">strictNullChecks</h4>
+<ul>
+<li>意思就是，不强制检查<strong>null</strong>类型,此时如果配置为<strong>true</strong>看例子:</li>
+</ul>
+<pre><code class="language-ts">    //此时就不会报错
+    const test: string = null;
+</code></pre>
+<h4 id="outdir和rootdir">outDir和rootDir</h4>
+<ul>
+<li>此项配置是来指定文件目录和打包后存放目录，<strong>rootDir</strong>为文件目录，<strong>outDir</strong>为打包后保存的目录</li>
+</ul>
+<pre><code class="language-ts">    {
+        &quot;outDir&quot;: &quot;./build&quot; ,
+        &quot;rootDir&quot;: &quot;./src&quot; ,
+    }
+</code></pre>
+<h4 id="编译es6语法">编译ES6语法</h4>
+<ul>
+<li>可以使用<strong>target</strong>和<strong>allowJs</strong>，target默认为true</li>
+</ul>
+<pre><code class="language-ts">    &quot;target&quot;:'es5' ,  // 这一项默认是开启的，你必须要保证它的开启，才能转换成功
+    &quot;allowJs&quot;:true,   // 这个配置项的意思是联通
+</code></pre>
+<h4 id="sourcemap">sourceMap</h4>
+<ul>
+<li>sourceMap 简单说，Source map 就是一个信息文件，里面储存着位置信息。也就是说，转换后的代码的每一个位置，所对应的转换前的位置。有了它，出错的时候，除错工具将直接显示原始代码，而不是转换后的代码。这无疑给开发者带来了很大方便。</li>
+</ul>
+<h4 id="nounusedlocals">noUnusedLocals</h4>
+<ul>
+<li>设置<strong>noUnusedLocals</strong>为true，编译代码：</li>
+</ul>
+<pre><code class="language-ts">    const name:tring='111';
+    export const age = &quot;text&quot;;
+</code></pre>
+<ul>
+<li>这时候就会报错，因为有<strong>name</strong>变量没有使用。</li>
+</ul>
+<h4 id="更多">更多</h4>
+<ul>
+<li>更多可以查看 <a href="https://www.tslang.cn/docs/handbook/compiler-options.html">配置查询网站</a></li>
+</ul>
+<h2 id="联合类型和类型保护">联合类型和类型保护</h2>
+<h3 id="联合类型">联合类型</h3>
+<ul>
+<li>联合类型的意思就是允许一个类型有两种或者两种以上的类型:</li>
+</ul>
+<pre><code class="language-ts">    interface Test{
+        name:string;
+        say:()=&gt;{
+
+        }
+    }
+
+    interface Test2{
+        name:string;
+        call:()=&gt;{};
+    }
+
+    function Tom(fun: Test | Test2){
+        console.log(fun.name)
+    }
+
+</code></pre>
+<ul>
+<li>如果此时修改一下方法：</li>
+</ul>
+<pre><code class="language-ts">    function Tom(fun: Test | Test2){
+        fun.say()
+    }
+    //报错
+</code></pre>
+<ul>
+<li>这是因为只能访问两个类型的共有方法。</li>
+</ul>
+<h4 id="类型保护-类型断言">类型保护-类型断言</h4>
+<ul>
+<li>上面的方法，如果修改完报错，这时候我们可以用<strong>as</strong>来判断：</li>
+</ul>
+<pre><code class="language-ts">    interface Test {
+        text: boolean;
+        say(): void
+    }
+    
+    interface Test2 {
+        text: boolean;
+        skill():string
+    }
+    function judgeWho(val: Waiter | Teacher) {
+        if (val.text) {
+        (val as Teacher).skill();
+        }else{
+        (val as Waiter).say();
+        }
+    }
+
+    const a={
+        text:true,
+        skill:function():void{
+            console.log(1)
+        },
+        say:function():void{
+            console.log(2)
+        }
+    }
+    judgeWho(a) //1
+</code></pre>
+<h4 id="类型保护-in语法">类型保护-in语法</h4>
+<ul>
+<li><strong>in</strong>方法与断言比较类似，使用方法如下：</li>
+</ul>
+<pre><code class="language-ts">    interface Person{
+        name:string;
+        say:()=&gt;{
+
+        }
+    }
+
+    interface Person2{
+        name:string;
+        todo:()=&gt;{
+
+        }
+    };
+
+    function tom(val:Person|Person2){
+        if('todo' in val){
+            val.todo()
+        }else{
+            val.say()
+        }
+    }
+</code></pre>
+<h4 id="类型保护-typeof语法">类型保护-typeof语法</h4>
+<ul>
+<li>可以用<strong>typeof</strong>方法来判断：</li>
+</ul>
+<pre><code class="language-ts">    function add(name:string|number,name2:string|number){
+        if(typeof name==='string'||typeof name2=='string'){
+            return name+'---'+name2
+        }else{
+            return name+name2
+        }
+    }
+
+    add(1,2)
+</code></pre>
+<h4 id="类型保护-instanecof语法">类型保护-instanecof语法</h4>
+<ul>
+<li>如果要保护类型是一个对象，就可以使用<strong>instanceof</strong>：</li>
+</ul>
+<pre><code class="language-ts">    class NumObject{
+        num:number
+    }
+
+    function numbers(num1:object|NumObject,num2:object|NumObject){
+        if(num1 instanceof NumObject &amp;&amp; num2 instanceof NumObject){
+            return num1.num+num2.num
+        }
+    }
+</code></pre>
+<h2 id="enum枚举类型">Enum枚举类型</h2>
+<ul>
+<li>我们平时会有这种写法：</li>
+</ul>
+<pre><code class="language-ts">    function getName(status:any){
+        if(status===0){
+            return 'one'
+        }else if(status===1){
+            return 'two'
+        }else{
+            return 'three'
+        }
+    }
+
+    console.log(getName(0))
+</code></pre>
+<ul>
+<li>这么写可能有点麻烦，阅读起来还是有点麻烦，这时候可以这么写：</li>
+</ul>
+<pre><code class="language-ts">    const Status={
+        ONE:0,
+        TWO:1,
+        THREE:3
+    }
+
+    function getName(status:any){
+        if(status===Status.ONE){
+            return 'one'
+        }else if(status===Status.TWO){
+            return 'two'
+        }else{
+            return 'three'
+        }
+    }
+
+    console.log(getName(0));
+</code></pre>
+<ul>
+<li>这时候我们的枚举就要上场了：</li>
+</ul>
+<pre><code class="language-ts">    enum Status{
+        ONE,
+        TWO,
+        THREE
+    }
+
+    function getName(status:any){
+        if(status===Status.ONE){
+            return 'one'
+        }else if(status===Status.TWO){
+            return 'two'
+        }else{
+            return 'three'
+        }
+    }
+
+    console.log(getName(1));
+</code></pre>
+<ul>
+<li>一样也可以输出，因为枚举是有对应数字值的，默认从0开始，当然也可以改变：</li>
+</ul>
+<pre><code class="language-ts">    enum Status{
+        ONE=1,
+        TWO,//2
+        THREE//3
+    }
+</code></pre>
+<ul>
+<li>也可以进行返查操作：</li>
+</ul>
+<pre><code class="language-ts">    enum Status{
+        ONE,
+        TWO,
+        THREE
+    }
+
+    function getName(status:any){
+        if(status===Status.ONE){
+            return 'one'
+        }else if(status===Status.TWO){
+            return 'two'
+        }else{
+            return 'three'
+        }
+    }
+
+    console.log(Status.ONE,Status[1]);
+</code></pre>
+<h2 id="泛型">泛型</h2>
+<ul>
+<li>泛型（Generics）是指在定义函数、接口或类的时候，不预先指定具体的类型，而在使用的时候再指定类型的一种特性。</li>
+</ul>
+<h3 id="在函数中使用">在函数中使用</h3>
+<ul>
+<li>我们先编写一个函数：</li>
+</ul>
+<pre><code class="language-ts">    function add(one:string,two:string){
+        return `${one}${two}`
+    }
+
+    console.log(add('a','b'))
+</code></pre>
+<ul>
+<li>这时候我们希望参数更加灵活一些，两个参数为number或者string：</li>
+</ul>
+<pre><code class="language-ts">    function add(one:string|number,two:string|number){
+        return `${one}${two}`
+    }
+
+    console.log(add('a','b'))
+</code></pre>
+<ul>
+<li>这么书写有些麻烦，这时候就可以使用泛型：</li>
+</ul>
+<pre><code class="language-js">    function add&lt;T&gt;(one:T,two:T){
+        return `${one}${two}`
+    }
+
+    console.log(add&lt;string&gt;('a','b'))
+</code></pre>
+<ul>
+<li>在使用中，泛型通常用 <strong>&lt;T&gt;</strong> 来进行表示。泛型可以有多个吗？当然可以：</li>
+</ul>
+<pre><code class="language-js">   function add&lt;T,P&gt;(one:T,two:P){
+        return `${one}${two}`
+    }
+
+    console.log(add&lt;string,number&gt;('a',2))
+</code></pre>
+<ul>
+<li>同时泛型也支持类型推断：</li>
+</ul>
+<pre><code class="language-ts">    function add&lt;T,P&gt;(one:T,two:P){
+        return `${one}${two}`
+    }
+
+    console.log(add&lt;string,number&gt;('a',2))
+</code></pre>
+<h3 id="在类中使用">在类中使用</h3>
+<ul>
+<li>首先先写一个类,且接受参数为一个数组，数组里面存放string类型的数据：</li>
+</ul>
+<pre><code class="language-ts">    class List {
+        constructor(private list:string[]) {};
+        getItem(index:number):string{
+            return this.list[index]
+        }
+    };
+
+    const list=new List(['girl','boy','wom']);
+    console.log(list.getItem(1))
+</code></pre>
+<ul>
+<li>这时候如果我们传递数组时候里面又想放数字怎么办：</li>
+</ul>
+<pre><code class="language-ts">    class List {
+        constructor(private list:string[]|number[]) {};
+        getItem(index:number):string|number{
+            return this.list[index]
+        }
+    };
+
+    const list=new List(['girl','boy','wom']);
+    console.log(list.getItem(1))
+</code></pre>
+<ul>
+<li>这么写就比较复杂了,这时候就可以使用泛型来简化我们的代码：</li>
+</ul>
+<pre><code class="language-ts">    class List&lt;T&gt;{
+        constructor(private list:T[]) {};
+        getItem(index:number):T{
+            return this.list[index]
+        }
+    };
+
+    const list=new List(['girl','boy','wom']);
+    console.log(list.getItem(1))
+</code></pre>
+<ul>
+<li>发现上面的代码没有报错？因为类型推论，所以不会报错，严格意义上应该new的时候加上类型：</li>
+</ul>
+<pre><code class="language-ts">    const list=new List&lt;string&gt;(['girl','boy','wom']);
+</code></pre>
+<ul>
+<li>还有一种场景，传递过来是一个数组对象，这时候可以通过继承来解决：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string
+    }
+
+    class List&lt;T extends People&gt;{
+        constructor(private list:T[]) {};
+        getItem(index:number):string{
+            return this.list[index].name
+        }
+    };
+
+    const list=new List(
+        [
+            {name:'boy'},
+            {name:'girl'}
+        ]
+    );
+    console.log(list.getItem(1))
+</code></pre>
+<h3 id="泛型约束">泛型约束</h3>
+<ul>
+<li>上面例子中，泛型可以为任意值，但有时候我们希望还是能稍微约束一下：</li>
+</ul>
+<pre><code class="language-ts">    function list&lt;T extends number|string&gt;(name:T){
+        return `${name}`
+    }
+
+    console.log(list&lt;number&gt;(1))
+</code></pre>
+<pre><code class="language-ts">    class  List&lt;T extends number|string&gt; {
+        constructor(private list:T[]) {
+            
+        };
+        getItem(index:number):T{
+            return this.list[index]
+        }
+    }
+
+    const list=new List([1,2])
+
+    console.log(list.getItem(0))
+</code></pre>
+<h2 id="namespace命名空间">Namespace命名空间</h2>
+<h3 id="新建一个ts项目">新建一个ts项目</h3>
+<ul>
+<li>
+<p>首先，我们建立一个项目文件，然后<strong>npm init -y</strong>生成<strong>package.json</strong>文件，然后再<strong>tsc -init</strong>生成ts配置文件。</p>
+</li>
+<li>
+<p>在根目录下新建<strong>index.html</strong>文件，再建立一个<strong>src</strong>和<strong>bulid</strong>目录，在<strong>src</strong>目录下新建一个<strong>index.js</strong>。</p>
+</li>
+<li>
+<p>配置<strong>tsconfig.json</strong>文件，设置入口和输出目录（outDir和rootDir）。</p>
+</li>
+<li>
+<p>打开<strong>index.html</strong>,引入js文件：</p>
+</li>
+</ul>
+<pre><code class="language-html">    &lt;script src=&quot;./build/index.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<ul>
+<li>在新建的ts文件中随便写点什么：</li>
+</ul>
+<pre><code class="language-js">    console.log('hello');
+</code></pre>
+<ul>
+<li>然后<strong>tsc</strong>编译一下，打开控制台，我们就可以看到了</li>
+</ul>
+<h3 id="编写一个小组件">编写一个小组件</h3>
+<ul>
+<li>在我们刚刚建立的<strong>index.ts</strong>文件，写一个<strong>header</strong>、<strong>content</strong>和<strong>footer</strong>组件：</li>
+</ul>
+<pre><code class="language-ts">    class Header {
+        constructor() {
+            const elem = document.createElement(&quot;div&quot;);
+            elem.innerText = &quot;This is Header&quot;;
+            document.body.appendChild(elem);
+        }
+    }
+
+    class Content {
+        constructor() {
+            const elem = document.createElement(&quot;div&quot;);
+            elem.innerText = &quot;This is Content&quot;;
+            document.body.appendChild(elem);
+        }
+    }
+
+    class Footer {
+        constructor() {
+            const elem = document.createElement(&quot;div&quot;);
+            elem.innerText = &quot;This is Footer&quot;;
+            document.body.appendChild(elem);
+        }
+    }
+
+    class Page {
+        constructor() {
+            new Header();
+            new Content();
+            new Footer();
+        }
+    }
+</code></pre>
+<ul>
+<li>然后在<strong>index.html</strong>中加一行js代码：</li>
+</ul>
+<pre><code class="language-ts">    &lt;script&gt;new Page();&lt;/script&gt;
+</code></pre>
+<ul>
+<li>这时候我们可以看到内容正常输出，但有一个问题，我们的<strong>Header</strong>、<strong>content</strong>和<strong>footer</strong>都暴露了出来，并不是只暴露一个<strong>page</strong>，这时候我们的命名空间就派上了用场：</li>
+</ul>
+<h3 id="命名空间">命名空间</h3>
+<ul>
+<li>命名空间声明的关键词是namespace 比如声明一个namespace Home,需要暴露出去的类，可以使用export关键词，这样只有暴漏出去的类是全局的，其他的不会再生成全局污染了。</li>
+</ul>
+<pre><code class="language-ts">    namespace Home {
+    class Header {
+        constructor() {
+            const elem = document.createElement(&quot;div&quot;);
+            elem.innerText = &quot;This is Header&quot;;
+            document.body.appendChild(elem);
+        }
+    }
+
+    class Content {
+        constructor() {
+            const elem = document.createElement(&quot;div&quot;);
+            elem.innerText = &quot;This is Content&quot;;
+            document.body.appendChild(elem);
+        }
+    }
+
+    class Footer {
+        constructor() {
+            const elem = document.createElement(&quot;div&quot;);
+            elem.innerText = &quot;This is Footer&quot;;
+            document.body.appendChild(elem);
+        }
+    }
+
+    export class Page {
+        constructor() {
+            new Header();
+            new Content();
+            new Footer();
+            }
+        }
+    }
+</code></pre>
+<ul>
+<li>这么写也是比较麻烦，因为我们需要引入两个文件，我们可以通过配置来让他成为一个文件，打开<strong>tsconfig.json</strong>,找到这一行：</li>
+</ul>
+<pre><code class="language-json">    &quot;module&quot;:&quot;commonjs&quot;
+    //修改为：
+     &quot;module&quot;:&quot;amd
+</code></pre>
+<ul>
+<li>然后找到这一行：</li>
+</ul>
+<pre><code class="language-json">    {
+      &quot;outFile&quot;: &quot;./build/index.js&quot;
+    }
+</code></pre>
+<h4 id="子命名空间">子命名空间</h4>
+<ul>
+<li>如果在刚刚的组件中再写一个会怎么样？</li>
+</ul>
+<pre><code class="language-ts">    namespace Components {
+        export namespace SubComponents {
+            export class Test {}
+        }
+
+        //someting ...
+    }
+
+    //读取
+    // Components.SubComponents.Test
+</code></pre>
+<h2 id="ts中使用import">ts中使用import</h2>
+<ul>
+<li>首先建立一个文件<strong>compontent.ts</strong>,随便写点东西，然后使用<strong>export</strong>导出：</li>
+</ul>
+<pre><code class="language-ts">    export class Header {
+        constructor() {
+        const elem = document.createElement(&quot;div&quot;);
+        elem.innerText = &quot;This is Header&quot;;
+        document.body.appendChild(elem);
+        }
+    }
+
+    export class Content {
+        constructor() {
+        const elem = document.createElement(&quot;div&quot;);
+        elem.innerText = &quot;This is Content&quot;;
+        document.body.appendChild(elem);
+        }
+    }
+
+    export class Footer {
+        constructor() {
+        const elem = document.createElement(&quot;div&quot;);
+        elem.innerText = &quot;This is Footer&quot;;
+        document.body.appendChild(elem);
+        }
+    }
+</code></pre>
+<ul>
+<li>然后在<strong>index.ts</strong>中导入一下：</li>
+</ul>
+<pre><code class="language-ts">    import { Header, Content, Footer } from &quot;./compontent&quot;;
+
+    export class Page{
+        constructor(){
+            new Header();
+            new Content();
+            new Footer();
+        }
+    }
+</code></pre>
+<ul>
+<li>运行<strong>tsc</strong>编译，打开<strong>build</strong>中的<strong>index.js</strong>,可以看到代码是<strong>define</strong>开头的，这是 <strong>amd</strong> 规范的代码，不能直接在浏览器中运行，可以在 <strong>Node</strong> 中直接运行，所以我们还需要借助<strong>require.js</strong>的支持：</li>
+</ul>
+<pre><code class="language-ts">    &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<ul>
+<li>然后在<strong>index.html</strong>中使用<strong>require.js</strong>写法：</li>
+</ul>
+<pre><code class="language-html">    &lt;script&gt;
+       require([&quot;page&quot;], function (page) {
+          new page.default();
+        });
+    &lt;/script&gt;
+```# TypeScript基础知识梳理
+
+&gt; 之前一直打算看看ts，但一直沉迷摸🐟无法自拔，公司目前项目中也没有ts项目。今年手上正好有两个小程序项目，于是打算用ts写一下，感受一下ts的“魅力”。顺便整理了一下学习笔记，希望能帮到有需要的人。同时也用**XMind**做了知识图谱，有需要源文件的可以联系我。
+
+## 安装与编译
+
+### 安装
+
+```js
+    npm install -g typescript //mac下安装前面需要加sudo
+</code></pre>
+<h3 id="编译-3">编译</h3>
+<ul>
+<li>可以执行下面命令进行编译，会在当前目录下产生一个<code>test.js</code>文件</li>
+</ul>
+<pre><code class="language-js">    tsc test.ts
+</code></pre>
+<ul>
+<li>这样可能还是比较麻烦，我们可以借助插件方便我们提高效率：</li>
+</ul>
+<pre><code class="language-js">    npm install -g ts-node
+</code></pre>
+<ul>
+<li>安装完后只需执行<code>ts-node test.ts</code>就可以在控制台查看输出结果。</li>
+</ul>
+<h2 id="原始数据类型-2">原始数据类型</h2>
+<ul>
+<li>js中数据类型分两种，原始数据类型和对象类型，原始类型包括：布尔值、数字、字符串、null、undefined以及Symbol。</li>
+</ul>
+<h3 id="布尔值-2">布尔值</h3>
+<ul>
+<li>在TypeScript中，使用<strong>boolean</strong>定义布尔值类型</li>
+</ul>
+<pre><code class="language-ts">    let isStatus:boolean=true;
+</code></pre>
+<h3 id="数字-2">数字</h3>
+<ul>
+<li>使用<strong>number</strong>定义数值类型</li>
+</ul>
+<pre><code class="language-ts">    let isNumber:number=1;
+
+    //16进制(编译后显示10进制数字)
+    let isNumber16:number:=0b1010;
+
+</code></pre>
+<h3 id="字符串-2">字符串</h3>
+<ul>
+<li>使用<strong>string</strong>定义字符串类型：</li>
+</ul>
+<pre><code class="language-ts">    let isString:string='hello word';
+
+    let year:number=2020;
+
+    let add:string=`${isString},${year}!`;
+</code></pre>
+<h3 id="空值-2">空值</h3>
+<ul>
+<li>JavaScript 没有空值（Void）的概念，在TypeScript中，可以用<strong>void</strong>表示没有任何返回值的函数.</li>
+</ul>
+<pre><code class="language-ts">    function alertName():void{
+
+        alert(&quot;my name is tom&quot;)
+
+    }
+</code></pre>
+<ul>
+<li>声明一个 void 类型的变量没有什么用，因为你只能将它赋值为 undefined 和 null。</li>
+</ul>
+<pre><code class="language-ts">    let unusable: void = undefined;
+</code></pre>
+<h3 id="null-和-undefined-2">Null 和 Undefined</h3>
+<ul>
+<li>在TypeScript中可以使用<strong>null</strong>和<strong>undefined</strong>来定义这两个原始数据类型</li>
+</ul>
+<pre><code class="language-ts">    let u:undefined=undefined;
+
+    let n:null=null;
+</code></pre>
+<ul>
+<li>与 void 的区别是，undefined 和 null 是所有类型的子类型。也就是说<strong>undefined</strong>类型的变量，可以赋值给<strong>number</strong>类型的变量，而<strong>void</strong>类型的变量不能赋值给<strong>number</strong>类型的变量：</li>
+</ul>
+<pre><code class="language-ts">    let num:number=undefined;//不会报错
+
+    let u:undefined;
+
+    let num: number = u;//也不会报错
+
+    let u:void;
+
+    let num:number=u;// Type 'void' is not assignable to type 'number'.
+
+</code></pre>
+<h2 id="任意值-2">任意值</h2>
+<ul>
+<li>任意值（Any）用来表示允许赋值为任意类型。</li>
+</ul>
+<h3 id="什么是任意值类型-2">什么是任意值类型</h3>
+<ul>
+<li>如果是一个普通类型，在赋值过程中改变类型是不被允许的：</li>
+</ul>
+<pre><code class="language-js">    let renyiString:string='string';
+
+    renyiString=8;
+
+    //Type 'number' is not assignable to type 'string'.
+</code></pre>
+<ul>
+<li>但如果类型是<strong>Any</strong>,类型，则允许被赋值为任意类型:</li>
+</ul>
+<pre><code class="language-ts">    let renyiString:any='string';
+
+    renyiString=8;
+</code></pre>
+<ul>
+<li>在任意值上访问任何属性都是允许的：</li>
+</ul>
+<pre><code class="language-ts">    let anyThis:any='hello';
+
+    console.log(anyThis.myName)
+
+    console.log(anyThis.myName.firstName)
+</code></pre>
+<ul>
+<li>也允许调用任何方法：</li>
+</ul>
+<pre><code class="language-ts">    let anyThing: any = 'Tom';
+
+    anyThing.setName('Jerry');
+
+    anyThing.setName('Jerry').sayHello();
+
+    anyThing.myName.setFirstName('Cat');
+</code></pre>
+<ul>
+<li>可以认为，声明一个变量为任意值之后，对它的任何操作，返回的内容的类型都是任意值。</li>
+</ul>
+<h3 id="未声明类型的变量-2">未声明类型的变量</h3>
+<ul>
+<li>变量如果在声明的时候，未指定其类型，那么它会被识别为任意值类型：</li>
+</ul>
+<pre><code class="language-js">    let something;
+
+    something = 'seven';
+
+    something = 7;
+
+    something.setName('Tom');
+</code></pre>
+<ul>
+<li>等于</li>
+</ul>
+<pre><code class="language-ts">    let something: any;
+
+    something = 'seven';
+
+    something = 7;
+
+    something.setName('Tom');
+</code></pre>
+<h2 id="数组的类型-2">数组的类型</h2>
+<h3 id="基础表示-2">基础表示</h3>
+<ul>
+<li>「类型 + 方括号」表示法</li>
+</ul>
+<pre><code class="language-ts">    let numbers:number[]=[1,2,3,4,5]
+</code></pre>
+<ul>
+<li>此时不允许出现其他类型，而且如果使用数组中push等方法，添加元素也得符合相应类型。</li>
+</ul>
+<h3 id="数组泛型-2">数组泛型</h3>
+<ul>
+<li>我们也可以使用数组泛型（Array Generic） Array&lt;elemType&gt; 来表示数组</li>
+</ul>
+<pre><code class="language-ts">    let fibonacci:Array&lt;number&gt;=[1,2,3,4,]
+</code></pre>
+<ul>
+<li>如果数组中又有<strong>number</strong>类型又有<strong>string</strong>类型，则可以用<strong>｜</strong>符号来区别定义：</li>
+</ul>
+<pre><code class="language-ts">    let arr:(number|string)[]=['tom',1];
+</code></pre>
+<h3 id="数组中对象类型的定义-2">数组中对象类型的定义</h3>
+<ul>
+<li>项目中经常遇到数组中有对象的存在，对于这种就比较麻烦了，比如：</li>
+</ul>
+<pre><code class="language-ts">let arr:{name:string,age:number}[]=[
+    {name:'tom',age:18}
+]
+</code></pre>
+<ul>
+<li>这样就比较麻烦了，我们可以使用ts中的<strong>类型别名</strong>来解决这个问题：</li>
+</ul>
+<pre><code class="language-ts">    type PeopleType={name:String,age:Number};
+
+    let arr:PeopleType[]=[
+        {name:'bob',age:19}
+    ]
+</code></pre>
+<ul>
+<li>也可以用类型定义也可以解决：</li>
+</ul>
+<pre><code class="language-ts">    class PeopleType{
+        name:string;
+        age:number
+    }
+
+    let arr:PeopleType[]=[
+        {name:'bob',age:19}
+    ]
+</code></pre>
+<h2 id="元组的使用和类型约束-2">元组的使用和类型约束</h2>
+<ul>
+<li>在数组中如果里面又有<strong>string</strong>和<strong>number</strong>,可以使用<strong>｜</strong>来进行定义，但一定程度上并不严格。比如改成下面这种格式：</li>
+</ul>
+<pre><code class="language-ts">    let arr:(number|string)[]=[111,'222',111];
+</code></pre>
+<ul>
+<li>ts并没有报错，如果想要严格限制，则可以这样进行约束：</li>
+</ul>
+<pre><code class="language-ts">    let arr:[number,string,number]=[111,'222',111];
+</code></pre>
+<h2 id="interface接口-2">Interface接口</h2>
+<ul>
+<li>比如我们要做一个筛选，吧不符合条件的过滤出去，我们可能会这样写：</li>
+</ul>
+<pre><code class="language-ts">const types=(name:string,age:number,height:number)=&gt;{
+    age&gt;=20 &amp;&amp; height&gt;=180 &amp;&amp; console.log('符合条件');
+
+    age&lt;=20 &amp;&amp; height &lt;180 &amp;&amp;console.log('不符合')
+};
+
+types('tom',20,180) //符合条件
+</code></pre>
+<ul>
+<li>但如果又修改了一些需求，可能还会去大量变更代码，在开发中，代码能复用肯定是最好的，所以可以把一些重复的代码抽离出来：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string;
+        age:number;
+        height:number;
+    }
+
+    const types=(people:People)=&gt;{
+        people.age&gt;=20 &amp;&amp; people.height&gt;=180 &amp;&amp; console.log('符合条件');
+
+        people.age&lt;=20 &amp;&amp; people.height &lt;180 &amp;&amp;console.log('不符合')
+    };
+
+    const choose=(people:People)=&gt;{
+        console.log(people.name+'----'+people.age+'---'+people.height)
+    }
+
+    const people={
+        name:'tom',
+        age:18,
+        height:178
+    }
+
+    types(people);
+
+    choose(people);
+</code></pre>
+<h3 id="接口与类型别名的区别-2">接口与类型别名的区别</h3>
+<ul>
+<li>看起来两者没有什么区别，但有个小细节：<strong>类型别名可以直接给类型，接口必须代表对象</strong></li>
+</ul>
+<pre><code class="language-ts">    type People=string;
+
+    interface People{
+        name:string;
+        age:number;
+        height:number;
+    }
+</code></pre>
+<ul>
+<li>如果传入的参数中有不确定项，我们可以使用 <strong>?:</strong> 来进行处理：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string;
+        age:number;
+        height:number;
+        say?:string
+    };
+
+    const types=(people:People)=&gt;{
+        people.age&gt;=20 &amp;&amp; people.height&gt;=180 &amp;&amp; console.log('符合条件');
+
+        people.age&lt;=20 &amp;&amp; people.height &lt;180 &amp;&amp;console.log('不符合')
+    };
+
+    const people={
+        name:'tom',
+        age:18,
+        height:178
+    }
+    const people2={
+        name:'tom',
+        age:18,
+        height:178,
+        say:'hello'
+    }
+
+    types(people);
+
+    types(people2);
+</code></pre>
+<ul>
+<li>这时候又有新需求了，如何在后面加入任意多的字段？这时候我们就可以这么写：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string;
+        age:number;
+        height:number;
+        say?:string;
+        [propname:string]:any;
+    }
+
+
+    const types=(people:People)=&gt;{
+        people.age&gt;=20 &amp;&amp; people.height&gt;=180 &amp;&amp; console.log('符合条件');
+
+        people.age&lt;=20 &amp;&amp; people.height &lt;180 &amp;&amp;console.log('不符合')
+    };
+
+    const people={
+        name:'tom',
+        age:18,
+        height:178,
+        say:'hello',
+        add:'new add',
+        addNumber:123
+    }
+
+    types(people);
+</code></pre>
+<h3 id="接口里的方法-2">接口里的方法</h3>
+<ul>
+<li>接口不仅仅可以存属性，也可以存方法：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string;
+        age:number;
+        height:number;
+        goto():string;
+    }
+
+    const types=(people:People)=&gt;{
+        people.age&gt;=20 &amp;&amp; people.height&gt;=180 &amp;&amp; console.log('符合条件');
+
+        people.age&lt;=20 &amp;&amp; people.height &lt;180 &amp;&amp;console.log('不符合')
+    };
+
+    const people={
+        name:'tom',
+        age:18,
+        height:178,
+        goto(){
+            return 'hello'
+        }
+    }
+
+    types(people)
+</code></pre>
+<h3 id="接口和类的约束-2">接口和类的约束</h3>
+<ul>
+<li>在ES6中是有类的概念，类可以和接口相结合：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string;
+        age:number;
+        height:number;
+        goto():string;
+    }
+    const types=(people:People)=&gt;{
+        people.age&gt;=20 &amp;&amp; people.height&gt;=180 &amp;&amp; console.log('符合条件');
+
+        people.age&lt;=20 &amp;&amp; people.height &lt;180 &amp;&amp;console.log('不符合')
+    };
+
+    const people={
+        name:'tom',
+        age:18,
+        height:178,
+        say:'hello',
+        add:'new add',
+        addNumber:123,
+        goto(){
+            return 'hello'
+        }
+    };
+
+    class newPeople implements People{
+        name='bob';
+        age=19;
+        height:190;
+        say:'hello';
+        add:'new add2';
+        addNumber:123;
+        goto(){
+            return 'hi'
+        }
+    };
+
+    let a=new newPeople();
+    console.log(a.goto())
+    types(people)
+</code></pre>
+<h3 id="接口的继承-2">接口的继承</h3>
+<ul>
+<li>接口与接口也是可以继承的：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string;
+        age:number;
+        height:number;
+        say?:string;
+        [propname:string]:any;
+        goto():string;
+    }
+
+
+    const types=(people:newPeople)=&gt;{
+        people.age&gt;=20 &amp;&amp; people.height&gt;=180 &amp;&amp; console.log('符合条件');
+
+        people.age&lt;=20 &amp;&amp; people.height &lt;180 &amp;&amp;console.log('不符合')
+    };
+
+    const people={
+        name:'tom',
+        age:18,
+        height:178,
+        say:'hello',
+        add:'new add',
+        addNumber:123,
+        goto(){
+            return 'hello'
+        },
+        back(){
+            console.log(1)
+        }
+    }
+
+    interface newPeople extends People{
+        back():void
+    }
+    types(people)
+</code></pre>
+<h2 id="类的基本使用-2">类的基本使用</h2>
+<ul>
+<li>首先，我们先创建一个类：</li>
+</ul>
+<pre><code class="language-ts">    class Test{
+        name='say'
+        say(){
+            return this.name
+        }
+    };
+</code></pre>
+<ul>
+<li>这就是平时所写的类，在ts中的继承和<strong>ES6</strong>的继承是一样的，关键字也是<strong>extends</strong>，比如我们这里新建个类，继承<strong>Text</strong>;</li>
+</ul>
+<pre><code class="language-ts">    class Test{
+        name='say'
+        say(){
+            return this.name
+        }
+    };
+    class NewTest extends Test{
+        back(){
+            return 'hello'
+        }
+    }
+
+    const tom=new NewTest();
+
+    console.log(tom.say());
+    console.log(tom.back());
+</code></pre>
+<h3 id="super关键字的使用-2">super关键字的使用</h3>
+<ul>
+<li>如果想在<strong>say</strong>方法中后面加点东西，可以这么操作：</li>
+</ul>
+<pre><code class="language-ts">    class Test{
+        name='say'
+        say(){
+            return this.name
+        }
+    };
+
+    class NewTest extends Test{
+        back(){
+            return 'hello'
+        }
+        say(){
+            return super.say()+'----hello'
+        }
+    }
+
+    const tom=new NewTest();
+
+    console.log(tom.say());
+    console.log(tom.back());
+</code></pre>
+<h2 id="ts中类的访问类型-2">ts中类的访问类型</h2>
+<ul>
+<li>ts中的访问类型就是基于三个关键字：<strong>private</strong>、<strong>protected</strong>以及<strong>pubilc</strong>这三种访问类型。看例子，先定义一个类，然后用这个类的对象，进行赋值：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+         name:string
+    }
+
+    const person=new Person();
+
+    person.name='tom';
+
+    console.log(person.name)
+</code></pre>
+<h3 id="pubilc-2">pubilc</h3>
+<ul>
+<li>运行可以看到正常的输出内容，这是因为如果不对name的访问属性进行定义，那么他的默认属性就是<strong>pubilc</strong>,从字面意思来看，它的意思就是公用的，允许在类的内部和外部被调用。</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+    public name:string
+    }
+
+    const person=new Person();
+
+    person.name='tom';
+
+    console.log(person.name)
+</code></pre>
+<h3 id="private-2">private</h3>
+<ul>
+<li>private的属性意思就是只允许在类的内部调用，不能在外部调用</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        private name:string;
+        public say(){
+            console.log(this.name+'-----hello');
+        }
+    }
+
+    const person=new Person();
+
+    person.name='tom';//报错
+
+    console.log(person.name)//报错
+</code></pre>
+<h3 id="protected-2">protected</h3>
+<ul>
+<li>protected允许在类内以及继承的子类中使用，把刚刚的<strong>name</strong>改成<strong>protected</strong>属性，这时候在外部就会报错，这时候再写一个继承，代码如下：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        protected name:string;
+        public say(){
+            console.log(this.name+'-----hello');
+        }
+
+    }
+
+    const person=new Person();
+
+    person.name='tom';//报错
+
+    console.log(person.name)//报错
+
+
+    class NewPerson extends Person{
+        public back(){
+            console.log(this.name)
+        }
+    }
+
+    const newperson=new NewPerson();
+
+    newperson.back()//正常
+</code></pre>
+<h2 id="类的构造函数-2">类的构造函数</h2>
+<ul>
+<li>首先新建一个类：<strong>Person</strong>,定义一个name，并在new的时候进行参数传递，然后打印出来，这时候我们就可以使用构造函数<strong>constructor</strong> :</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        pubilc name:string;
+        constructor(name){
+            this.name=name
+        }
+    };
+
+    const person=new Person('tom');
+    console.log(person.name);
+
+</code></pre>
+<ul>
+<li>可以看到可以打印出来，但是上面写法有点麻烦，还可以再进行简化：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(pubilc name:string){}
+    };
+    const person=new Person('tom');
+    console.log(person.name);
+</code></pre>
+<h3 id="类继承中的构造器写法-2">类继承中的构造器写法</h3>
+<ul>
+<li>普通的书写方法上面已经演示了，在子类中使用构造函数需要用**super()**调用父类的构造函数，直接看代码：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(pubilc name:string){}
+    };
+
+    class Teacher extends Person{
+        constructor(pubilc age:number){
+            super()
+        }
+    };
+
+    const teacher=new Teacher(18);
+    console.log(teacher.age+'---'+teacher.name);
+</code></pre>
+<h2 id="ts中类的getter-setter-static以及readonly-2">ts中类的Getter、Setter、static以及readonly</h2>
+<ul>
+<li>在上面中提到了访问类型<strong>private</strong>,它的最大用处就是封装一个书写，然后通过<strong>Getter</strong>和<strong>Setter</strong>去访问和修改：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(private _age:number){
+
+        }
+    }
+</code></pre>
+<ul>
+<li>如果想让别人知道，就可以使用<strong>Getter</strong>来实现，他并不是一个方法，只是一个属性：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(private _age:number){
+
+        };
+        get age(){
+            return this._age
+        }
+    };
+
+    const person=new Person(30);
+    console.log(person.age)
+</code></pre>
+<ul>
+<li>这时候你可能会觉得这不是多此一举吗？但在<strong>Getter</strong>中可以对 <strong>_age</strong>进行处理：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(private _age:number){
+
+        };
+        get age(){
+            return this._age-10
+        }
+    };
+
+    const person=new Person(30);
+    console.log(person.age)
+</code></pre>
+<ul>
+<li>既然 <strong>_age</strong>是私有的，我们无法进行改变，这时候就可以用<strong>Setter</strong>进行改变：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(private _age:number){
+
+        };
+        get age(){
+            return this._age
+        }
+        set age(age:number){
+            this._age=age
+        }
+    };
+
+    const person=new Person(30);
+
+    person.age=20;
+
+    console.log(person.age)
+</code></pre>
+<ul>
+<li>在类中，如果想用这个类的实例，就必须先进行<strong>new</strong>操作，但有没有一种方法不需要<strong>new</strong>就可以？</li>
+</ul>
+<pre><code class="language-ts">    //常规方法 
+    class Person{
+        say(){
+            return 'say hello'
+        }
+    };
+
+    const person=new Person();
+    console.log(person.say());
+</code></pre>
+<ul>
+<li>在ts中，我们不想<strong>new</strong>的话可以这么写：</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+    static  say(){
+            return 'say hello'
+        }
+    };
+
+    console.log(Person.say())
+</code></pre>
+<ul>
+<li><strong>readonly</strong>在初始化后赋值，以后就不能进行修改</li>
+</ul>
+<pre><code class="language-ts">    class Person{
+        constructor(readonly name:string){}
+    }
+    let p=new Person('tom');
+
+    p.name='bob'//报错
+
+    console.log(p.name);
+</code></pre>
+<h2 id="类的抽象类-2">类的抽象类</h2>
+<ul>
+<li>
+<p>abstract 用于定义抽象类和其中的抽象方法。它有几个特点：</p>
+</li>
+<li>
+<p>抽象类是不允许实例化的</p>
+</li>
+</ul>
+<pre><code class="language-ts">    //错误演示
+    abstract class Person {
+        public abstract say()
+    }
+    const tom=new Person()//无法创建抽象类的实例
+</code></pre>
+<ul>
+<li>抽象类中的抽象方法必须被子类实现：</li>
+</ul>
+<pre><code class="language-ts">    //错误演示
+    abstract class Person {
+         abstract say(){
+             console.log('hello')
+         }
+    }
+    class Tom extends Person{
+        say(){
+            console.log('say hello')
+        }
+    };
+    //正确方法
+    abstract class Person {
+         abstract say()
+    }
+    class Tom extends Person{
+        say(){
+            console.log('say hello')
+        }
+    };
+</code></pre>
+<h2 id="tsconfigjson配置-2">tsconfig.json配置</h2>
+<h3 id="生成-2">生成</h3>
+<ul>
+<li>我们可以通过<strong>tsc --init</strong>去生成ts配置文件:</li>
+</ul>
+<pre><code class="language-ts">   tsc --init //终端执行
+</code></pre>
+<h3 id="编译-4">编译</h3>
+<ul>
+<li>会生成一个tsconfig.json文件，我们在ts文件中可以随便写点什么：</li>
+</ul>
+<pre><code class="language-ts">    //测试tsconfig.json
+    const test:string='tsconfig.json';
+</code></pre>
+<ul>
+<li>然后打开<strong>tsconfig.json</strong>文件，找到<strong>complilerOptions</strong>属性下的<strong>removeComments:true</strong>（这个配置是编译后不输出注释），取消掉注释，然后执行命令：</li>
+</ul>
+<pre><code class="language-ts">    tsc
+</code></pre>
+<ul>
+<li>这时候打开生成的js文件，发现没有注释，说明成功。</li>
+</ul>
+<h3 id="include-exclude-和-files-2">include 、exclude 和 files</h3>
+<ul>
+<li>如果有多个ts文件，只想编译一个可以在ts配置项中加入<strong>include</strong>：</li>
+</ul>
+<pre><code class="language-ts">    &quot;include&quot;:[&quot;text.ts&quot;],
+</code></pre>
+<ul>
+<li>如果想除了某个文件不编译，剩下的都编译，可以使用<strong>exclude</strong>：</li>
+</ul>
+<pre><code class="language-ts">     &quot;exclude&quot;:[&quot;text.ts&quot;],
+</code></pre>
+<ul>
+<li><strong>files</strong>和<strong>include</strong>没有什么区别：</li>
+</ul>
+<pre><code class="language-ts">     &quot;files&quot;:[&quot;text.ts&quot;],
+</code></pre>
+<h3 id="compileroptions配置-2">compilerOptions配置</h3>
+<h4 id="removecomments-2">removeComments</h4>
+<ul>
+<li>这个配置意思就是编译后不输出注释</li>
+</ul>
+<h4 id="strict-2">strict</h4>
+<ul>
+<li>这个设置为<strong>true</strong>,就代表严格执行ts语法，要严格按照ts语法来编写。</li>
+</ul>
+<h4 id="noimplicitany-2">noImplicitAny</h4>
+<ul>
+<li>允许你的注解类型 any 不用特意表明，如果此时设置了<strong>true</strong>,看例子：</li>
+</ul>
+<pre><code class="language-ts">    //这时候编译会报错
+    function test(name) {
+         return name;
+    }
+   
+    //正确
+     function test(name:any) {
+         return name;
+    }
+</code></pre>
+<h4 id="strictnullchecks-2">strictNullChecks</h4>
+<ul>
+<li>意思就是，不强制检查<strong>null</strong>类型,此时如果配置为<strong>true</strong>看例子:</li>
+</ul>
+<pre><code class="language-ts">    //此时就不会报错
+    const test: string = null;
+</code></pre>
+<h4 id="outdir和rootdir-2">outDir和rootDir</h4>
+<ul>
+<li>此项配置是来指定文件目录和打包后存放目录，<strong>rootDir</strong>为文件目录，<strong>outDir</strong>为打包后保存的目录</li>
+</ul>
+<pre><code class="language-ts">    {
+        &quot;outDir&quot;: &quot;./build&quot; ,
+        &quot;rootDir&quot;: &quot;./src&quot; ,
+    }
+</code></pre>
+<h4 id="编译es6语法-2">编译ES6语法</h4>
+<ul>
+<li>可以使用<strong>target</strong>和<strong>allowJs</strong>，target默认为true</li>
+</ul>
+<pre><code class="language-ts">    &quot;target&quot;:'es5' ,  // 这一项默认是开启的，你必须要保证它的开启，才能转换成功
+    &quot;allowJs&quot;:true,   // 这个配置项的意思是联通
+</code></pre>
+<h4 id="sourcemap-2">sourceMap</h4>
+<ul>
+<li>sourceMap 简单说，Source map 就是一个信息文件，里面储存着位置信息。也就是说，转换后的代码的每一个位置，所对应的转换前的位置。有了它，出错的时候，除错工具将直接显示原始代码，而不是转换后的代码。这无疑给开发者带来了很大方便。</li>
+</ul>
+<h4 id="nounusedlocals-2">noUnusedLocals</h4>
+<ul>
+<li>设置<strong>noUnusedLocals</strong>为true，编译代码：</li>
+</ul>
+<pre><code class="language-ts">    const name:tring='111';
+    export const age = &quot;text&quot;;
+</code></pre>
+<ul>
+<li>这时候就会报错，因为有<strong>name</strong>变量没有使用。</li>
+</ul>
+<h4 id="更多-2">更多</h4>
+<ul>
+<li>更多可以查看 <a href="https://www.tslang.cn/docs/handbook/compiler-options.html">配置查询网站</a></li>
+</ul>
+<h2 id="联合类型和类型保护-2">联合类型和类型保护</h2>
+<h3 id="联合类型-2">联合类型</h3>
+<ul>
+<li>联合类型的意思就是允许一个类型有两种或者两种以上的类型:</li>
+</ul>
+<pre><code class="language-ts">    interface Test{
+        name:string;
+        say:()=&gt;{
+
+        }
+    }
+
+    interface Test2{
+        name:string;
+        call:()=&gt;{};
+    }
+
+    function Tom(fun: Test | Test2){
+        console.log(fun.name)
+    }
+
+</code></pre>
+<ul>
+<li>如果此时修改一下方法：</li>
+</ul>
+<pre><code class="language-ts">    function Tom(fun: Test | Test2){
+        fun.say()
+    }
+    //报错
+</code></pre>
+<ul>
+<li>这是因为只能访问两个类型的共有方法。</li>
+</ul>
+<h4 id="类型保护-类型断言-2">类型保护-类型断言</h4>
+<ul>
+<li>上面的方法，如果修改完报错，这时候我们可以用<strong>as</strong>来判断：</li>
+</ul>
+<pre><code class="language-ts">    interface Test {
+        text: boolean;
+        say(): void
+    }
+    
+    interface Test2 {
+        text: boolean;
+        skill():string
+    }
+    function judgeWho(val: Waiter | Teacher) {
+        if (val.text) {
+        (val as Teacher).skill();
+        }else{
+        (val as Waiter).say();
+        }
+    }
+
+    const a={
+        text:true,
+        skill:function():void{
+            console.log(1)
+        },
+        say:function():void{
+            console.log(2)
+        }
+    }
+    judgeWho(a) //1
+</code></pre>
+<h4 id="类型保护-in语法-2">类型保护-in语法</h4>
+<ul>
+<li><strong>in</strong>方法与断言比较类似，使用方法如下：</li>
+</ul>
+<pre><code class="language-ts">    interface Person{
+        name:string;
+        say:()=&gt;{
+
+        }
+    }
+
+    interface Person2{
+        name:string;
+        todo:()=&gt;{
+
+        }
+    };
+
+    function tom(val:Person|Person2){
+        if('todo' in val){
+            val.todo()
+        }else{
+            val.say()
+        }
+    }
+</code></pre>
+<h4 id="类型保护-typeof语法-2">类型保护-typeof语法</h4>
+<ul>
+<li>可以用<strong>typeof</strong>方法来判断：</li>
+</ul>
+<pre><code class="language-ts">    function add(name:string|number,name2:string|number){
+        if(typeof name==='string'||typeof name2=='string'){
+            return name+'---'+name2
+        }else{
+            return name+name2
+        }
+    }
+
+    add(1,2)
+</code></pre>
+<h4 id="类型保护-instanecof语法-2">类型保护-instanecof语法</h4>
+<ul>
+<li>如果要保护类型是一个对象，就可以使用<strong>instanceof</strong>：</li>
+</ul>
+<pre><code class="language-ts">    class NumObject{
+        num:number
+    }
+
+    function numbers(num1:object|NumObject,num2:object|NumObject){
+        if(num1 instanceof NumObject &amp;&amp; num2 instanceof NumObject){
+            return num1.num+num2.num
+        }
+    }
+</code></pre>
+<h2 id="enum枚举类型-2">Enum枚举类型</h2>
+<ul>
+<li>我们平时会有这种写法：</li>
+</ul>
+<pre><code class="language-ts">    function getName(status:any){
+        if(status===0){
+            return 'one'
+        }else if(status===1){
+            return 'two'
+        }else{
+            return 'three'
+        }
+    }
+
+    console.log(getName(0))
+</code></pre>
+<ul>
+<li>这么写可能有点麻烦，阅读起来还是有点麻烦，这时候可以这么写：</li>
+</ul>
+<pre><code class="language-ts">    const Status={
+        ONE:0,
+        TWO:1,
+        THREE:3
+    }
+
+    function getName(status:any){
+        if(status===Status.ONE){
+            return 'one'
+        }else if(status===Status.TWO){
+            return 'two'
+        }else{
+            return 'three'
+        }
+    }
+
+    console.log(getName(0));
+</code></pre>
+<ul>
+<li>这时候我们的枚举就要上场了：</li>
+</ul>
+<pre><code class="language-ts">    enum Status{
+        ONE,
+        TWO,
+        THREE
+    }
+
+    function getName(status:any){
+        if(status===Status.ONE){
+            return 'one'
+        }else if(status===Status.TWO){
+            return 'two'
+        }else{
+            return 'three'
+        }
+    }
+
+    console.log(getName(1));
+</code></pre>
+<ul>
+<li>一样也可以输出，因为枚举是有对应数字值的，默认从0开始，当然也可以改变：</li>
+</ul>
+<pre><code class="language-ts">    enum Status{
+        ONE=1,
+        TWO,//2
+        THREE//3
+    }
+</code></pre>
+<ul>
+<li>也可以进行返查操作：</li>
+</ul>
+<pre><code class="language-ts">    enum Status{
+        ONE,
+        TWO,
+        THREE
+    }
+
+    function getName(status:any){
+        if(status===Status.ONE){
+            return 'one'
+        }else if(status===Status.TWO){
+            return 'two'
+        }else{
+            return 'three'
+        }
+    }
+
+    console.log(Status.ONE,Status[1]);
+</code></pre>
+<h2 id="泛型-2">泛型</h2>
+<ul>
+<li>泛型（Generics）是指在定义函数、接口或类的时候，不预先指定具体的类型，而在使用的时候再指定类型的一种特性。</li>
+</ul>
+<h3 id="在函数中使用-2">在函数中使用</h3>
+<ul>
+<li>我们先编写一个函数：</li>
+</ul>
+<pre><code class="language-ts">    function add(one:string,two:string){
+        return `${one}${two}`
+    }
+
+    console.log(add('a','b'))
+</code></pre>
+<ul>
+<li>这时候我们希望参数更加灵活一些，两个参数为number或者string：</li>
+</ul>
+<pre><code class="language-ts">    function add(one:string|number,two:string|number){
+        return `${one}${two}`
+    }
+
+    console.log(add('a','b'))
+</code></pre>
+<ul>
+<li>这么书写有些麻烦，这时候就可以使用泛型：</li>
+</ul>
+<pre><code class="language-js">    function add&lt;T&gt;(one:T,two:T){
+        return `${one}${two}`
+    }
+
+    console.log(add&lt;string&gt;('a','b'))
+</code></pre>
+<ul>
+<li>在使用中，泛型通常用 <strong>&lt;T&gt;</strong> 来进行表示。泛型可以有多个吗？当然可以：</li>
+</ul>
+<pre><code class="language-js">   function add&lt;T,P&gt;(one:T,two:P){
+        return `${one}${two}`
+    }
+
+    console.log(add&lt;string,number&gt;('a',2))
+</code></pre>
+<ul>
+<li>同时泛型也支持类型推断：</li>
+</ul>
+<pre><code class="language-ts">    function add&lt;T,P&gt;(one:T,two:P){
+        return `${one}${two}`
+    }
+
+    console.log(add&lt;string,number&gt;('a',2))
+</code></pre>
+<h3 id="在类中使用-2">在类中使用</h3>
+<ul>
+<li>首先先写一个类,且接受参数为一个数组，数组里面存放string类型的数据：</li>
+</ul>
+<pre><code class="language-ts">    class List {
+        constructor(private list:string[]) {};
+        getItem(index:number):string{
+            return this.list[index]
+        }
+    };
+
+    const list=new List(['girl','boy','wom']);
+    console.log(list.getItem(1))
+</code></pre>
+<ul>
+<li>这时候如果我们传递数组时候里面又想放数字怎么办：</li>
+</ul>
+<pre><code class="language-ts">    class List {
+        constructor(private list:string[]|number[]) {};
+        getItem(index:number):string|number{
+            return this.list[index]
+        }
+    };
+
+    const list=new List(['girl','boy','wom']);
+    console.log(list.getItem(1))
+</code></pre>
+<ul>
+<li>这么写就比较复杂了,这时候就可以使用泛型来简化我们的代码：</li>
+</ul>
+<pre><code class="language-ts">    class List&lt;T&gt;{
+        constructor(private list:T[]) {};
+        getItem(index:number):T{
+            return this.list[index]
+        }
+    };
+
+    const list=new List(['girl','boy','wom']);
+    console.log(list.getItem(1))
+</code></pre>
+<ul>
+<li>发现上面的代码没有报错？因为类型推论，所以不会报错，严格意义上应该new的时候加上类型：</li>
+</ul>
+<pre><code class="language-ts">    const list=new List&lt;string&gt;(['girl','boy','wom']);
+</code></pre>
+<ul>
+<li>还有一种场景，传递过来是一个数组对象，这时候可以通过继承来解决：</li>
+</ul>
+<pre><code class="language-ts">    interface People{
+        name:string
+    }
+
+    class List&lt;T extends People&gt;{
+        constructor(private list:T[]) {};
+        getItem(index:number):string{
+            return this.list[index].name
+        }
+    };
+
+    const list=new List(
+        [
+            {name:'boy'},
+            {name:'girl'}
+        ]
+    );
+    console.log(list.getItem(1))
+</code></pre>
+<h3 id="泛型约束-2">泛型约束</h3>
+<ul>
+<li>上面例子中，泛型可以为任意值，但有时候我们希望还是能稍微约束一下：</li>
+</ul>
+<pre><code class="language-ts">    function list&lt;T extends number|string&gt;(name:T){
+        return `${name}`
+    }
+
+    console.log(list&lt;number&gt;(1))
+</code></pre>
+<pre><code class="language-ts">    class  List&lt;T extends number|string&gt; {
+        constructor(private list:T[]) {
+            
+        };
+        getItem(index:number):T{
+            return this.list[index]
+        }
+    }
+
+    const list=new List([1,2])
+
+    console.log(list.getItem(0))
+</code></pre>
+<h2 id="namespace命名空间-2">Namespace命名空间</h2>
+<h3 id="新建一个ts项目-2">新建一个ts项目</h3>
+<ul>
+<li>
+<p>首先，我们建立一个项目文件，然后<strong>npm init -y</strong>生成<strong>package.json</strong>文件，然后再<strong>tsc -init</strong>生成ts配置文件。</p>
+</li>
+<li>
+<p>在根目录下新建<strong>index.html</strong>文件，再建立一个<strong>src</strong>和<strong>bulid</strong>目录，在<strong>src</strong>目录下新建一个<strong>index.js</strong>。</p>
+</li>
+<li>
+<p>配置<strong>tsconfig.json</strong>文件，设置入口和输出目录（outDir和rootDir）。</p>
+</li>
+<li>
+<p>打开<strong>index.html</strong>,引入js文件：</p>
+</li>
+</ul>
+<pre><code class="language-html">    &lt;script src=&quot;./build/index.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<ul>
+<li>在新建的ts文件中随便写点什么：</li>
+</ul>
+<pre><code class="language-js">    console.log('hello');
+</code></pre>
+<ul>
+<li>然后<strong>tsc</strong>编译一下，打开控制台，我们就可以看到了</li>
+</ul>
+<h3 id="编写一个小组件-2">编写一个小组件</h3>
+<ul>
+<li>在我们刚刚建立的<strong>index.ts</strong>文件，写一个<strong>header</strong>、<strong>content</strong>和<strong>footer</strong>组件：</li>
+</ul>
+<pre><code class="language-ts">    class Header {
+        constructor() {
+            const elem = document.createElement(&quot;div&quot;);
+            elem.innerText = &quot;This is Header&quot;;
+            document.body.appendChild(elem);
+        }
+    }
+
+    class Content {
+        constructor() {
+            const elem = document.createElement(&quot;div&quot;);
+            elem.innerText = &quot;This is Content&quot;;
+            document.body.appendChild(elem);
+        }
+    }
+
+    class Footer {
+        constructor() {
+            const elem = document.createElement(&quot;div&quot;);
+            elem.innerText = &quot;This is Footer&quot;;
+            document.body.appendChild(elem);
+        }
+    }
+
+    class Page {
+        constructor() {
+            new Header();
+            new Content();
+            new Footer();
+        }
+    }
+</code></pre>
+<ul>
+<li>然后在<strong>index.html</strong>中加一行js代码：</li>
+</ul>
+<pre><code class="language-ts">    &lt;script&gt;new Page();&lt;/script&gt;
+</code></pre>
+<ul>
+<li>这时候我们可以看到内容正常输出，但有一个问题，我们的<strong>Header</strong>、<strong>content</strong>和<strong>footer</strong>都暴露了出来，并不是只暴露一个<strong>page</strong>，这时候我们的命名空间就派上了用场：</li>
+</ul>
+<h3 id="命名空间-2">命名空间</h3>
+<ul>
+<li>命名空间声明的关键词是namespace 比如声明一个namespace Home,需要暴露出去的类，可以使用export关键词，这样只有暴漏出去的类是全局的，其他的不会再生成全局污染了。</li>
+</ul>
+<pre><code class="language-ts">    namespace Home {
+    class Header {
+        constructor() {
+            const elem = document.createElement(&quot;div&quot;);
+            elem.innerText = &quot;This is Header&quot;;
+            document.body.appendChild(elem);
+        }
+    }
+
+    class Content {
+        constructor() {
+            const elem = document.createElement(&quot;div&quot;);
+            elem.innerText = &quot;This is Content&quot;;
+            document.body.appendChild(elem);
+        }
+    }
+
+    class Footer {
+        constructor() {
+            const elem = document.createElement(&quot;div&quot;);
+            elem.innerText = &quot;This is Footer&quot;;
+            document.body.appendChild(elem);
+        }
+    }
+
+    export class Page {
+        constructor() {
+            new Header();
+            new Content();
+            new Footer();
+            }
+        }
+    }
+</code></pre>
+<ul>
+<li>这么写也是比较麻烦，因为我们需要引入两个文件，我们可以通过配置来让他成为一个文件，打开<strong>tsconfig.json</strong>,找到这一行：</li>
+</ul>
+<pre><code class="language-json">    &quot;module&quot;:&quot;commonjs&quot;
+    //修改为：
+     &quot;module&quot;:&quot;amd
+</code></pre>
+<ul>
+<li>然后找到这一行：</li>
+</ul>
+<pre><code class="language-json">    {
+      &quot;outFile&quot;: &quot;./build/index.js&quot;
+    }
+</code></pre>
+<h4 id="子命名空间-2">子命名空间</h4>
+<ul>
+<li>如果在刚刚的组件中再写一个会怎么样？</li>
+</ul>
+<pre><code class="language-ts">    namespace Components {
+        export namespace SubComponents {
+            export class Test {}
+        }
+
+        //someting ...
+    }
+
+    //读取
+    // Components.SubComponents.Test
+</code></pre>
+<h2 id="ts中使用import-2">ts中使用import</h2>
+<ul>
+<li>首先建立一个文件<strong>compontent.ts</strong>,随便写点东西，然后使用<strong>export</strong>导出：</li>
+</ul>
+<pre><code class="language-ts">    export class Header {
+        constructor() {
+        const elem = document.createElement(&quot;div&quot;);
+        elem.innerText = &quot;This is Header&quot;;
+        document.body.appendChild(elem);
+        }
+    }
+
+    export class Content {
+        constructor() {
+        const elem = document.createElement(&quot;div&quot;);
+        elem.innerText = &quot;This is Content&quot;;
+        document.body.appendChild(elem);
+        }
+    }
+
+    export class Footer {
+        constructor() {
+        const elem = document.createElement(&quot;div&quot;);
+        elem.innerText = &quot;This is Footer&quot;;
+        document.body.appendChild(elem);
+        }
+    }
+</code></pre>
+<ul>
+<li>然后在<strong>index.ts</strong>中导入一下：</li>
+</ul>
+<pre><code class="language-ts">    import { Header, Content, Footer } from &quot;./compontent&quot;;
+
+    export class Page{
+        constructor(){
+            new Header();
+            new Content();
+            new Footer();
+        }
+    }
+</code></pre>
+<ul>
+<li>运行<strong>tsc</strong>编译，打开<strong>build</strong>中的<strong>index.js</strong>,可以看到代码是<strong>define</strong>开头的，这是 <strong>amd</strong> 规范的代码，不能直接在浏览器中运行，可以在 <strong>Node</strong> 中直接运行，所以我们还需要借助<strong>require.js</strong>的支持：</li>
+</ul>
+<pre><code class="language-ts">    &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<ul>
+<li>然后在<strong>index.html</strong>中使用<strong>require.js</strong>写法：</li>
+</ul>
+<pre><code class="language-html">    &lt;script&gt;
+       require([&quot;page&quot;], function (page) {
+          new page.default();
+        });
+    &lt;/script&gt;
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://lonjinup.github.io/20213-yue-fu-xi-bi-ji/" class="post-title gt-a-link">
+                    前端复习笔记
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="0fdde3b6-a87f-4594-9b7f-25d151ba858f";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<style>
+.gt-bg-theme-color-second{ background: none!important;}
+</style>
+
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
