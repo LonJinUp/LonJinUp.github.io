@@ -1,0 +1,544 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>uni-app开发小程序：项目架构以及经验分享 | 陇锦</title>
+
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1751543015276">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://lonjinup.github.io/aboutme" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1751543015276" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    uni-app开发小程序：项目架构以及经验分享
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-02-21 ·
+                    </time>
+                    
+                        <a href="https://lonjinup.github.io/qtoGOVHJb/" class="post-tags">
+                            # 小程序
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="uni-app开发小程序项目架构以及经验分享">uni-app开发小程序：项目架构以及经验分享</h1>
+<blockquote>
+<p><code>2022</code>年的时候，公司为了快速完成产品并上线，所以选用微信小程序为载体；由于后期还是打算开发<code>App</code>；虽然公司有<code>ios</code>和<code>Android</code>，但是如果能一套代码打包多端，一定程度上可以解决成本。前端技术栈也是<code>vue</code>，在考察选择了<code>uni-app</code>。后来多个小程序项目都采用了<code>uni-app</code>开发，积累了一定的经验以及封装了较多业务组件，这里就分享一下<code>uni-app</code>项目的整体架构、方法封装组件库选择以及注意事项。全文代码都会放到<code>github</code>，先赞后看，月入百万！</p>
+</blockquote>
+<h2 id="创建项目">创建项目</h2>
+<p><code>uni-app</code>提供了两种创建项目的方式：</p>
+<ul>
+<li>1.通过<a href="https://zh.uniapp.dcloud.io/quickstart-hx.html">HBuilderX</a>可视化工具创建</li>
+<li>2.通过<a href="https://zh.uniapp.dcloud.io/quickstart-cli.html">vue-cli</a>命令创建</li>
+</ul>
+<blockquote>
+<p>⚠️需要注意的是，一定要根据项目需求来选择项目的创建方式；如果只是单独的开发<code>小程序</code>或<code>App</code>，且开发环境单一，可以使用<code>HBuilderX</code>可视化工具创建。如果多端开发，以及同一套代码可能会打包生成<code>多个</code>小程序建议使用<code>vue-cli</code>进行创建，不然后期想搞自动化构建以及按指定条件进行编译比较痛苦。关于按条件编译，文章后面会有详细说明。</p>
+</blockquote>
+<p>使用<code>vue-cli</code>安装和运行：</p>
+<p>1.全局安装 vue-cli</p>
+<pre><code class="language-js">npm install -g @vue/cli
+</code></pre>
+<p>2.创建uni-app</p>
+<pre><code class="language-js">vue create -p dcloudio/uni-preset-vue 项目名称
+</code></pre>
+<p>3.进入项目文件夹</p>
+<pre><code class="language-js">cd 项目名称
+</code></pre>
+<p>4.运行项目，如果是已微信小程序为主，可以在<code>package.json</code>中的命令改为：</p>
+<pre><code class="language-json">&quot;scripts&quot;: {
+    &quot;serve&quot;: &quot;npm run dev:mp-weixin&quot;
+}
+</code></pre>
+<p>然后执行</p>
+<pre><code class="language-js">npm run serve
+</code></pre>
+<p>使用<code>cli</code>创建项目默认不带<code>css</code>预编译，需要手动安装一下，这里已<code>sass</code>为例：</p>
+<pre><code class="language-js">npm i sass --save-dev
+npm i sass-loader --save-dev
+</code></pre>
+<h2 id="整体项目架构">整体项目架构</h2>
+<p>通过<code>HBuilderX</code>或者<code>vue-cli</code>创建的项目，目录结构有稍许不同，但基本没什么差异，这里就按<code>vue-cli</code>创建的项目为例，整体架构配置如下：</p>
+<pre><code class="language-tree">    ├──dist 编译后的文件路径
+    ├──package.json 配置项
+	├──src 核心内容
+        ├──api 项目接口
+        ├──components 全局公共组件
+        ├──config 项目配置文件
+        ├──pages 主包
+        ├──static 全局静态资源
+        ├──store vuex
+        ├──mixins 全局混入
+        ├──utils 公共方法
+        ├──App.vue 应用配置，配置App全局样式以及监听
+        ├──main.js Vue初始化入口文件
+        ├──manifest.json 配置应用名称、appid等打包信息
+        ├──pages.json 配置页面路由、导航条、选项卡等页面类信息
+        └──uni.scss 全局样式
+</code></pre>
+<h2 id="封装方法">封装方法</h2>
+<p>工欲善其事，必先利其器。在开发之前，我们可以把一些全局通用的方法进行封装，以及把<code>uni-app</code>提供的<code>api</code>进行二次封装，方便使用。全局的公共方法我们都会放到<code>/src/utils</code>文件夹下。</p>
+<h3 id="封装常用方法">封装常用方法</h3>
+<p>下面这些方法都放在<code>/src/utils/utils.js</code>中，文章末尾会提供<code>github</code>链接方便查看。如果项目较大，建议把方法根据功能定义不同的<code>js</code>文件。</p>
+<p>小程序<code>Toast</code>提示</p>
+<pre><code class="language-js">/**
+ * 提示方法
+ * @param {String} title 提示文字
+ * @param {String}  icon icon图片
+ * @param {Number}  duration 提示时间
+ */
+export function toast(title, icon = 'none', duration = 1500) {
+	if(title) {
+		uni.showToast({
+		    title,
+		    icon,
+		    duration
+		})
+	}
+}
+</code></pre>
+<p>缓存操作（设置/获取/删除/清空）</p>
+<pre><code class="language-js">/**
+ * 缓存操作
+ * @param {String} val
+ */
+export function setStorageSync(key, data) {
+    uni.setStorageSync(key, data)
+}
+
+export function getStorageSync(key) {
+    return uni.getStorageSync(key)
+}
+
+export function removeStorageSync(key) {
+    return uni.removeStorageSync(key)
+}
+
+export function clearStorageSync() {
+    return uni.clearStorageSync()
+}
+</code></pre>
+<p>页面跳转</p>
+<pre><code class="language-js">/**
+ * 页面跳转
+ * @param {'navigateTo' | 'redirectTo' | 'reLaunch' | 'switchTab' | 'navigateBack' | number } url  转跳路径
+ * @param {String} params 跳转时携带的参数
+ * @param {String} type 转跳方式
+ **/
+export function useRouter(url, params = {}, type = 'navigateTo') {
+    try {
+        if (Object.keys(params).length) url = `${url}?data=${encodeURIComponent(JSON.stringify(params))}`
+        if (type === 'navigateBack') {
+            uni[type]({ delta: url })
+        } else {
+            uni[type]({ url })
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+</code></pre>
+<p>图片预览</p>
+<pre><code class="language-js">/**
+ * 预览图片
+ * @param {Array} urls 图片链接
+ */
+export function previewImage(urls, itemList = ['发送给朋友', '保存图片', '收藏']) {
+    uni.previewImage({
+        urls,
+        longPressActions: {
+            itemList,
+            fail: function (error) {
+                console.error(error,'===previewImage')
+            }
+        }
+    })
+}
+</code></pre>
+<p>图片下载</p>
+<pre><code class="language-js">/**
+ * 保存图片到本地
+ * @param {String} filePath 图片临时路径
+ **/
+export function saveImage(filePath) {
+    if (!filePath) return false
+    uni.saveImageToPhotosAlbum({
+        filePath,
+        success: (res) =&gt; {
+            toast('图片保存成功', 'success')
+        },
+        fail: (err) =&gt; {
+            if (err.errMsg === 'saveImageToPhotosAlbum:fail:auth denied' || err.errMsg === 'saveImageToPhotosAlbum:fail auth deny') {
+                uni.showModal({
+                    title: '提示',
+                    content: '需要您授权保存相册',
+                    showCancel: false,
+                    success: (modalSuccess) =&gt; {
+                        uni.openSetting({
+                            success(settingdata) {
+                                if (settingdata.authSetting['scope.writePhotosAlbum']) {
+                                    uni.showModal({
+                                        title: '提示',
+                                        content: '获取权限成功,再次点击图片即可保存',
+                                        showCancel: false
+                                    })
+                                } else {
+                                    uni.showModal({
+                                        title: '提示',
+                                        content: '获取权限失败，将无法保存到相册哦~',
+                                        showCancel: false
+                                    })
+                                }
+                            },
+                            fail(failData) {
+                                console.log('failData', failData)
+                            }
+                        })
+                    }
+                })
+            }
+        }
+    })
+}
+</code></pre>
+<p>更多函数就不在文章中展示了，已经放到<code>/src/utils/utils,js</code>里面，具体可以到github查看。</p>
+<h3 id="请求封装">请求封装</h3>
+<p>为了减少在页面中的请求代码，所以我们要对<code>uni-app</code>提供的请求方式进行二次封装，在<code>/src/utils</code>文件夹下建立<code>request.js</code>，具体代码如下：</p>
+<pre><code class="language-js">
+import {toast, clearStorageSync, getStorageSync, useRouter} from './utils'
+import {BASE_URL} from '@/config/index'
+
+const baseRequest = async (url, method, data, loading = true) =&gt;{
+	header.token = getStorageSync('token') || ''
+	return new Promise((reslove, reject) =&gt; {
+		loading &amp;&amp; uni.showLoading({title: 'loading'})
+		uni.request({
+			url: BASE_URL + url,
+			method: method || 'GET',
+			header: header,
+			timeout: 10000,
+			data: data || {},
+			success: (successData) =&gt; {
+				const res = successData.data
+				uni.hideLoading()
+				if(successData.statusCode == 200){
+                    // 这里根据自己的业务逻辑去调整
+					if(res.resultCode == 'PA-G998'){
+						clearStorageSync()
+						useRouter('/pages/login/index', 'reLaunch')
+					}else{
+						reslove(res.data)
+					}
+				}else{
+					toast('网络连接失败，请稍后重试')
+					reject(res)
+				}
+			},
+			fail: (msg) =&gt; {
+				uni.hideLoading()
+				toast('网络连接失败，请稍后重试')
+				reject(msg)
+			}
+		})
+	})
+}
+
+const request = {};
+
+['options', 'get', 'post', 'put', 'head', 'delete', 'trace', 'connect'].forEach((method) =&gt; {
+	request[method] = (api, data, loading) =&gt; baseRequest(api, method, data, loading)
+})
+
+export default request
+</code></pre>
+<p>请求封装好以后，我们在<code>/src/api</code>文件夹下按业务模块建立对应的<code>api</code>文件，拿获取用户信息接口举例子：</p>
+<p>在<code>/src/api</code>文件夹下建立<code>user.js</code>，然后引入<code>request.js</code></p>
+<pre><code class="language-js">import request from '@/utils/request'
+
+//个人信息
+export const info = data =&gt; request.post('/v1/api/info', data)
+</code></pre>
+<p>在页面中直接使用：</p>
+<pre><code class="language-js">import {info} from '@/api/user.js'
+
+export default {
+	methods: {
+		async getUserinfo() {
+			let info = await info()
+			console.log('用户信息==', info)
+		}
+	}
+}
+</code></pre>
+<h2 id="自定义tabbar">自定义<code>tabBar</code></h2>
+<p>写<code>uni-app</code>或者<code>小程序</code>基本避不开这个话题了，很多情况下，官方提供的<code>tabBar</code>方案并不能满足产品需求/ui要求，官方也提供了<a href="https://uniapp.dcloud.net.cn/collocation/pages.html#tabbar">自定义tabBar</a>的方案，但此方案有很多弊端，比如：切换时候会<code>tabBar</code>会有明显的闪动。可以参考之前写的文章<a href="https://juejin.cn/post/6976072584127315999">小程序自定义TabBar 如何实现“keep-alive”</a>，文章中是原生小程序，但思路在<code>uni-app</code>中同样适用，如果感兴趣，可以评论区提问。</p>
+<h2 id="版本切换">版本切换</h2>
+<p>很多场景下，需要根据不同的环境去切换不同的请求域名、<code>APPID</code>等字段，这时候就需要通过环境变量来进行区分。下面案例我们就分为三个环境：开发环境(<code>dev</code>)、测试环境(<code>test</code>)、生产环境(<code>prod</code>)。</p>
+<h3 id="建立env文件">建立<code>env</code>文件</h3>
+<p>在项目根目录建立下面三个文件并写入内容(常量名要以VUE开头命名)：</p>
+<p><code>.env.dev</code>(开发环境)</p>
+<pre><code class="language-ini">VUE_APP_MODE=build
+VUE_APP_ID=wxbb53ae105735a06b
+VUE_APP_BASE=https://www.baidu.dev.com
+</code></pre>
+<p><code>.env.test</code>(测试环境)</p>
+<pre><code class="language-ini">VUE_APP_MODE=build
+VUE_APP_ID=wxbb53ae105735a06c
+VUE_APP_BASE=https://www.baidu.test.com
+</code></pre>
+<p><code>.env.prod</code>(生产环境)</p>
+<pre><code class="language-ini">VUE_APP_MODE=wxbb53ae105735a06d
+VUE_APP_ID=prod
+VUE_APP_BASE=https://www.baidu.prod.com
+</code></pre>
+<h3 id="修改packagejson文件">修改<code>package.json</code>文件</h3>
+<pre><code class="language-json">&quot;scripts&quot;: {
+    &quot;dev:mp-weixin&quot;: &quot;cross-env UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch --mode dev&quot;,
+    &quot;build:mp-weixin&quot;: &quot;cross-env UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch --mode prod&quot;
+},
+</code></pre>
+<p>然后执行</p>
+<pre><code class="language-js">npm run dev:mp-weixin
+</code></pre>
+<p>在<code>/src/pages/index/index.vue</code>下，打印：</p>
+<pre><code class="language-js">onLoad() {
+    console.log(process.env.VUE_APP_MODE, '====VUE_APP_BASE')
+    console.log(process.env.VUE_APP_BASE, '====VUE_APP_BASE')
+},
+</code></pre>
+<p>此时输出结果就是</p>
+<pre><code class="language-js">dev ====VUE_APP_BASE
+https://www.baidu.dev.com ====VUE_APP_BASE
+</code></pre>
+<h2 id="动态修改appid">动态修改appid</h2>
+<p>如果同一套代码，需要打包生成多个小程序，就需要动态修改<code>appid</code>了；文章开头说过appid在<code>/src/manifest.json</code>文件中配置，但<code>json</code>文件又不能直接写变量，这时候就可以参考<a href="https://uniapp.dcloud.net.cn/collocation/vue-config.html">官方</a> 提出的解决方案：建立<code>vue.config.js</code>文件，具体操作如下。</p>
+<p>在根目录下建立<code>vue.config.js</code>文件写入以下内容：</p>
+<pre><code class="language-js">// 读取 manifest.json ，修改后重新写入
+const fs = require('fs')
+
+const manifestPath = './src/manifest.json'
+let Manifest = fs.readFileSync(manifestPath, { encoding: 'utf-8' })
+function replaceManifest(path, value) {
+    const arr = path.split('.')
+    const len = arr.length
+    const lastItem = arr[len - 1]
+    let i = 0
+    let ManifestArr = Manifest.split(/\n/)
+    for (let index = 0; index &lt; ManifestArr.length; index++) {
+        const item = ManifestArr[index]
+        if (new RegExp(`&quot;${arr[i]}&quot;`).test(item)) ++i
+        if (i === len) {
+            const hasComma = /,/.test(item)
+            ManifestArr[index] = item.replace(
+            new RegExp(`&quot;${lastItem}&quot;[\\s\\S]*:[\\s\\S]*`),
+            `&quot;${lastItem}&quot;: ${value}${hasComma ? ',' : ''}`
+            )
+            break
+        }
+    }
+
+Manifest = ManifestArr.join('\n')
+}
+// 读取环境变量内容
+replaceManifest('mp-weixin.appid', `&quot;${process.env.VUE_APP_ID}&quot;`)
+
+fs.writeFileSync(manifestPath, Manifest, {
+  flag: 'w'
+})
+</code></pre>
+<p>如果是通过<a href="https://zh.uniapp.dcloud.io/quickstart-hx.html">HBuilderX</a>可视化工具创建的项目，则无法去自动根据环境去修改<code>appid</code>，只能去手动修改。</p>
+<h2 id="组件库">组件库</h2>
+<p><code>uni-app</code>最受欢迎的可能就是插件市场了，插件市场提供了很多优秀的插件/组件库供我们选择，比较火的就是自家的<a href="https://ext.dcloud.net.cn/plugin?id=55">uni-ui</a>以及<a href="https://ext.dcloud.net.cn/plugin?id=1593">uView UI</a>，大部分组件还是比较好用的，如果做中大型项目以及UI要求较高的情况下，还是比较推荐自己搭一套组件库，方便扩展以及维护。</p>
+<h2 id="结尾">结尾</h2>
+<p>关于<code>uni-app</code>项目的起步工作就到这里了，后面有机会写一套完整的<code>uni</code>搭建电商小程序项目，记得关注。代码已经提交到<a href="https://github.com/LonJinUp/uni-app-template">github</a>，如果对你有帮助，记得点个<code>star</code>!</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://lonjinup.github.io/blogstudy/" class="post-title gt-a-link">
+                    优秀技术博客的持续创作技巧
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="0fdde3b6-a87f-4594-9b7f-25d151ba858f";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<style>
+.gt-bg-theme-color-second{ background: none!important;}
+</style>
+
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

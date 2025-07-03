@@ -1,0 +1,587 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>vue3项目如何配置ESLint和prettier | 陇锦</title>
+
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1751543015276">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://lonjinup.github.io/aboutme" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1751543015276" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    vue3项目如何配置ESLint和prettier
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-08-23 ·
+                    </time>
+                    
+                        <a href="https://lonjinup.github.io/vWMtMYt9m/" class="post-tags">
+                            # 工具/教程
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="vue3项目如何配置eslint和prettier">vue3项目如何配置ESLint和prettier</h1>
+<h2 id="配置eslint">配置eslint</h2>
+<p>安装<code>eslint</code></p>
+<pre><code class="language-js">npm add eslint -D
+</code></pre>
+<p>安装完成后进行项目初始化</p>
+<pre><code class="language-js">npm init @eslint/config
+</code></pre>
+<p>然后根据提示选择对应的选项，作者个人选择如下：</p>
+<pre><code class="language-shell">? How would you like to use ESLint? ...
+To check syntax only 
+To check syntax and find problems
+&gt; To check syntax, find problems, and enforce code style
+</code></pre>
+<ul>
+<li>
+<p>To check syntax only: 仅检查语法<br>
+这个选项只会让 ESLint 检查您的代码是否符合语法规则，不会执行其他的代码质量检查或风格强制。</p>
+</li>
+<li>
+<p>To check syntax and find problems: 检查语法并发现问题<br>
+选择这个选项后，ESLint 将检查您的代码语法，并查找可能存在的问题，如未定义的变量、未使用的变量等。</p>
+</li>
+<li>
+<p>To check syntax, find problems, and enforce code style: 检查语法、发现问题并强制代码风格。这是最全面的选项，选择后，<code>ESLint</code> 将不仅检查语法和问题，还会根据您的配置强制执行代码风格规则，确保代码在整体风格上保持一致。</p>
+</li>
+</ul>
+<p>通常，如果希望在项目中使用 <code>ESLint</code> 来保证代码的风格一致性和质量，那么直接选择第三个就好。</p>
+<p>接下来会询问您的项目使用什么类型的模块（Module）系统：</p>
+<pre><code class="language-shell">? What type of modules does your project use? ...
+&gt; JavaScript modules (import/export)
+CommonJS (require/exports)
+None of these
+</code></pre>
+<ul>
+<li>
+<p>JavaScript modules (import/export): JavaScript 模块（使用 <code>import</code> 和 <code>export</code> 语法）<br>
+如果项目使用了 JavaScript 的模块系统，即使用了 ES6 的 <code>import</code> 和 <code>export</code> 语法来组织和导入导出代码文件，那么选择这个选项。</p>
+</li>
+<li>
+<p>CommonJS (require/exports): CommonJS 模块（使用 <code>require</code> 和 <code>module.exports</code> 语法）<br>
+如果项目使用了 <code>CommonJS</code> 的模块系统，即使用了 <code>require</code> 和<code> module.exports</code> 语法来组织和导入导出代码文件，那么选择这个选项。</p>
+</li>
+<li>
+<p>None of these: 无<br>
+如果项目既不使用 <code>JavaScript</code> 的模块系统，也不使用 <code>CommonJS</code> 的模块系统，可以选择这个选项。</p>
+</li>
+</ul>
+<p>由于我是写<code>Vue</code>项目，这里我就选择第一个。</p>
+<p>接下来询问在哪个框架中使用：</p>
+<pre><code class="language-shell">? Which framework does your project use? ...
+React
+&gt; Vue.js
+None of these
+</code></pre>
+<p>这里我选择了<code> Vue.js</code>，大家按需选择就好。</p>
+<p>接下来会询问你是否使用<code>ts</code>和代码在哪里运行：</p>
+<pre><code class="language-shell">√ Does your project use TypeScript? · No / **Yes**
+√ Where does your code run? · browser, node
+</code></pre>
+<ul>
+<li>Does your project use TypeScript?<br>
+这个选项用来询问您的项目是否使用 <code>TypeScript</code>。<code>TypeScript</code> 是一个 <code>JavaScript</code> 的超集，它添加了静态类型检查和其他特性。您可以选择以下选项之一：</li>
+</ul>
+<p>No: 如果项目不使用 <code>TypeScript</code>，选择这个选项。<br>
+Yes: 如果项目使用 <code>TypeScript</code>，选择这个选项。<br>
+如果项目使用 <code>TypeScript</code>，ESLint 会结合 <code>@typescript-eslint</code> 插件来提供 <code>TypeScript</code> 相关的检查和规则。</p>
+<ul>
+<li>Where does your code run?<br>
+这个选项用来询问您的代码将在什么环境中运行。您可以选择多个环境，如浏览器、<code>Node.js</code> 等。选择适合您项目的环境类型。例如：</li>
+</ul>
+<p>browser: 如果您的代码将在浏览器环境中运行。<br>
+node: 如果您的代码将在 Node.js 环境中运行。<br>
+根据您的选择，ESLint 将会根据不同的环境提供相应的规则和检查。</p>
+<p>这里还是看项目类型按需选择。</p>
+<p>接下来问你希望如何定义项目的样式：</p>
+<pre><code class="language-shell">√ How would you like to define a style for your project? …
+  Use a popular style guide
+❯ Answer questions about your style
+  ## next
+√ How would you like to define a style for your project? · prompt
+</code></pre>
+<ul>
+<li>
+<p>Use a popular style guide: 使用一个流行的代码风格指南<br>
+如果选择了这个选项，就可以从一些已知的流行代码风格指南中进行选择，例如 Airbnb、Google、Standard 等。这将会自动为应用选定的代码风格指南，以及相关的 ESLint 规则和配置。</p>
+</li>
+<li>
+<p>Answer questions about your style: 如果选择了这个选项，将会被引导回答一系列问题，用于自定义代码风格配置。这将根据自己的偏好和项目需求，创建一个项目的 ESLint 配置。</p>
+</li>
+<li>
+<p>next: 继续<br>
+如果选择了这个选项，您将会跳过当前步骤，继续下一步的配置。</p>
+</li>
+<li>
+<p>How would you like to define a style for your project? · prompt<br>
+如果选择了这个选项，您将会使用交互式提示来自定义代码风格。这将会引导你回答一些问题，以便为你的项目生成适合的 ESLint 配置。</p>
+</li>
+</ul>
+<p>这里我们可以选择第二个。</p>
+<p>然后询问你想用什么格式的配置文件：</p>
+<pre><code class="language-shell">? What format do you want your config file to be in? ...
+&gt; JavaScript
+  YAML
+  JSON
+</code></pre>
+<p>这里我就选<code>JavaScript</code>。</p>
+<p>询问缩进风格：</p>
+<pre><code class="language-shell">? What style of indentation do you use? ...
+&gt; Tabs
+  Spaces
+</code></pre>
+<ul>
+<li>
+<p>Tabs: 使用制表符进行缩进<br>
+如果你选择了这个选项，你的代码中的缩进将使用制表符进行，每一个级别的缩进都是一个制表符。</p>
+</li>
+<li>
+<p>Spaces: 使用空格进行缩进<br>
+如果你选择了这个选项，你的代码中的缩进将使用空格进行，每一个级别的缩进通常是 <code>2</code> 个或 <code>4</code>个空格，这取决于你的偏好和项目规范。</p>
+</li>
+</ul>
+<p>由于我喜欢<code>tab</code>缩进，所以我就选择第一个。</p>
+<p>字符串使用双引号还是单引号：</p>
+<pre><code class="language-shell">? What quotes do you use for strings? ...
+  Double
+&gt; Single
+</code></pre>
+<ul>
+<li>
+<p>Double: 使用双引号表示字符串<br>
+如果你选择了这个选项，你的代码中的字符串将使用双引号包裹，例如 &quot;Hello, World!&quot;。</p>
+</li>
+<li>
+<p>Single: 使用单引号表示字符串<br>
+如果你选择了这个选项，你的代码中的字符串将使用单引号包裹，例如 'Hello, World!'。</p>
+</li>
+</ul>
+<p>这里看个人or团队习惯，这里我就选择了单引号。</p>
+<p>用哪种结束符：</p>
+<pre><code class="language-shell">? What line endings do you use? ...
+&gt; Unix
+  Windows
+</code></pre>
+<ul>
+<li>
+<p>Unix: 使用 Unix 风格的换行符<br>
+如果你选择了这个选项，你的代码中的换行符将采用 <code>Unix</code> 风格，即 <code>LF</code>（换行<code> Line Feed</code>）。</p>
+</li>
+<li>
+<p>Windows: 使用 Windows 风格的换行符<br>
+如果你选择了这个选项，你的代码中的换行符将采用 <code>Windows</code> 风格，即 <code>CRLF</code>（回车换行 <code>Carriage Return Line Feed</code>）。</p>
+</li>
+</ul>
+<p>这里我选择<code>Unix</code>。</p>
+<p>是否使用分号：</p>
+<pre><code class="language-shell">? Do you require semicolons? » No / Yes
+</code></pre>
+<p>我个人不喜欢使用分号，所以选择<code>No</code></p>
+<p>然后会问你是否安装依赖：</p>
+<pre><code class="language-shell">@typescript-eslint/eslint-plugin@latest eslint-plugin-vue@latest @typescript-eslint/parser@latest
+? Would you like to install them now? » No / Yes   
+</code></pre>
+<p>这里我们选择<code>Yes</code>，然后会询问你用什么包管理器去安装依赖：</p>
+<pre><code class="language-shell">? Which package manager do you want to use? ...
+  npm
+  yarn
+&gt; pnpm 
+</code></pre>
+<p>这里我选择<code>npm</code>。</p>
+<p>安装完成后我们项目的根目录会生成<code>.eslintrc.js</code>文件：</p>
+<pre><code class="language-js">module.exports = {
+	env: {
+		browser: true,
+		es2021: true
+	},
+	extends: ['eslint:recommended', 'plugin:vue/vue3-essential'],
+	overrides: [
+		{
+			env: {
+				node: true
+			},
+			files: ['.eslintrc.{js,cjs}'],
+			parserOptions: {
+				sourceType: 'script'
+			}
+		}
+	],
+	parserOptions: {
+		ecmaVersion: 'latest',
+		sourceType: 'module'
+	},
+	plugins: ['vue'],
+	rules: {
+		indent: ['error', 'tab'],
+		'linebreak-style': ['error', 'unix'],
+		quotes: ['error', 'single'],
+		semi: ['error', 'never']
+	}
+}
+</code></pre>
+<p>有时候我们希望它可以忽略一些检查，所以我们可以在根目录建立一个<code>.eslintignore</code>文件用来忽略一些检查，这里根据个人需求进行配置即可，我的配置如下：</p>
+<pre><code class="language-js">*.sh
+node_modules
+*.md
+*.woff
+*.ttf
+.vscode
+.idea
+dist
+/public
+/docs
+.husky
+.local
+/bin
+Dockerfile
+</code></pre>
+<h2 id="配置prettier">配置Prettier</h2>
+<p>尽管 <code>ESLint</code> 和 <code>Prettier</code> 都具备代码质量和维护性方面的功能，但它们的焦点不同。通过同时使用 <code>ESLint</code> 和 <code>Prettier</code>，可以获得代码质量的全面检查，同时确保代码风格的一致性。通常的做法是将 <code>ESLint</code> 用于检测代码问题和逻辑错误，而 <code>Prettier</code> 则用于自动格式化代码，以便代码在不同人之间保持一致的外观。这样可以最大限度地提高代码质量和可维护性。</p>
+<p>安装：</p>
+<pre><code class="language-shell">npm add prettier -D
+</code></pre>
+<p>安装完成后，在项目根目录新建<code>.prettierrc.js</code>文件，这里简单列一下常用的，剩下的可以到官网查看</p>
+<pre><code class="language-js">module.exports = {
+    printWidth: 100, //一行的字符数
+    tabWidth: 4, // 一个tab代表几个空格数
+    useTabs: true, //是否使用tab进行缩进
+    singleQuote: true, //字符串是否使用单引号
+    semi: false, // 行尾是否使用分号，默认为true
+    trailingComma: &quot;none&quot;, // 是否使用尾逗号
+    htmlWhitespaceSensitivity: &quot;strict&quot;, // HTML空白敏感度
+    bracketSpacing: true, // 对象大括号直接是否有空格，默认为 true，效果：{ a: 1 }
+    proseWrap: &quot;never&quot;, // 换行设置
+}
+</code></pre>
+<p>同时也可以在根目录下建立忽略文件<code>.prettierignore</code>：</p>
+<pre><code class="language-js">/dist/*
+.local
+.output.js
+/node_modules/**
+**/*.svg
+**/*.sh
+/public/*
+</code></pre>
+<h2 id="eslint与prettier相结合">eslint与Prettier相结合</h2>
+<p>我们可以使用<code>eslint-config-prettier</code>和<code>eslint-plugin-prettier</code>来结合eslint与Prettier。</p>
+<p><code>eslint-config-prettier</code>用来覆盖 <code>ESLint</code> 本身的规则配置，</p>
+<p><code>eslint-plugin-prettier</code>则是用于让 <code>Prettier</code> 来接管<code>eslint --fix</code>即修复代码的能力。</p>
+<p>安装：</p>
+<pre><code class="language-shell">npm i eslint-config-prettier eslint-plugin-prettier -D
+</code></pre>
+<p>最终代码如下：</p>
+<pre><code class="language-js">module.exports = {
+	env: {
+		browser: true,
+		es2021: true
+	},
+	extends: ['eslint:recommended', 'plugin:vue/vue3-essential', 'plugin:prettier/recommended'],
+	overrides: [
+		{
+			env: {
+				node: true
+			},
+			files: ['.eslintrc.{js,cjs}'],
+			parserOptions: {
+				sourceType: 'script'
+			}
+		}
+	],
+	// 参考vue官方推荐,替换默认parser
+	parser: 'vue-eslint-parser',
+	parserOptions: {
+		ecmaVersion: 'latest',
+		sourceType: 'module'
+	},
+	plugins: ['vue'],
+	rules: {
+		indent: ['error', 'tab'],
+		'linebreak-style': ['error', 'unix'],
+		quotes: ['error', 'single'],
+		semi: ['error', 'never']
+	}
+}
+</code></pre>
+<p>然后在项目的<code>package.json</code>中配置一条命令：</p>
+<pre><code class="language-shell">{
+    &quot;scripts&quot;: {
+        &quot;lint:script&quot;: &quot;eslint --ext .js,.jsx --fix --quiet ./&quot;,
+    }
+}
+</code></pre>
+<p>该命令于检查和修复代码该命令的作用是在指定的文件扩展名（.js、.jsx）下，运行 <code>ESLint</code> 来检查并尝试修复当前目录及其子目录中的代码问题。命令的目标是自动化代码质量检查和格式修复的过程，以确保代码符合规范和最佳实践。</p>
+<p>但还有一个问题就是，目前只会检测<code>.js</code>、<code>.jsx</code>文件，并不会检测<code>.vue</code>文件，这里我们还需要借助一些插件来实现。</p>
+<h3 id="支持vue文件">支持.vue文件</h3>
+<p>安装下面插件:</p>
+<pre><code class="language-shell">npm install eslint-plugin-vue vue-eslint-parser --save-dev
+</code></pre>
+<p>配置<code>.eslintrc.js</code>，在<code>extends</code>中添加这两个插件，最终配置如下：</p>
+<pre><code class="language-js">module.exports = {
+	env: {
+		browser: true,
+		es2021: true,
+		node: true
+	},
+	extends: [
+		'eslint:recommended',
+		'plugin:vue/vue3-essential',
+		//新增插件
+		'plugin:prettier/recommended',
+		'plugin:vue/recommended'
+	],
+	overrides: [
+		{
+			env: {
+				node: true
+			},
+			files: ['.eslintrc.{js,cjs}'],
+			parserOptions: {
+				sourceType: 'script'
+			}
+		},
+		{
+			files: ['*.vue'],
+			rules: {
+				'no-undef': 'off',
+				'vue/no-setup-props-destructure': 'off',
+				'vue/multi-word-component-names': 'off',
+				'vue/no-mutating-props': 'off',
+				'no-unused-vars': 0,
+				'vue/valid-attribute-name': 'off'
+			}
+		}
+	],
+	// 参考vue官方推荐,替换默认parser
+	parser: 'vue-eslint-parser',
+	parserOptions: {
+		ecmaVersion: 'latest',
+		sourceType: 'module'
+	},
+	plugins: ['vue'],
+	rules: {
+		'prettier/prettier': 'error',
+		indent: ['error', 'tab'],
+		'linebreak-style': ['error', 'unix'],
+		quotes: ['error', 'single'],
+		semi: ['error', 'never'],
+		'no-console': 'off',
+		'no-debugger': 'off'
+	}
+}
+</code></pre>
+<p>然后修改命令为：</p>
+<pre><code class="language-shell">&quot;scripts&quot;: {
+	&quot;lint:script&quot;: &quot;eslint --ext .js,.jsx,.vue --fix --quiet ./&quot;
+},
+</code></pre>
+<h2 id="运行时实时验证">运行时实时验证</h2>
+<p>如果使用<code>vscode</code>编辑器，可以下载<code>ESLint</code>和<code>Prettier-Code formatter</code>进行验证，该插件会检测项目根目录是否存在相关配置文件，如果有相关配置文件则会根据配置文件在保存的时候进行检测，如果不用<code>vscode</code>开发也没关系，可以借助一些插件实现运行时代码保存时候根据规则进行验证。</p>
+<pre><code class="language-shell">npm i vite-plugin-prettier 
+</code></pre>
+<p>在<code>vite.config.js文件中引入插件</code>文件中引入插件：</p>
+<pre><code class="language-js">import VitePrettier from 'vite-plugin-prettier'
+export default defineConfig({
+  plugins: [
+    VitePrettier({
+      singleQuote: true,// 字符串是否使用单引号
+      //...更多规则
+    })
+  ],
+})
+</code></pre>
+<p>配置后重启项目，只要项目在运行中，保存代码就会通过<code>prettier</code>进行代码格式化处理。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://lonjinup.github.io/node-02-cli/" class="post-title gt-a-link">
+                    【node学习-02】如何搭建自己的脚手架
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="0fdde3b6-a87f-4594-9b7f-25d151ba858f";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<style>
+.gt-bg-theme-color-second{ background: none!important;}
+</style>
+
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>&#34;5.25秒变0.023秒：小程序图片优化全攻略&#34; | 陇锦</title>
+
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1751543015276">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://lonjinup.github.io/aboutme" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1751543015276" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    &#34;5.25秒变0.023秒：小程序图片优化全攻略&#34;
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-01-09 ·
+                    </time>
+                    
+                        <a href="https://lonjinup.github.io/qtoGOVHJb/" class="post-tags">
+                            # 小程序
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="525秒变0023秒小程序图片优化全攻略">&quot;5.25秒变0.023秒：小程序图片优化全攻略&quot;</h1>
+<blockquote>
+<p>最近在公司在写微信小程序，该小程序主要展示一些高清图片，所以图片数量非常多，而且图片尺寸也比较大，导致小程序的加载时间非常长。所以这里记录一下如何减少小程序图片的加载时间。</p>
+</blockquote>
+<h2 id="优化前">优化前</h2>
+<p>这里我挑选了一些项目里面比较大的图片，还有我之前保存的一些背景图，共计<code>12</code>张，上传到<code>阿里云oss</code>，然后写了一个demo去渲染图片，这里我们先看看加载时间。</p>
+<figure data-type="image" tabindex="1"><img src="https://s11.ax1x.com/2024/01/10/pFpoHTU.png" alt="pFpoHTU.png" loading="lazy"></figure>
+<p>可以看到，一旦文件大小到了<code>1M</code>以上，加载基本都在<code>1秒</code>以上了，而且加载最慢的一张图片大小为<code>2.4M</code>；加载耗时<code>5.27</code>秒。然而在这个小程序中，有非常多的瀑布流图片展示，需要加载的图片也非常多，这对于这种图片展示类的小程序来说，简直是非常糟糕的体验。下面我们就分析一下，如何提升用户体验，缩短加载时间。</p>
+<h2 id="分析优化">分析优化</h2>
+<p>这里我总结了一些常见图片优化策略，方法如下：</p>
+<figure data-type="image" tabindex="2"><a href="https://imgse.com/i/pFpojp9"><img src="https://s11.ax1x.com/2024/01/10/pFpojp9.png" alt="pFpojp9.png" loading="lazy"></a></figure>
+<p>下面我们就根据总结的优化策略进行优化，具体如下：</p>
+<h3 id="优化1使用webp格式的图片">优化1：使用<code>webp</code>格式的图片</h3>
+<p>首先我们知道，在小程序中是支持<code>webp</code>格式的图片的，所以我们可以将图片转换为<code>webp</code>格式，这样可以减少图片体积，提升加载速度。<br>
+公司使用的<code>阿里云oss</code>进行图片存储，阿里云oss是支持格式转换的，只需要在图片url后面加一定的参数即可，我们可以给图片后面加上<code>?x-oss-process=image/format,webp</code>即可。</p>
+<pre><code class="language-js">// 原本图片路径：
+let url =' https://lonjin.oss-cn-beijing.aliyuncs.com/weixin-test/3%20%282%2917047050403470042.png'
+
+// 转化为webp格式的图片路径：
+let url =' https://lonjin.oss-cn-beijing.aliyuncs.com/weixin-test/3%20%282%2917047050403470042.png?x-oss-process=image/format,webp'
+</code></pre>
+<p>清除缓存，刷新页面，再来看加载时间：</p>
+<figure data-type="image" tabindex="3"><a href="https://imgse.com/i/pFpoqkF"><img src="https://s11.ax1x.com/2024/01/10/pFpoqkF.png" alt="pFpoqkF.png" loading="lazy"></a></figure>
+<p>可以看到，加载时间大幅缩短，图片格式转化后，图片大小已经非常小了，最大的一张图片仅仅有<code>730kb</code>；随之加载时间也大幅缩短，最慢的一张图片从之前的5.27秒缩短为1.71秒，加载速度提升了<code>3倍</code>！其他的图片加载基本都在<code>500ms</code>左右，加载速度提升也是比较明显。</p>
+<p>这里我们还需要注意一下<code>webp</code>图片格式的支持范围，我这里使用的<code>uni-app</code>做为demo，查了一下文档，支持范围如下：</p>
+<blockquote>
+<p>Android4以上（含）、iOS14以上（含）系统内置支持webp，此时，不管web、小程序、app，也不管vue/nvue/uvue都可以直接使用webp；<br>
+iOS14以下，app-vue下，iOS不支持；app-nvue/uvue下，iOS支持；微信小程序2.9.0起，配置属性webp为true时iOS支持；</p>
+</blockquote>
+<p>所以如果考虑一些特殊情况，我们可以进行一些特殊情况下的处理。</p>
+<p>如果文件是直接放在服务器上的，我们可以借助一些第三方工具来把图片批量转化为<code>webp</code>格式；比如<a href="https://convertio.co/zh/jpg-webp/">convertio.co</a></p>
+<h3 id="优化2根据需求设置适当的分辨率">优化2：根据需求设置适当的分辨率</h3>
+<p>阿里云oss支持在图片后面加上参数来设置图片的分辨率，我这里写的demo中，<code>image</code>标签图片宽度均为小程序图片默认宽度；即为<code>width: 320px;</code>，所以我们可以给图片url后面加上<code>/resize,w_320</code>即可，其中<code>w_320</code>表示图片宽度为<code>320px</code>。</p>
+<pre><code class="language-js">// 原本图片路径：
+let url =' https://lonjin.oss-cn-beijing.aliyuncs.com/weixin-test/3%20%282%2917047050403470042.png?x-oss-process=image/format,webp'
+
+// 设置宽度后的图片路径：
+let url =' https://lonjin.oss-cn-beijing.aliyuncs.com/weixin-test/3%20%282%2917047050403470042.png?x-oss-process=image/format,webp/resize,w_320'
+</code></pre>
+<p>清除缓存，刷新页面，再来看加载时间：</p>
+<figure data-type="image" tabindex="4"><a href="https://imgse.com/i/pFpoLY4"><img src="https://s11.ax1x.com/2024/01/10/pFpoLY4.jpg" alt="pFpoLY4.jpg" loading="lazy"></a></figure>
+<p>图片大小大幅度减少，最大的一张图片仅仅有<code>15.4 kB</code>；随之加载时间也大幅缩短，最慢的一张图片从之前的1.71秒缩短为316毫秒，加载速度提升了<code>5倍</code>！这时候所有图片的加载速度全部没有超过1秒，最大不超过<code>350ms</code>；基本上算是质的飞跃了。不过需要注意的是，图片分辨率还是需要结合业务需求进行调整的，如果要求必须高清，不建议设置太小的分辨率。不过我们可以写一个检测用户网络状态的方法，在不同的网络环境下加载不同分辨率的图片；后面我会专门来写一篇文章来实现这个功能。</p>
+<h3 id="优化3使用雪碧图">优化3：使用雪碧图</h3>
+<p>雪碧图，也叫<code>Sprite</code>，是将多个小图片合并成一张大图，然后在页面中使用<code>background-image</code>和<code>background-position</code>属性来显示其中的某一张图片。这样可以减少图片的加载次数，减少图片的大小，同时减少图片的加载时间。在项目中难免会有很多小图标，我们就可以使用雪碧图的方式来使用，减少请求次数。这里我就不做展示了。</p>
+<h3 id="优化4合理使用占位图片">优化4：合理使用占位图片</h3>
+<p>通常情况下，为了内容的动态展示，需要通过网络请求从接口中获取图片的url。如果在网络慢的情况下，image加载图片的过程可能会非常慢，在请求完成之前页面都会因为没有数据而呈现一片空白，这是非常差的用户体验，这里我们可以借助小程序image标签上的<code>@error	</code>和<code>@load</code>事件来实现占位图片的展示。我们可以根据需求去封装一个<code>LoadImage</code>组件统一处理，上面提到的<code>优化1</code>、<code>优化2</code>也可以通过定义参数实现批量添加，同时我们也可以给组件加上<code>lazyLoad</code>，减轻小程序加载压力。</p>
+<p>组件具体代码如下：</p>
+<pre><code class="language-html">&lt;template&gt;
+    &lt;view class=&quot;loadImage-wrapper&quot;&gt;
+        &lt;image v-if=&quot;isLoading&quot; :src=&quot;defaultImage&quot; :mode=&quot;mode&quot; :lazy-load=&quot;lazyLoad&quot; /&gt;
+        &lt;image :class=&quot;[isLoading ? 'before-load' : '']&quot; :src=&quot;imageUrl&quot; :mode=&quot;mode&quot; :lazy-load=&quot;lazyLoad&quot;
+            @load=&quot;imageLoad&quot; /&gt;
+    &lt;/view&gt;
+&lt;/template&gt;
+&lt;script&gt;
+export default {
+    props: {
+        /**
+         * 占位图
+         * @default /static/images/load-image.png
+         */
+        defaultImage: {
+            type: String,
+            default: '/static/load-image.png',
+        },
+        /**
+         * 是否使用webp
+         * @default false
+         */
+        useWebp: {
+            type: Boolean,
+            default: false,
+        },
+        /**
+         * 图片的显示模式
+         * @default scaleToFill
+         */
+        mode: {
+            type: String,
+            default: 'scaleToFill',
+        },
+        /**
+         * 图片加载分辨率-宽度
+         * @default 
+        */
+        width: {
+            type: String,
+            default: '',
+        },
+        /**
+         * 是否懒加载
+         * @default true
+         */
+        lazyLoad: {
+            type: Boolean,
+            default: true,
+        },
+        /**
+         * 图片地址
+         * @default 
+        */
+        src: {
+            type: String,
+            default: '',
+        },
+    },
+    data() {
+        return {
+            isLoading: true,
+        }
+    },
+
+    methods: {
+        imageLoad() {
+            this.isLoading = false
+        },
+    },
+
+    computed: {
+        imageUrl() {
+            let url = this.src + '?'
+            this.useWebp &amp;&amp; (url += 'x-oss-process=image/format,webp')
+            this.width &amp;&amp; (url += '/resize,w_' + this.width)
+            return url
+        }
+    },
+}
+&lt;/script&gt;
+&lt;style lang=&quot;scss&quot; scoped&gt;
+.loadImage-wrapper {
+    .before-load {
+        width: 0;
+        height: 0;
+        opacity: 0;
+    }
+}
+&lt;/style&gt;
+</code></pre>
+<p>使用方式如下：</p>
+<pre><code class="language-html">&lt;template&gt;
+    &lt;view class=&quot;list&quot;&gt;
+        &lt;load-image v-for=&quot;(item, index) in list&quot; :src=&quot;item&quot; :lazyLoad=&quot;false&quot; useWebp :width=&quot;320&quot; :key=&quot;index&quot; /&gt;
+    &lt;/view&gt;
+&lt;/template&gt;
+</code></pre>
+<h2 id="优化后效果对比">优化后效果对比</h2>
+<p>我们再来看一下优化前后的加载时间对比：</p>
+<ul>
+<li>
+<p>优化前：<br>
+<a href="https://imgse.com/i/pFpojp9"><img src="https://s11.ax1x.com/2024/01/10/pFpojp9.png" alt="pFpojp9.png" loading="lazy"></a></p>
+</li>
+<li>
+<p>优化后：<br>
+<a href="https://imgse.com/i/pFpoOfJ"><img src="https://s11.ax1x.com/2024/01/10/pFpoOfJ.png" alt="pFpoOfJ.png" loading="lazy"></a></p>
+</li>
+</ul>
+<p>我们用一张图片来做对比：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>图片名称</th>
+<th>大小</th>
+<th>加载时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优化前</td>
+<td>wallhaven-we3z86.jpeg</td>
+<td>2.4MB</td>
+<td>5.27s</td>
+</tr>
+<tr>
+<td>优化后</td>
+<td>wallhaven-we3z86.jpeg</td>
+<td>15.3KB</td>
+<td>23ms</td>
+</tr>
+</tbody>
+</table>
+<p>可以看到相对体积而言，缩小了<code>99.4%</code>；相对加载时间，缩短了<code>5.25</code>秒，在几乎不影响图片质量的情况下，极大的提升了用户体验。</p>
+<h2 id="总结">总结</h2>
+<blockquote>
+<p>关于小程序的图片优化，我们可以根据业务需求以及技术支持来选择不同的方案，这里我只列出了几个最常用的方案，如果业务需求比较复杂，可以多尝试一些方案。</p>
+</blockquote>
+<h2 id="往期文章">往期文章</h2>
+<p><a href="https://lonjinup.github.io/uni-request/">5分钟get：Uni-App网络请求完美封装指南！</a><br>
+<a href="https://lonjinup.github.io/uni-app-template-01/">uni-app开发小程序：项目架构以及经验分享</a><br>
+<a href="https://lonjinup.github.io/wxtabbar/">小程序TabBar创意动画(文末附完整源代码)</a></p>
+<blockquote>
+<p>本文首发于<a href="https://lonjinup.github.io">lonjin个人博客</a>，转载请注明出处！</p>
+</blockquote>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://lonjinup.github.io/node-demo-01/" class="post-title gt-a-link">
+                    node项目实战-01实现注册登录
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="0fdde3b6-a87f-4594-9b7f-25d151ba858f";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<style>
+.gt-bg-theme-color-second{ background: none!important;}
+</style>
+
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

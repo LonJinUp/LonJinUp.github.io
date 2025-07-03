@@ -1,0 +1,786 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>前端基础总结 | 陇锦</title>
+
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1751543015276">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://lonjinup.github.io/aboutme" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1751543015276" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    前端基础总结
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2021-05-25 ·
+                    </time>
+                    
+                        <a href="https://lonjinup.github.io/su-x11Ukj/" class="post-tags">
+                            # JavaScript
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="复习笔记">复习笔记</h1>
+<h2 id="html">html</h2>
+<blockquote>
+<p>什么是重绘？什么是回流？</p>
+</blockquote>
+<ul>
+<li>
+<p><strong>重绘</strong>: 当渲染树中的一些元素需要更新属性，而这些属性只是影响元素的外观、风格，而 不会影响布局的操作，比如 background color，我们将这样的操作称为重绘。</p>
+</li>
+<li>
+<p><strong>回流</strong>:当渲染树中的一部分(或全部)因为元素的规模尺寸、布局、隐藏等改变而需要重 新构建的操作，会影响到布局的操作，这样的操作我们称为回流。</p>
+</li>
+</ul>
+<blockquote>
+<p>H5有哪些新特性</p>
+</blockquote>
+<ul>
+<li>绘画 canvas;</li>
+<li>用于媒介回放的 video 和 audio 元素</li>
+<li>本地离线存储 localStorage 长期存储数据，浏览器关闭后数据不丢失; sessionStorage 的数据在浏览器关闭后自动删除</li>
+<li>语意化更好的内容元素，比如 article、footer、header、nav、section; 表单控件，calendar、date、time、email、url、search;</li>
+<li>新的技术 webworker, websocket;</li>
+<li>新的文档属性 document.visibilityState</li>
+</ul>
+<h2 id="css">css</h2>
+<blockquote>
+<p>说一下常见的盒子模型，如何切换两种盒子模型？</p>
+</blockquote>
+<ul>
+<li>标准(W3C)盒子模型：属性 width，height 只包含内容 content，不包含 border 和 padding</li>
+<li>IE盒子模型：属性 width，height 包含 content、border 和 padding，指的是 content +padding+border。</li>
+</ul>
+<pre><code class="language-css">  box-sizing:content-box;
+  box-sizing:border-box;
+</code></pre>
+<blockquote>
+<p>如何解决margin塌陷/margin重叠？</p>
+</blockquote>
+<ul>
+<li>有时当我们设置子元素的margin-top，但是却发现子元素没有出现上外边距的效果，反而是父元素出现了上外边距的效果。第一个子元素设置margin-top父元素会跟着移动，这就是<code>margin</code>塌陷，解决方法：
+<ul>
+<li>为父元素设置padding。---要设置padding，设置margin不行</li>
+<li>为父元素设置border。---设置border为0px不行，border要有值</li>
+<li>为父元素设置 overflow: hidden</li>
+<li>父级或子元素使用浮动或者绝对定位absolute</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>什么是<strong>BFC</strong>？<strong>BFC</strong>是如何触发的？</p>
+</blockquote>
+<ul>
+<li>
+<p>容器里面的元素不会在布局上影响到外面的元素</p>
+</li>
+<li>
+<p>只要元素满足下面任一条件即可触发<strong>BFC</strong>特性</p>
+<ul>
+<li>body 根元素</li>
+<li>浮动元素：float 除 none 以外的值</li>
+<li>绝对定位元素：position (absolute、fixed)</li>
+<li>display 为 inline-block、table-cells、flex</li>
+<li>overflow 除了 visible 以外的值 (hidden、auto、scroll)【最常用】</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>如何实现垂直水平居中</p>
+</blockquote>
+<ul>
+<li>flex布局</li>
+</ul>
+<pre><code class="language-css">  .box{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</code></pre>
+<ul>
+<li>定位</li>
+</ul>
+<pre><code class="language-css">  .box{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+  }
+</code></pre>
+<h2 id="javascript">JavaScript</h2>
+<blockquote>
+<p>数据类型都有哪几种，有什么区别？</p>
+</blockquote>
+<ul>
+<li>
+<p>数据类型分为<code>原始数据类型</code>和<code>对象数据类型</code>。</p>
+<ul>
+<li>原始数据类型：null、Boolean、Number、String、undefined、Symbol、BigInt</li>
+<li>对象数据类型：Object</li>
+</ul>
+</li>
+<li>
+<p>区别：原始数据类型存储在栈区，占用空间较小，存储的是值；对象类型同时存储在栈区和堆区，且大小不固定。</p>
+</li>
+</ul>
+<blockquote>
+<p>如何判断数据类型</p>
+</blockquote>
+<ul>
+<li><code>typeOf</code>:可以判断基本数据类型，除了<code>null</code>以外，因为<code>null</code>认为是空对象的引用。</li>
+<li><code>instanceof</code>:可以判断对象类型，内部机制是通过原型链来进行判断的。</li>
+<li><code>constructor</code>:利用原型上的<strong>prototype.constructor</strong>指向实例的构造函数来进行判断。如果中途改变类型，则判断不准确。</li>
+<li><code>Object.prototype.toString.call</code>:使用Object对象的原型方法<strong>toString</strong>,返回值是[object 类型]字符串。</li>
+</ul>
+<blockquote>
+<p>说一下js类型转换规则</p>
+</blockquote>
+<ul>
+<li>
+<p>转换为布尔值：除了<code>undefined</code>、<code>null</code>、<code>false</code>、<code>NaN</code>、<code>''</code>、<code>0</code>、<code>-0</code>,剩下的都为<code>true</code></p>
+</li>
+<li>
+<p>转化为数字：</p>
+<ul>
+<li>null,返回0</li>
+<li>undefined，返回NaN</li>
+<li>布尔值， true 转换为1， false 转换为0</li>
+<li>字符串：
+<ul>
+<li>如果字符串包含数值字符，包括数值字符前面带加、减号的情况，则转换为一个十进制数值</li>
+<li>如果字符串包含有效的浮点值格式如 &quot;1.1&quot; ，则会转 换为相应的浮点值(同样，忽略前面的零)</li>
+<li>如果字符串包含有效的十六进制格式如 &quot;0xf&quot; ，则会 转换为与该十六进制值对应的十进制整数值。</li>
+<li>如果是空字符串(不包含字符)，则返回0。</li>
+<li>如果字符串包含除上述情况之外的其他字符，则返回NaN。</li>
+<li>如果是对象，调用<code>valueof()</code>方法，并按照字符串的规则转换返回的值。如果转换结果是NaN，则调用<code>toString()</code>方法，再按照转换字符串的规则转换。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>转换为字符串，直接转化</p>
+</li>
+</ul>
+<blockquote>
+<p>如何正确判断<strong>this</strong>？箭头函数的<strong>this</strong>是什么？如何改变<strong>this</strong>指向</p>
+</blockquote>
+<ul>
+<li>在浏览器中，全局环境下，<code>this</code>指向<code>window</code>对象。</li>
+<li>在函数中，<code>this</code>指向最后调用它的那个对象。</li>
+<li>箭头函数的<code>this</code>始终指向其包裹箭头函数的第一个函数。</li>
+<li>有<code>new</code>操作符，指向<code>new</code>出来的那个对象。</li>
+<li><code>call</code>、<code>apply</code>、<code>bind</code>指向绑定的新对象上。</li>
+</ul>
+<blockquote>
+<p>== 和 === 有什么区别？</p>
+</blockquote>
+<ul>
+<li><code>==</code>如果类型不同，会进行隐式转化；再进行比较。</li>
+<li><code>===</code>直接判断类型和值是否相等。</li>
+</ul>
+<blockquote>
+<p>什么是闭包？</p>
+</blockquote>
+<ul>
+<li>函数A内部有函数B，函数B访问函数A的变量，函数B就是一个闭包。闭包就是为了我们能够间接访问内部变量,避免被垃圾机制回收。</li>
+</ul>
+<pre><code class="language-js">  function a(){
+    let a=0;
+    function b(){
+      a++;
+      console.log(a)
+    }
+    return b
+  }
+  let n=a();
+  n(); //1
+  n(); //2
+</code></pre>
+<blockquote>
+<p>什么是浅拷贝？如何实现浅拷贝？什么是深拷贝？如何实现深拷贝？</p>
+</blockquote>
+<ul>
+<li>浅拷贝：拷贝所有的值到新对象中，如果属性值是对象，则拷贝对象的地址。</li>
+</ul>
+<pre><code class="language-js">  //通过Object.assign
+  let a={
+    name:'tom',
+    age:18
+  };
+
+  let b=Object.assign({},a)
+  console.log(b);
+
+  //通过展开运算符
+
+  let c={
+    name:'lonjin',
+    age:18
+  };
+
+  let d={...c}
+  console.log(d)
+</code></pre>
+<ul>
+<li>深拷贝：拷贝所有的值到新对象中，如果属性值是对象，则拷贝对象的地址。</li>
+</ul>
+<pre><code class="language-js">  // JSON.parse(JSON.stringify(object))实现
+  /* 缺点：会忽略 undefined
+          会忽略 symbol
+          不能序列化函数
+          不能解决循环引用的对象 */
+  let a={
+    name:'tom',
+    fnc:{
+      age:18
+    }
+  }
+
+  let b=JSON.parse(JSON.stringify(a))
+
+  a.fnc.age=19
+
+  console.log(b.fnc)
+</code></pre>
+<blockquote>
+<p>如何理解原型？如何理解原型链？</p>
+</blockquote>
+<ul>
+<li>
+<p>举个例子：当我们写一个构造函数时候，构造函数身上会有一个<code>prototype</code>属性，这就是该构造函数的原型对象；它可以存一些该构造函数公告的属性和方法，同时该属性身上有<code>constructor</code>属性，它指向创建它的构造函数。</p>
+</li>
+<li>
+<p>当我们访问一个对象的某个属性时候，如果在对象内部没有找到，就会通过**<strong>proto</strong>**沿着向上查找，这就是原型链。</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://s1.ax1x.com/2020/09/17/w2zC4g.png" alt="w2zC4g.png" loading="lazy"></figure>
+<blockquote>
+<p>var、let 及 const 区别</p>
+</blockquote>
+<ul>
+<li><code>var</code>声明的变量会变量提升</li>
+<li><code>let、const</code>声明的变量不会进行变量提升，且有块级作用域</li>
+<li><code>const</code>声明时必须赋值</li>
+</ul>
+<blockquote>
+<p>如何实现继承</p>
+</blockquote>
+<ul>
+<li><code>ES5</code>组合继承法：</li>
+</ul>
+<pre><code class="language-js">    function Parent(){
+        this.name='tom';
+    };
+
+    Parent.prototype.say=function(){
+        console.log(this.name)
+    };
+
+    function Child(){
+        Parent.call(this)
+        this.age=18;
+    };
+
+    Child.prototype=Object.create(Parent.prototype);
+
+    Child.prototype.constructor=Child;
+</code></pre>
+<ul>
+<li><code>ES6</code>使用<code>class</code>:</li>
+</ul>
+<pre><code class="language-js">  class Parent{
+    constructor(name,age){
+      this.name=name;
+      this.age=age;
+    }
+  }
+
+  class Child extends Parent{
+    constructor(name,age,say){
+      super(name,age);
+      this.say=say;
+    }
+  }
+
+  let c=new Child('bob',17,'say hi')
+</code></pre>
+<blockquote>
+<p>Proxy 可以实现什么功能？</p>
+</blockquote>
+<ul>
+<li>Proxy 可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。<code>vue3</code>中就是通过<code>Proxy</code>取代<code>Object.defineProperty</code>来实现数据响应式。</li>
+</ul>
+<blockquote>
+<p>forEach、map、filter、find、reduce、every、some都适用于哪种场景？</p>
+</blockquote>
+<ul>
+<li>
+<p><code>forEach</code>:进行遍历操作，可在当前遍历对象身上直接操作，不会产生新数组。</p>
+</li>
+<li>
+<p><code>map</code>:用于遍历操作，且需要返回值，如果没有返回值，则为<code>undefined</code>,<code>map</code>会返回一个新数组。</p>
+</li>
+<li>
+<p><code>filter</code>:进行一些筛选过滤，<code>return</code>符合条件的值产生新数组。</p>
+</li>
+<li>
+<p><code>find</code>:根据指定的条件找到数组中符合条件的值。</p>
+</li>
+<li>
+<p><code>reduce</code>:提取数组对象中某个值｜数组求和</p>
+</li>
+</ul>
+<blockquote>
+<p>Promise 的特点是什么，分别有什么优缺点？什么是 Promise 链？Promise 构造函数执行和 then 函数执行有什么区别？</p>
+</blockquote>
+<ul>
+<li>
+<p><code>Promise</code>本译就是承诺的意思，这个承诺会在未来有一个确切的答复，并且该承诺有三种状态：</p>
+<ul>
+<li>进行中：<code>pending</code></li>
+<li>完成了：<code>resolved</code></li>
+<li>失败了：<code>rejected</code></li>
+</ul>
+</li>
+<li>
+<p>承诺状态一旦改变就不可更改，且在构造<code>Promise</code>时候，构造函数内部代码是立即执行的。</p>
+</li>
+</ul>
+<pre><code class="language-js">  new Promise((resolve, reject) =&gt; {
+    console.log('Promise')
+  })
+  console.log('finifsh') //Promise -&gt; finifsh
+</code></pre>
+<ul>
+<li><code>Promise</code>可以进行链式调用，每次<code>then()</code>都是一个新<code>Promise</code>。如果在<code>Promise</code>中使用了<code>return</code>,也会被转化为<code>Promise.resolve()</code>。</li>
+</ul>
+<blockquote>
+<p>async 及 await 的特点，它们的优点和缺点分别是什么？await 原理是什么？</p>
+</blockquote>
+<ul>
+<li>在普通函数前面加上<code>async</code>,该函数返回就成了一个<code>Promise</code>,如果要使用其返回值，我们就可以使用<code>then()</code>:</li>
+</ul>
+<pre><code class="language-js">  async function fn(){
+      console.log('fn');
+      return 'i im fn'
+  };
+
+  fn().then((val)=&gt;{
+      console.log(val)
+  })
+  //fn ---&gt; i im fn
+</code></pre>
+<ul>
+<li><code>await</code>只能在<code>async</code>函数内使用</li>
+</ul>
+<blockquote>
+<p>谈一谈js的执行机制</p>
+</blockquote>
+<ul>
+<li>js是一种<strong>单线程</strong>、<strong>异步</strong>、<strong>非阻塞</strong>、<strong>解释型</strong>脚本语言，它最大的特点就是单线程。在js执行时候，从上往下，先吧同步任务放到执行栈中执行，当遇到异步任务时候，会把异步任务放到异步队列，当执行栈为空的时候，会从异步队列中取出一条压入执行栈，这样一直循环，这就是<code>Event Loop</code>。异步任务又分为<strong>宏任务</strong>和<strong>微任务</strong>，<strong>微任务</strong>优先于<strong>宏任务</strong>。</li>
+</ul>
+<blockquote>
+<p>new操作符都干了什么？</p>
+</blockquote>
+<ul>
+<li>在内存中创建一个新对象</li>
+<li>这个新对象内部的[[prototype]]特性被赋值为构造函数的prototype属性</li>
+<li>构造函数内部的this被赋值为这个新对象(即this指向新对象)</li>
+<li>如果构造函数返回非空 对象，则返回该对象；否则，返回刚创建的新对象</li>
+</ul>
+<pre><code class="language-js">  function _new(fn,...args){
+      const newObj = Object.create(fn.prototype);
+      const value = fn.apply(newObj,args);
+      return value instanceof Object ? value : newObj;
+  }
+</code></pre>
+<blockquote>
+<p>为什么 0.1 + 0.2 != 0.3？如何解决这个问题？</p>
+</blockquote>
+<ul>
+<li>因为精度问题导致的，解决方法如下：</li>
+</ul>
+<pre><code class="language-js">   parseFloat((0.1 + 0.2).toFixed(10)) === 0.3 // true
+</code></pre>
+<blockquote>
+<p>说一说浏览器垃圾回收机制</p>
+</blockquote>
+<ul>
+<li>浏览器垃圾回收机制有好几种方案，之前大部分浏览器采用标记清理，还有一部分使用引用计数。<strong>V8</strong>新生代算法把内内存空间分为两部分：<code>From</code>和<code>to</code>空间，这两个空间必定有一个是空的，当一个空间满了以后，就会检查当前空间存活的对象放到另外一个空间。</li>
+</ul>
+<blockquote>
+<p>什么是防抖？什么是节流？</p>
+</blockquote>
+<ul>
+<li><strong>防抖</strong>：在事件被触发n秒后再执行回调，如果在这n秒内又被触发，则重新计时。</li>
+</ul>
+<pre><code class="language-js">  function debounce(fn,wait){
+    let timer=null;
+    return function(){
+        clearTimeout(timer);
+        timer=setTimeout(function(){
+            fn.apply(this)
+        },wait)
+    }
+  }
+
+  document.getElementById('btn').onclick=debounce(function(){console.log('触发'+Date.now());},1000)
+</code></pre>
+<ul>
+<li><strong>节流</strong>：规定在一个单位时间内，只能触发一次函数。如果这个单位时间内触发多次函数，只有一次生效。</li>
+</ul>
+<pre><code class="language-js">   function throttle(fn,wait){
+        // 记录上一次函数执行的时间
+        var lastTime=0;
+        
+        return function(){
+             // 现在时间
+            var nowTime=new Date();
+
+            if(nowTime-lastTime&gt;wait){
+                fn.call(this);
+                lastTime=nowTime; 
+            }
+        }
+    };
+    document.onscroll=throttle(function(){console.log('触发'+Date.now());},1000)
+</code></pre>
+<h2 id="vue">Vue</h2>
+<blockquote>
+<p>谈一谈<code>Vue</code>的生命周期，在哪个周期可以获取<code>DOM</code>？平时获取数据可以在哪个生命周期执行？</p>
+</blockquote>
+<ul>
+<li>
+<p>简单来说，<code>Vue</code>的生命周期可以归为3类，创建阶段、运行阶段、销毁阶段。</p>
+</li>
+<li>
+<p><strong>创建阶段</strong></p>
+<ul>
+<li>
+<p><strong>beforeCreate</strong>：实例刚在内存中创建出来，还没有初始化 data和 methods，只包含一些自带额生命周期函数。</p>
+</li>
+<li>
+<p><strong>created</strong>：实例已经在内存中创建完成，此时data和methods已经创建完成。</p>
+</li>
+<li>
+<p><strong>beforeMount</strong>：此时已经编译模版，但没有渲染到页面中。</p>
+</li>
+<li>
+<p><strong>mounted</strong>：渲染模版，创建阶段到此结束。这时候可以操作dom。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>运行阶段</strong></p>
+<ul>
+<li>
+<p><strong>beforeUpdate</strong>：界面中的数据还是旧的，但是data数据已经更新，页面中和data还没有同步。修改data数据就会触发这个函数。</p>
+</li>
+<li>
+<p><strong>updated</strong>：页面重新渲染完毕，页面中的数据和data保持一致。修改data数据就会触发这个函数。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>销毁阶段</strong></p>
+<ul>
+<li>
+<p><strong>beforeDestroy</strong>：执行该方法的时候，Vue的生命周期已经进入销毁阶段，但是实例上的各种数据还出于可用状态。</p>
+</li>
+<li>
+<p><strong>destroyed</strong>：组件已经全部销毁，Vue实例已经被销毁，Vue中的任何数据都不可用</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>keep-alive</strong></p>
+<ul>
+<li>
+<p><strong>activited</strong>：keep-alive 专属，组件被激活时调用</p>
+</li>
+<li>
+<p><strong>deactivated</strong>：keep-alive 专属，组件被销毁时调用</p>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>组件如何进行通信？</p>
+</blockquote>
+<ul>
+<li>
+<p><strong>父子组件</strong></p>
+<ul>
+<li>
+<p><code>props/$emit</code>:父组件通过<code>props</code>来给子组件传递数据，子组件可以通过<code>$emit</code>发送事件给父组件。但这种父子直接传递数据是<strong>单向数据流</strong></p>
+</li>
+<li>
+<p><code>$$parent/$children</code>:通过<code>$parent</code>或<code>$children</code>就可以访问组件的实例</p>
+</li>
+<li>
+<p><code>ref/refs</code>:如果在普通的 DOM 元素上使用，引用指向的就是 DOM 元素；如果用在子组件上，引用就指向组件实例，可以通过实例直接调用组件的方法或访问数据</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>兄弟组件</strong></p>
+<ul>
+<li><code>this.$parent.$children</code>:在<code>$children</code> 中可以通过组件<code>name</code>查询到需要的组件实例。</li>
+</ul>
+</li>
+<li>
+<p><strong>任意组件</strong></p>
+<ul>
+<li><code>Vuex</code></li>
+<li><code>Event Bus</code>:<code>eventBus</code>又称为事件总线，在vue中可以使用它来作为沟通桥梁的概念, 就像是所有组件共用相同的事件中心，可以向该中心注册发送事件或接收事件， 所以组件都可以通知其他组件。<code>eventBus</code>也有不方便之处, 当项目较大,就容易造成难以维护的灾难。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>vue2双向绑定的原理是什么？vue3和vue2双向绑定有什么区别？</p>
+</blockquote>
+<ul>
+<li><strong>vue2</strong>是采用数据劫持结合发布者-订阅者模式的方式，通过 <strong>Object.defineProperty()</strong> 来劫持各个属性的setter，getter，在数据变动时发布消息给订阅者，触发相应的监听回调。<strong>Object.defineProperty()<strong>只能对属性进行数据劫持，不能对整个对象进行劫持，同理无法对数组进行劫持。<strong>vue3</strong>中则采用</strong>Proxy</strong>，它可以监听到数组内的数据变化。</li>
+</ul>
+<blockquote>
+<p>为什么 Vue 组件中 data 必须是一个函数？</p>
+</blockquote>
+<ul>
+<li>如果 data 是一个对象，当复用组件时，因为 data 都会指向同一个引用类型地址，其中一个组件的 data 一旦发生修改，则其他重用的组件中的 data 也会被一并修改。<br>
+如果 data 是一个返回对象的函数，因为每次重用组件时返回的都是一个新对象，引用地址不同，便不会出现如上问题。</li>
+</ul>
+<blockquote>
+<p>Vue 中 computed 和 watch 有什么区别?</p>
+</blockquote>
+<ul>
+<li>
+<p>计算属性<code>computed</code>：<br>
+（1）支持缓存，只有依赖数据发生变化时，才会重新进行计算函数；<br>
+（2）计算属性内不支持异步操作；<br>
+（3）计算属性的函数中都有一个 get(默认具有，获取计算属性)和 set(手动添加，设置计算属性)方法；<br>
+（4）计算属性是自动监听依赖值的变化，从而动态返回内容。</p>
+</li>
+<li>
+<p>侦听属性 <code>watch</code>:<br>
+(1) 不支持缓存，只要数据发生变化，就会执行侦听函数；<br>
+(2) 侦听属性内支持异步操作；<br>
+(3) 侦听属性的值可以是一个对象，接收 handler 回调，deep，immediate 三个属性；<br>
+(3) 监听是一个过程，在监听的值变化时，可以触发一个回调，并做一些其他事情。</p>
+</li>
+</ul>
+<blockquote>
+<p>vuex 都有哪些部分组成？</p>
+</blockquote>
+<ul>
+<li><strong>state</strong>:用来存储数据</li>
+<li><strong>Getter</strong>:用来获取<code>state</code>中的值</li>
+<li><strong>Mutation</strong>:唯一可以改变<code>state</code>中的值，且必须是同步函数</li>
+<li><strong>Action</strong>:用于提交<code>mutation</code>，而不是直接变更状态，可以包含任意异步操作</li>
+<li><strong>Module</strong>:许将单一的<code>Store</code>拆分为多个<code>store</code>且同时保存在单一的状态树中。</li>
+</ul>
+<h2 id="浏览器相关">浏览器相关</h2>
+<blockquote>
+<p>输入URL到页面渲染中都发生了什么？</p>
+</blockquote>
+<p>1.URL 解析<br>
+2.DNS 查询<br>
+3.TCP 连接<br>
+4.处理请求<br>
+5.接受响应<br>
+6.渲染页面</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://lonjinup.github.io/wxh5kf/" class="post-title gt-a-link">
+                    如何快速掌握公众号开发
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="0fdde3b6-a87f-4594-9b7f-25d151ba858f";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<style>
+.gt-bg-theme-color-second{ background: none!important;}
+</style>
+
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

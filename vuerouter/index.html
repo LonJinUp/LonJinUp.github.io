@@ -1,0 +1,471 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>vueRouter实现原理 | 陇锦</title>
+
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1751543015276">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://lonjinup.github.io/aboutme" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1751543015276" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    vueRouter实现原理
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-08-11 ·
+                    </time>
+                    
+                        <a href="https://lonjinup.github.io/Y15gD7toT/" class="post-tags">
+                            # VUE
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="vuerouter-实现原理">vueRouter 实现原理</h1>
+<h2 id="前置知识">前置知识</h2>
+<p>想了解<code>vueRouter</code>，需要先了解<code>vue</code>中的<strong>插件</strong>、<strong>混入</strong>、<strong>Vue.observable</strong>、<strong>插槽</strong>、<strong>render函数</strong>、<strong>运行时和完整版Vue的概念</strong>，如果没有了解，可以先在官网复习一波。</p>
+<h3 id="vuerouter两种模式">vueRouter两种模式</h3>
+<p>总所周知，<code>vueRouter</code>分为<code>hash</code>模式和<code>history</code>模式；两种区别如下：</p>
+<table>
+<thead>
+<tr>
+<th>模式名称</th>
+<th>实现原理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hash模式</td>
+<td>hash模式以url中#号后面的内容作为路径，通过监听hashchange事件获取到当前路由地址然后找到对应的组件进行渲染</td>
+</tr>
+<tr>
+<td>history模式</td>
+<td>通过popstate事件，根据当前路由地址找到相应的组件进行渲染(需要服务端支持)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="实现思路">实现思路</h2>
+<p>先看一下我们平时使用<code>vueRouter</code>的关键代码：</p>
+<pre><code class="language-js">// router/index.js
+// 1.引入VueRouter
+import VueRouter from 'vue-router'
+// 2.引入vue
+import Vue from 'vue'
+// 3. 注册路由插件
+Vue.use(VueRouter)
+// 4.添加路由规则
+const routes = [
+    {
+        path: '/',
+        name: 'index',
+        component: Layout
+    },
+]
+// 5.创建路由对象，传入路由规则
+const router = new VueRouter({routes})
+// 6.导出router
+export default router
+
+// main.js
+import Vue from 'vue'
+import router from './router'
+new Vue({
+  // 7. 注册 router 对象
+  router,
+  render: h =&gt; h(App)
+}).$mount('#app')
+
+</code></pre>
+<ul>
+<li>这里我们需要解一下<code>Vue.use()</code>方法：该方法至少传入一个参数，该参数类型必须是 <strong>Object</strong> 或 <strong>Function</strong>，如果是 <strong>Object</strong> 那么这个 <strong>Object</strong> 需要定义一个 <strong>install</strong> 方法，如果是 <strong>Function</strong> 那么这个函数就被当做 <strong>install</strong> 方法。在<code>Vue.use()</code>执行时 <strong>install</strong> 会默认执行，当 <strong>install</strong> 执行时第一个参数就是 <strong>Vue</strong>，其他参数是 <code>Vue.use()</code>执行时传入的其他参数；同时<code>Vue.use()</code>会自动阻止多次注册相同插件。</li>
+</ul>
+<p>了解完使用流程，我们来分析一下它的实现思路：</p>
+<ul>
+<li>创建<code>VueRouter</code>插件，静态方法<code>install</code>，在<code>install</code>方法中，判断插件是否已经被加载，同时在<code>vue</code>加载的时候把传入的<code>router</code>对象挂载到<code>vue</code>实例上。</li>
+<li>创建<code>VueRouter</code>类:
+<ul>
+<li>初始化<code>options</code>(记录构造函数中传入的对象)、<code>routeMap</code>(记录路由地址和组件的对应关系)、<code>data</code>(相应式的对象，可以记录当前路由地址，当路由地址变化时候，对应的组件做相应的更新)</li>
+<li>创建<code>initRouteMap()</code>方法，遍历所有路由信息，把组件和路由的映射记录到<code>routeMap</code>对象中</li>
+<li>注册<code>popstate</code>事件，当路由地址发生变化，重新记录当前的路径</li>
+<li>创建<code>router-link</code>和<code>router-view</code>组件</li>
+<li>当路径改变的时候通过当前路径在<code>routerMap</code>对象中找到对应的组件，渲染<code>router-view</code></li>
+</ul>
+</li>
+</ul>
+<p>分析完大概思路，我们就可以创建文件开始编写。</p>
+<h2 id="实现-install-方法">实现 install 方法</h2>
+<p>首先我们需要创建一个<code>vueRouter</code>文件夹，里面创建一个<strong>index.js</strong> 文件，我们在上面分析了一下<code>VueRouter</code>在使用时候有<code>new</code>的操作，所以我们使用<code>ES6</code>中<code>class</code>来实现。具体步骤如下：</p>
+<pre><code class="language-JS">// 设置全局变量
+let _Vue = null
+class VueRouter {
+    static install(Vue) {
+        // 1.判断当前插件是否安装
+        if(VueRouter.install.isInstalled) return;
+        VueRouter.install.isInstalled = true
+        // 2.把vue构造函数记录到全局变量
+        _Vue = Vue
+        // 3.把创建vue实例的时候传入的router对象挂载到vue全局对象上
+        _Vue.mixin[{
+            beforeCreate() {
+              // 判断当前实例上是否有router
+                if(this.$options.router) {
+                    _Vue.prototype.$router = this.$options.router
+                }
+            }
+        }]
+    }
+    constructor(options) {
+        this.options = options;
+        this.routerMap = {}
+    }
+}
+</code></pre>
+<h2 id="constructor-构造函数">constructor 构造函数</h2>
+<p>在<code>constructor</code>构造函数中，首先我们先把传入的<code>options</code>保存，然后初始化<code>routerMap</code>，到时候需要便利传入进来的路由规则，然后以键值对的形式存入到<code>routerMap</code>中，最后，我们需要创建一个响应式的<code>data</code>对象，<code>Vue</code>中提供了 <a href="https://cn.vuejs.org/v2/api/index.html#Vue-observable">observable</a> 方法来帮助我们创建响应式的对象，使用方法也比较简单，在<code>data</code>中我们设置一个变量<code>current</code>来记录当前路由。</p>
+<pre><code class="language-JS">constructor(options) {
+	// 记录构造函数中传入的options属性
+	this.options = options
+	// 初始化routerMap，用于记录路由表
+	this.routerMap = {}
+	// 创建响应式的data对象
+	this.data = _Vue.observable({
+	// 当前路由对象,用于记录当前路由
+		current: '/'
+	})
+}
+</code></pre>
+<h2 id="createroutermap-便利路由规则">createRouterMap 便利路由规则</h2>
+<p>在上一步我们已经在构造函数中初始化了<code>routerMap</code>对象，这里我们需要写个方法去便利路由规则，然后存储到<code>routerMap</code>中。代码如下：</p>
+<pre><code class="language-JS">createRouterMap() {
+	// 便利路由规则，吧路由规则挂载到routerMap上
+	this.$options.router.forEach(item =&gt; {
+		this.routerMap[item.path] = item.component
+	})
+}
+</code></pre>
+<h2 id="创建组件">创建组件</h2>
+<p>在使用<code>vueRouter</code>时，我们会用到<code>router-link</code>组件和<code>router-view</code>组件，这俩功能就不细说了，创建组件也是比较简单的，<code>vue</code>提供了 <a href="https://cn.vuejs.org/v2/api/index.html#Vue-component">Vue.component</a>方法，使用方式如下：</p>
+<pre><code class="language-js">initComponents(Vue) {
+	Vue.component('router-link',{
+		props: {
+			to: String
+		},
+		render(h) {
+			return h('a',{
+				attrs: {
+					href: this.to
+				},
+			},this.$slots.default)
+		},
+	})
+	Vue.component('router-view',{
+		render(h) {
+			// 获取当前路由匹配到的组件
+			const component = self.routerMap[self.data.current]
+			return h(component)
+		}
+	})
+}
+</code></pre>
+<p>创建完成后，我们还需要调用一下，目前初始化函数有两个：便利路由规则方法、创建组件方法，我们可以再写一个<code>init</code>方法，来调用初始化的函数：</p>
+<pre><code class="language-JS">// 初始化方法
+init() {
+	this.createRouterMap()
+	this.initComponents(_Vue)
+}
+</code></pre>
+<ul>
+<li>同时我们需要在<code>constructor</code>构造函数中调用一下：</li>
+</ul>
+<pre><code class="language-JS">constructor(options) {
+    this.options = options
+    this.routerMap = {}
+    this.data = _Vue.observable({
+      current: '/'
+    })
+    // 初始化方法
+    this.init()
+}
+</code></pre>
+<p>接下来我们可以试着在<code>router</code>文件夹中把引入的<code>VueRouter</code>插件改成我们写的插件：</p>
+<pre><code class="language-JS">// router/index.js
+import VueRouter from '../vueRouter'
+</code></pre>
+<p>然后运行项目看是否显示成功。</p>
+<h2 id="实现点击事件">实现点击事件</h2>
+<p>前面我们已经添加了<code>router-link</code>组件，接下来我们需要点击的时候去更改<code>data</code>中的<code>current</code>来记录当前的路径：</p>
+<pre><code class="language-JS">Vue.component('router-link',{
+	props: {
+		to: String
+	},
+	render(h) {
+		return h('router-link',{
+			attrs: {
+				href: this.to
+			},
+			on: {
+				click: this.clickHandler
+			}
+		},this.$slots.default)
+	},
+	methods: {
+		clickHandler(e) {
+			// 改变url中的路径
+			history.pushState({}, '', this.to)
+			// 修改响应式data中的current
+			self.data.current = this.to
+			// 阻止a标签默认事件
+			e.preventDefault()
+		}
+	}
+})
+</code></pre>
+<p>我们还需要添加一个监听事件，如果点击浏览器左侧的前进和后退按钮，我们的页面也应该做出相应的变化：</p>
+<pre><code class="language-JS">initEvent() {
+	window.addEventListener('popstate', () =&gt; {
+		this.data.current = window.location.pathname
+	})
+}
+</code></pre>
+<p>最后在<code>init</code>方法中调用一下即可</p>
+<pre><code class="language-JS">init() {
+	this.createRouterMap()
+	this.initComponents(_Vue)
+	this.initEvent()
+}
+</code></pre>
+<p>这样一个小型的<code>vueRouter</code>基本就完成了，<code>hash</code>模式也比较简单，我们只需要把点击事件方法改变一下即可：</p>
+<pre><code class="language-JS">Vue.component('router-link',{
+	props: {
+		to: String
+	},
+	render(h) {
+		return h('router-link',{
+			attrs: {
+				href: this.to
+			},
+			on: {
+				click: this.clickHandler
+			}
+		},this.$slots.default)
+	},
+	methods: {
+		clickHandler(e) {
+			// 判断模式
+			self.options.mode == 'history' &amp;&amp; history.pushState({}, '', this.to)
+            self.options.mode == 'hash' &amp;&amp; (window.location.hash = `#${this.to}`)
+			self.data.current = this.to
+			e.preventDefault()
+		}
+	}
+})
+</code></pre>
+<p>同时修改一下监听事件</p>
+<pre><code class="language-JS">initEvent() {
+	if(this.options == 'history') {
+		window.addEventListener('popstate', () =&gt; {
+			this.data.current = window.location.pathname
+		})
+	}else{
+		window.addEventListener('hashchange', () =&gt; {
+			this.data.current = window.location.hash.substr(1) ? window.location.hash.substr(1) : '/'
+		})
+	}
+}
+</code></pre>
+<h2 id="结尾">结尾</h2>
+<blockquote>
+<p>这样我们的<code>hash</code>模式和<code>history</code>模式就实现完成了，关于一些细节方面的东西就不进行模拟了，感兴趣的可以尝试实现一下。</p>
+</blockquote>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://lonjinup.github.io/typescript-ji-chu-su-lan/" class="post-title gt-a-link">
+                    TypeScript基础速览
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="0fdde3b6-a87f-4594-9b7f-25d151ba858f";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<style>
+.gt-bg-theme-color-second{ background: none!important;}
+</style>
+
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,624 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>node项目实战-01实现注册登录 | 陇锦</title>
+
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1751543015276">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://lonjinup.github.io/aboutme" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1751543015276" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    node项目实战-01实现注册登录
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-01-04 ·
+                    </time>
+                    
+                        <a href="https://lonjinup.github.io/nodejs/" class="post-tags">
+                            # node
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="node项目实战-01实现注册登录">node项目实战-01实现注册登录</h1>
+<h2 id="1项目准备">1.项目准备</h2>
+<p>前面我们已经搭建了一个基础的项目模版，现在我们就用这个项目模版来做一个简单的项目。首先我们安装<a href="http://www.mongoosejs.net/">mongoose</a>模块：</p>
+<pre><code class="language-bash">npm install mongoose --save
+</code></pre>
+<p><code>mongoose</code>是MongoDB的Node.js驱动程序，它为我们提供了一种在Node.js中使用MongoDB的简单方法。后面我们会详细介绍他的使用方法。</p>
+<h2 id="注册接口">注册接口</h2>
+<blockquote>
+<p>我们先来实现一个注册接口，这个接口接收一个参数<code>username</code>、<code>email</code>、<code>password</code>、<code>phone</code>，然后将这个参数保存到数据库中。</p>
+</blockquote>
+<p>首先我们分别创建关于用户功能的<code>router</code>和<code>controller</code>；新建<code>/router/user.js</code>和<code>/controller/userController.js</code>：</p>
+<p><code>/router/user.js</code>内容如下：</p>
+<pre><code class="language-js">const express = require('express')
+const router = express.Router()
+const userController = require('../controller/userController')
+
+router
+    .post('/register', userController.register)
+module.exports = router
+</code></pre>
+<p><code>/controller/userController.js</code>内容如下，顺便打印一下我们接受到参数：</p>
+<pre><code class="language-js">exports.register = async (req, res) =&gt; {
+    console.log(req.body)
+}
+</code></pre>
+<p>然后我们在<code>/router/index.js</code>中引入这个路由：</p>
+<pre><code class="language-js">const express = require('express')
+const router = express.Router()
+const user = require('./user')
+
+router.use('/user', user)
+module.exports = router
+</code></pre>
+<p>运行项目：</p>
+<pre><code class="language-shell">npm run dev
+</code></pre>
+<p>当我们使用Postman或者apifox访问<code>http://localhost:3000/user/register</code>并传入参数，控制台就会打印我们传入的参数：</p>
+<pre><code class="language-json">{
+  &quot;username&quot;: &quot;test&quot;,
+  &quot;email&quot;: &quot;test@test.com&quot;,
+  &quot;password&quot;: &quot;123456&quot;,
+  &quot;phone&quot;: &quot;12345678901&quot;
+}
+</code></pre>
+<p>拿到参数以后我们需要把这些数据存入到数据库中，这时候就需要用到开头提到的<code>mongoose</code>进行处理。</p>
+<h3 id="使用mongoose存储数据">使用mongoose存储数据</h3>
+<p>首先新建<code>/model/index.js</code>，引入<code>mongoose</code>，同时进行连接数据库的操作：</p>
+<pre><code class="language-js">const mongoose = require('mongoose')
+
+async function main() {
+    await mongoose.connect('mongodb://localhost:27017/nodeDemo')
+}
+
+main().then(res =&gt; {
+    console.log('mongo连接成功')
+}).catch(error =&gt; {
+    console.log('mongo连接失败', error)
+})
+</code></pre>
+<p>然后我们在当前文件夹中再建立一个<code>userModel.js</code>文件，在这个文件中定义一个<code>userSchema</code>，最后导出</p>
+<pre><code class="language-js">const mongoose = require('mongoose')
+
+const userSchema = new mongoose.Schema({
+    username: {
+        type: String, //数据类型
+        required: true, //数据是否必须
+        trim: true, //去除两边空格
+        minlength: 4, //最小长度
+        maxlength: 18, //最大长度
+        validate: {
+            validator: function (v) {
+                return /^[a-zA-Z0-9_-]{4,18}$/.test(v)
+            },
+            message: '{VALUE}不是一个合法的用户名'
+        }
+    },
+    email: {
+        type: String,
+        required: true,
+        trim: true,
+        validate: {
+            validator: function (v) {
+                return /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(v)
+            },
+            message: '{VALUE}不是一个合法的邮箱'
+        }
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    phone: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        validate: {
+            validator: function (v) {
+                return /^1[34578]\d{9}$/.test(v)
+            },
+            message: '{VALUE}不是一个合法的手机号'
+        }
+    },
+    avatar: {
+        type: String,
+        default: null
+    },
+    createTime: {
+        type: Date,
+        default: Date.now
+    },
+    updateTime: {
+        type: Date,
+        default: Date.now
+    }
+})
+
+module.exports = userSchema
+</code></pre>
+<p>关于mongoose.Schema的详细使用方法可以参考<a href="http://www.mongoosejs.net/docs/schematypes.html">mongoose文档</a>。</p>
+<p>导出之后，我们还是要在<code>/model/index.js</code>中进行集中的导出，到时候我们就可以在其他地方进行导入使用了，最终的<code>/model/index.js</code>内容如下：</p>
+<pre><code class="language-js">const mongoose = require('mongoose')
+
+async function main() {
+    await mongoose.connect('mongodb://localhost:27017/nodeDemo')
+}
+
+main().then(res =&gt; {
+    console.log('mongo连接成功')
+}).catch(error =&gt; {
+    console.log('mongo连接失败', error)
+})
+
+//导出模块
+module.exports = {
+    User: mongoose.model('User', require('./userModel'))
+}
+</code></pre>
+<p>再回到刚才的<code>/controller/userController.js</code>中，我们需要进行修改，将<code>register</code>方法中的<code>console.log(req.body)</code>改为：</p>
+<pre><code class="language-js">const { User } = require('../model/index')
+exports.register = async (req, res) =&gt; {
+    console.log(req.body)
+    const userModel = new User(req.body)
+    const dbBack = await userModel.save()
+    res.status(201).json(dbBack)
+}
+</code></pre>
+<p>这样一来，当我们使用Postman或者apifox访问<code>http://localhost:3000/user/register</code>并传入参数，控制台就会打印我们传入的参数，并且将这些参数保存到数据库中。</p>
+<h3 id="密码加密">密码加密</h3>
+<p>在上面的代码中，我们将密码明文存入了数据库中，这样显然是不安全的，我们需要对密码进行加密处理。这里我们使用<code>crypto</code>中的<code>createHash</code>函数对密码进行加密，然后将加密后的密码存入数据库中。</p>
+<p>新建<code>util/md5.js</code>；并引入crypto：</p>
+<pre><code class="language-js">const crypto = require('crypto')
+
+/**
+ * md5加密
+ * @param str
+ * @returns {string}
+ */
+module.exports = str =&gt; crypto.createHash('md5').update('lonjin' + str).digest('hex')
+</code></pre>
+<ol>
+<li>
+<p><strong><code>crypto.createHash('md5')</code></strong>: 创建一个用于 MD5 散列的 Hash 对象。<code>md5</code> 表示采用 MD5 算法。</p>
+</li>
+<li>
+<p><strong><code>.update('lonjin' + str)</code></strong>: 使用给定的数据进行更新，这里的数据是 <code>'lonjin' + str</code>，即将字符串 <code>'lonjin'</code> 与参数 <code>str</code> 连接后的结果，这样可避免被撞库的风险。</p>
+</li>
+<li>
+<p><strong><code>.digest('hex')</code></strong>: 返回 Hash 对象的二进制数据的十六进制表示。这就是最终的 MD5 散列值。</p>
+</li>
+</ol>
+<p>然而，请注意，MD5 不再被推荐用于安全目的，因为它已经被发现存在一些弱点。在密码存储或其他需要高度安全性的场景中，更推荐使用更强大的散列算法，比如 SHA-256，并且结合一些附加的安全措施，例如加盐（salting）和适当的迭代次数（iteration）。具体方式如下：</p>
+<pre><code class="language-js">const crypto = require('crypto');
+
+function sha256Hash(str) {
+    const hash = crypto.createHash('sha256')
+    const hashedStr = hash.update('lonjin' + str).digest('hex')
+    return hashedStr
+}
+module.exports = sha256Hash
+</code></pre>
+<h3 id="处理公共字段">处理公共字段</h3>
+<p>在上面的<code>userSchema.js</code>中，我们定义了一些公共字段，比如<code>createTime</code>和<code>updateTime</code>，在很多场景下我们可能都需要这两个字段，所以我们将这两个字段也抽离出来。</p>
+<p>新建：<code>/model/baseModel.js</code>:</p>
+<pre><code class="language-js">module.exports = {
+    createTime: {
+        type: Date,
+        default: Date.now
+    },
+    updateTime: {
+        type: Date,
+        default: Date.now
+    }
+}
+</code></pre>
+<p>然后在<code>/model/userModel.js</code>中引入并使用：</p>
+<pre><code class="language-js">const baseModel = require('./baseModel')
+
+const userSchema = new mongoose.Schema({
+    //...原有逻辑
+    avatar: {
+        type: String,
+        default: null
+    },
+    ...baseModel
+})
+</code></pre>
+<h3 id="数据验证">数据验证</h3>
+<p><a href="https://express-validator.github.io/docs/guides/customizing">express-validator</a>是一个非常好用的表单验证中间件，它可以帮助我们在表单提交的时候进行数据验证，从而避免了前端的一些常见的错误。</p>
+<p>首先我们需要安装express-validator：</p>
+<pre><code class="language-bash">npm install express-validator --save
+</code></pre>
+<p>还是已我们上面提到的注册接口为例子；首先我们封装一下验证规则：</p>
+<p>新建<code>middleware/validator/userValidator.js</code>，用来处理用户相关的验证规则，同时我们再建立一个文件夹，去统一处理错误逻辑；新建<code>middleware/validator/errorBack.js</code>。</p>
+<p><code>middleware/validator/userValidator.js</code>内容如下：</p>
+<pre><code class="language-js">const { body } = require('express-validator')
+const validator = require('./errorBack')
+
+module.exports.register = validator(
+    [
+        body('username')
+            .notEmpty().withMessage('用户名不能为空').bail()
+            .isLength({ min: 3, max: 10 }).withMessage('用户名长度必须在3-10之间'),
+        body('email')
+            .notEmpty().withMessage('邮箱不能为空').bail()
+            .isEmail().withMessage('邮箱格式不正确'),
+        body('password')
+            .notEmpty().withMessage('密码不能为空').bail()
+            .isLength({ min: 6, max: 16 }).withMessage('密码长度必须在6-16之间')
+    ]
+) 
+</code></pre>
+<p><code>middleware/validator/errorBack.js</code>文件内容如下：</p>
+<pre><code class="language-js">const { validationResult } = require('express-validator')
+
+module.exports = validator =&gt; {
+    return async (req, res, next) =&gt; {
+        await Promise.all(validator.map(i =&gt; i.run(req)))
+        //获取错误信息
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            // 处理错误信息
+            return res.status(401).json({ error: errors.array() })
+        }
+        next()
+    }
+}
+</code></pre>
+<blockquote>
+<p>下面是一些在 <code>express-validator</code> 中常用的验证规则，以及它们的简要说明：</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>验证器</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.notEmpty()</code></td>
+<td>检查字段是否为空。</td>
+</tr>
+<tr>
+<td><code>.isLength({ min, max })</code></td>
+<td>检查字段的字符长度是否在指定的范围内。</td>
+</tr>
+<tr>
+<td><code>.isEmail()</code></td>
+<td>检查字段是否是有效的电子邮件地址。</td>
+</tr>
+<tr>
+<td><code>.isURL()</code></td>
+<td>检查字段是否是有效的URL。</td>
+</tr>
+<tr>
+<td><code>.isInt()</code></td>
+<td>检查字段是否为整数。</td>
+</tr>
+<tr>
+<td><code>.isNumeric()</code></td>
+<td>检查字段是否为数字。</td>
+</tr>
+<tr>
+<td><code>.isFloat()</code></td>
+<td>检查字段是否为浮点数。</td>
+</tr>
+<tr>
+<td><code>.isDate()</code></td>
+<td>检查字段是否为有效的日期。</td>
+</tr>
+<tr>
+<td><code>.isBoolean()</code></td>
+<td>检查字段是否为布尔值。</td>
+</tr>
+<tr>
+<td><code>.isIn(values)</code></td>
+<td>检查字段值是否在指定的数组中。</td>
+</tr>
+<tr>
+<td><code>.isNotIn(values)</code></td>
+<td>检查字段值是否不在指定的数组中。</td>
+</tr>
+<tr>
+<td><code>.equals(value)</code></td>
+<td>检查字段值是否与指定的值相等。</td>
+</tr>
+<tr>
+<td><code>.not()</code></td>
+<td>反转前面的验证条件。如果之前的验证条件为真，将变为假，反之亦然。</td>
+</tr>
+<tr>
+<td><code>.custom(validatorFunction)</code></td>
+<td>使用自定义验证函数进行验证。</td>
+</tr>
+<tr>
+<td><code>.withMessage(message)</code></td>
+<td>在验证失败时设置错误消息。</td>
+</tr>
+<tr>
+<td><code>.bail()</code></td>
+<td>在验证失败时停止执行后续验证链。</td>
+</tr>
+</tbody>
+</table>
+<p>这些是一些常见的验证规则，我们可以根据具体的需求组合它们，构建强大而灵活的验证规则链。</p>
+<p>接下来我们在<code>/controller/userController.js</code>中引入验证器并使用：</p>
+<pre><code class="language-js">const express = require('express')
+const router = express.Router()
+const userController = require('../controller/userController')
+//引入验证器
+const validator = require('../middleware/validator/userValidator')
+
+// 使用validator中间件
+router
+    .post('/register',
+        validator.register,
+        userController.register)
+
+module.exports = router
+</code></pre>
+<p>这样在用户注册的时候，就能对用户提交的数据进行验证，从而避免了前端的一些常见的错误。</p>
+<p>这时候我们使用<code>apifox</code>发起注册请求，不传任何参数，就会返回错误信息：</p>
+<pre><code class="language-json">{
+    &quot;error&quot;: [
+        {
+            &quot;type&quot;: &quot;field&quot;,
+            &quot;value&quot;: &quot;&quot;,
+            &quot;msg&quot;: &quot;用户名不能为空&quot;,
+            &quot;path&quot;: &quot;username&quot;,
+            &quot;location&quot;: &quot;body&quot;
+        },
+        {
+            &quot;type&quot;: &quot;field&quot;,
+            &quot;msg&quot;: &quot;邮箱不能为空&quot;,
+            &quot;path&quot;: &quot;email&quot;,
+            &quot;location&quot;: &quot;body&quot;
+        },
+        {
+            &quot;type&quot;: &quot;field&quot;,
+            &quot;msg&quot;: &quot;密码不能为空&quot;,
+            &quot;path&quot;: &quot;password&quot;,
+            &quot;location&quot;: &quot;body&quot;
+        }
+    ]
+}
+</code></pre>
+<h3 id="数据唯一性验证">数据唯一性验证</h3>
+<p>在上面的例子中，我们做了对参数的一些验证，但是还是缺少一个对数据唯一性的验证。比如注册时候我们可能要求手机号和邮箱必须是唯一的。我们这里还是借助<code>express-validator</code>的自定义验证函数<code>custom</code>来实现；当然我们需要连接到数据库进行数据查找。</p>
+<p>首先我们在<code>middleware/validator/userValidator.js</code>中添加一个自定义验证函数：</p>
+<pre><code class="language-js">const { body } = require('express-validator')
+const validator = require('./errorBack')
+// 1.引入User model 
+const { User } = require('../../model/index')
+
+module.exports.register = validator(
+    [
+        body('username')
+            .notEmpty().withMessage('用户名不能为空').bail()
+            .isLength({ min: 3, max: 10 }).withMessage('用户名长度必须在3-10之间'),
+        body('email')
+            .notEmpty().withMessage('邮箱不能为空').bail()
+            .isEmail().withMessage('邮箱格式不正确')
+            .custom(async val =&gt; {
+                // 2.查询数据库
+                const emailValidator = await User.findOne({ email: val })
+                // 3.判断是否存在
+                if (emailValidator) {
+                    return Promise.reject('邮箱已被注册')
+                }
+            }).bail(),
+        body('password')
+            .notEmpty().withMessage('密码不能为空').bail()
+            .isLength({ min: 6, max: 16 }).withMessage('密码长度必须在6-16之间'),
+        body('phone')
+            .notEmpty().withMessage('手机号不能为空').bail()
+            .isLength({ min: 11 }).withMessage('手机号格式不正确')
+            .custom(async val =&gt; {
+                // 同理
+                const phonelValidator = await User.findOne({ phone: val })
+                if (phonelValidator) {
+                    return Promise.reject('手机号已被注册')
+                }
+            }).bail(),
+    ]
+) 
+</code></pre>
+<h2 id="restful接口规范">Restful接口规范</h2>
+<p>在项目中，我们需要对接口进行规范，比如接口的路径，请求方式，参数，返回值等。这里我们可以参考<a href="https://restfulapi.cn/">restfulapi</a>接口规范；当然我们可以根据一些业务需求做对应的调整。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://lonjinup.github.io/express-07-template/" class="post-title gt-a-link">
+                    【node学习-07】搭建express项目模版
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="0fdde3b6-a87f-4594-9b7f-25d151ba858f";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<style>
+.gt-bg-theme-color-second{ background: none!important;}
+</style>
+
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

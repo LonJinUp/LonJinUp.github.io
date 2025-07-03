@@ -1,0 +1,1099 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>JavaScript-函数式编程 | 陇锦</title>
+
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1751543015276">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://lonjinup.github.io/aboutme" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1751543015276" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    JavaScript-函数式编程
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2021-07-02 ·
+                    </time>
+                    
+                        <a href="https://lonjinup.github.io/tnS7zI4Tz/" class="post-tags">
+                            # 学习笔记
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="函数式编程">函数式编程</h1>
+<h2 id="为什么要学函数式编程">为什么要学函数式编程？</h2>
+<ul>
+<li>函数式表成是随着React的流行收到越来越多的关注（React的高阶组件使用了高阶函数来实现，高阶函数就是函数式编程的一个特性。Redux也使用了函数式编程的思想。）</li>
+<li>Vue3也开始拥抱函数式编程</li>
+<li>函数式编程可以抛弃this</li>
+<li>打包过程中可以更好的利用tree shaking过滤无用代码</li>
+<li>方便测试、方便并行处理</li>
+<li>有很多库可以帮助我们进行函数式开发：lodash、underscore、ramda</li>
+</ul>
+<h2 id="什么是函数式编程">什么是函数式编程？</h2>
+<blockquote>
+<p>函数式编程，缩写FP，是一种编程范式，也是一种编程风格，和面向对象是并列的关系。函数式编程我们可以认为是一种思维模式，加上实现方法。其思维方式就是<strong>把现实世界事物和事物之间的联系抽象到程序世界（是对运算过程进行抽象）</strong><br>
+常听说的编程范式还有面向过程编程（按照步骤来实现）、面向对象编程（<strong>把现实中的事物抽象成类和对象，通过封装、继承和多态来演示不同事物之间的联系</strong>）。</p>
+</blockquote>
+<h3 id="函数式编程和面向对象编程的不同">函数式编程和面向对象编程的不同</h3>
+<blockquote>
+<p>从思维方式上来说,面向对象编程是对事物的抽象，而函数式编程是对运算过程的抽象</p>
+</blockquote>
+<h3 id="对于函数式编程思维方式的理解">对于函数式编程思维方式的理解</h3>
+<ul>
+<li>程序的本质：根据输入通过某种运算获得相应的输出，程序开发过程中会涉及很多输入和输出的函数。</li>
+<li>函数式编程中的函数指的不是程序中的函数<code>Function</code>，而是数学中的函数即映射关系，例如：<code>y=sin(x)</code>，是这种x和y的关系</li>
+<li>相同的输入时钟要得到相同的输出（纯函数）</li>
+<li>函数式编程用描述数据（函数）之间的映射</li>
+</ul>
+<pre><code class="language-js">    //非函数式
+    let num1=1,
+        num2=2;
+    let sum=num1+num2;
+    console.log(sum);
+
+    //函数式
+    function add(m,n){
+        return m+n;
+    };
+
+    let sum2=add(3,4);
+    console.log(sum2); 
+</code></pre>
+<h3 id="函数式编程的前置知识">函数式编程的前置知识</h3>
+<h3 id="函数是一等公民">函数是一等公民</h3>
+<blockquote>
+<p>在JS中函数就是一个普通的对象，我们可以把函数存储到变量/数组中，它还可以作为另一个函数的参数和返回值，甚至我们可以在程序运行的时候通过<code>new Function('alert(1)')</code>来构造一个新的函数。</p>
+</blockquote>
+<ul>
+<li>函数可以存储在变量中:</li>
+</ul>
+<pre><code class="language-js">    // 把函数赋值给变量
+    let fn = function () {
+        console.log(&quot;hi&quot;)
+    }
+
+    fn()
+
+    // 一个示例
+    const BlogController = {
+        index (posts) { return Views.index(posts) },
+        show (post) { return Views.show(post) },
+        create (attrs) { return Db.create(attrs) },
+        update (post, attrs) { return Db.update(post, attrs) },
+        destroy (post) { return Db.destroy(post) }
+    }
+
+    // 优化 赋值的是Views的index方法，不是方法的调用
+    const BlogController = {
+        index: Views.index,
+        show: Views.show,
+        create: Db.create,
+        update: Db.update,
+        destroy: Db.destroy
+    }
+</code></pre>
+<ul>
+<li>
+<p>函数可以作为参数</p>
+</li>
+<li>
+<p>函数可以作为返回值</p>
+</li>
+</ul>
+<h3 id="高阶函数">高阶函数</h3>
+<blockquote>
+<p>高阶函数英文叫<code>Higher-order function</code>。JavaScript的函数其实都指向某个变量。既然变量可以指向函数，函数的参数能接收变量，那么一个函数就可以接收另一个函数作为参数，这种函数就称之为高阶函数。<br>
+在数学和计算机科学中，高阶函数是至少满足下列一个条件的函数：<br>
+1.接受一个或多个函数作为输入<br>
+2.输出一个函数</p>
+</blockquote>
+<ul>
+<li>函数可以作为参数</li>
+</ul>
+<pre><code class="language-js">    //模拟数组中的某些操作
+
+    // forEach
+    // 定义一个遍历数组的并对每一项做处理的函数，第一个函数是一个数组，第二个参数是一个函数。
+    function forEach(array,fn){
+        for(let i=0;i&lt;array.length;i++){
+            fn(array[i])
+        }
+    };
+
+    let arr=[1,2,3,4,5];
+
+    forEach(arr,items=&gt;{
+        console.log(items)
+    })
+
+    // filter
+    // 遍历数组，并把满足条件的元素存储成数组，再进行返回
+    function filter(array,fn){
+        let newArr=[];
+        for(let i=0;i&lt;array.length;i++){
+            if(fn(array[i])){
+                newArr.push(array[i])
+            }
+        };
+        return newArr
+    }
+
+    let a=filter(arr,item=&gt;item%2==0)
+    console.log(a)
+</code></pre>
+<ul>
+<li>函数做为返回值</li>
+</ul>
+<pre><code class="language-js">    // test1:一个函数返回另一个函数
+    function todo(){
+        let text='hello world';
+        return function(){
+            console.log(text)
+        }
+    }
+
+    //方式1 调用
+    const fn=todo()
+    fn()
+    //方式2 调用
+    todo()()
+
+    //test2:让函数只执行一次
+
+    function once(fn){
+        let status=false;
+        return function(){
+            if(!status){
+                status=true;
+                return fn.apply(this,arguments)
+            }
+        }
+    };
+
+    let pay = once(function(money){
+        console.log(`支付了 ${money}元`)
+    })
+    pay(100)
+    pay(200)
+</code></pre>
+<h3 id="使用高阶函数的意义">使用高阶函数的意义</h3>
+<ul>
+<li>抽象可以帮我们屏蔽细节，我们只需要知道我们的目标和解决这类问题的函数，我们不需要关心实现的细节</li>
+<li>高阶函数是用来抽象通用的问题</li>
+</ul>
+<h3 id="用高阶函数模拟常用函数">用高阶函数模拟常用函数</h3>
+<ul>
+<li><code>map</code>:便利数组中每一个元素，然后生成新的数组</li>
+</ul>
+<pre><code class="language-js">    const map=(array,fn)=&gt;{
+        let arr=[];
+        for(let i of array){
+            arr.push(fn(i))
+        }
+        return arr
+    }
+
+    let arr=[1,2,3,4,5];
+    arr=map(arr,v=&gt;v*v);
+    console.log(arr)
+</code></pre>
+<ul>
+<li><code>every</code>:数组中的每一个元素是否都匹配我们指定的一个条件，如果都满足返回true，如果不满足返回false</li>
+</ul>
+<pre><code class="language-js">    const every=(array,fn)=&gt;{
+        let status=true;
+        for(let i of array){
+            status=fn(i)
+            if(!status){
+                break
+            }
+        }
+        return status
+    }
+
+    let arr=[1,2,3,4,5];
+    let n=every(arr,v=&gt;v&gt;=1);
+    console.log(n)
+</code></pre>
+<ul>
+<li><code>some</code>:判断数组中是否有一个元素满足我们指定的条件，满足是true，都不满足为false</li>
+</ul>
+<pre><code class="language-js">    const some=(array,fn)=&gt;{
+        let status=false;
+        for(let i of array){
+            status=fn(i);
+            if(status){
+                break;
+            }
+        }
+        return status
+    }
+
+    let arr=[4,5,6,7];
+    let n=some(arr,v=&gt;v&gt;7);
+    console.log(n);
+</code></pre>
+<h3 id="闭包">闭包</h3>
+<blockquote>
+<p>函数在执行的时候会放到一个执行栈上，当函数执行完毕之后会从执行栈上移除。但是堆上的作用域成员因为被外部引用不能释放，因此内部函数依然可以访问外部函数的成员。闭包的核心作用就是<code>把函数内部成员的作用范围延长</code>。</p>
+</blockquote>
+<pre><code class="language-js">    function makeFn () {
+        let msg = 'Hello function'
+    }
+    // 正常情况下，执行完makeFn，里面的变量msg会释放掉
+    // 但是下面的情况
+
+    function makeFn () {
+        let msg = 'Hello function'
+        return function () { 
+            console.log(msg)
+        } 
+    }
+    // 在上面函数中，返回了一个函数，而且在函数中还访问了原来函数内部的成员，就可以称为闭包
+
+    const fn = makeFn()
+    fn()
+    // fn为外部函数，当外部函数对内部成员有引用的时候，那么内部的成员msg就不能被释放。当我们调用fn的时候，我们就会访问到msg。
+
+    //注意的点：
+    //1、我们可以在另一个作用域调用makeFn的内部函数
+    //2、当我们调用内部函数的时候我们可以访问到内部成员
+</code></pre>
+<h3 id="闭包应用">闭包应用</h3>
+<ul>
+<li>计算数字的次方</li>
+</ul>
+<pre><code class="language-js">    function pow(power){
+        return function(number){
+            return Math.pow(number,power)
+        }
+    }
+
+    //求平方
+    let pow2=pow(2);
+    console.log(pow2(2))
+    //立方
+    let pow3=pow(3);
+    console.log(pow3(2))
+</code></pre>
+<ul>
+<li>计算不同级别的员工工资(不同员工基本工资相等，绩效不同)</li>
+</ul>
+<pre><code class="language-js">    function peopleMoney(moeny){
+        return function(value){
+            return moeny+value
+        }
+    }
+
+    let lv1=peopleMoney(1000);
+    let lv2=peopleMoney(2000);
+
+    console.log(lv1(200))
+    console.log(lv2(1300))
+</code></pre>
+<h2 id="纯函数">纯函数</h2>
+<blockquote>
+<p>相同的输入永远会得到相同的输出，而且没有任何可观察的副作用。纯函数就类似数学中的函数(用来描述输入和输出之间的关系)，如<code>y = f(x)</code></p>
+</blockquote>
+<pre><code class="language-js">    let numbers = [1, 2, 3, 4, 5] 
+    // 纯函数 
+    // 对于相同的函数，输出是一样的
+
+    // slice方法，截取的时候返回截取的函数，不影响原数组
+    numbers.slice(0, 3) // =&gt; [1, 2, 3] 
+    numbers.slice(0, 3) // =&gt; [1, 2, 3] 
+    numbers.slice(0, 3) // =&gt; [1, 2, 3] 
+
+    // 不纯的函数 
+    // 对于相同的输入，输出是不一样的
+
+    // splice方法，返回原数组，改变原数组
+    numbers.splice(0, 3) // =&gt; [1, 2, 3] 
+    numbers.splice(0, 3) // =&gt; [4, 5] 
+    numbers.splice(0, 3) // =&gt; []
+
+    // 下面函数也是纯函数 
+    function getSum (n1, n2) {
+        return n1 + n2
+    }
+    console.log(getSum(1, 2)) // 3
+    console.log(getSum(1, 2)) // 3
+    console.log(getSum(1, 2)) // 3
+</code></pre>
+<ul>
+<li>函数式编程不会保留计算中间的结果，所以变量是不可变的(无状态的)</li>
+<li>我们也可以把一个函数的执行结果交给另一个函数处理</li>
+</ul>
+<h3 id="lodash纯函数js库">Lodash——纯函数js库</h3>
+<blockquote>
+<p><a href="https://www.lodashjs.com/">Lodash</a>是一个一致性、模块化、高性能的 JavaScript 实用工具库。</p>
+</blockquote>
+<ul>
+<li>安装：</li>
+</ul>
+<pre><code class="language-js">    npm init -y
+    npm i lodash
+</code></pre>
+<ul>
+<li>使用：</li>
+</ul>
+<pre><code class="language-js">    var _ = require('lodash');
+
+    //数组合并
+    var arr=[1,2,3]
+    var newArr=_.concat(arr,[4,5,6],[7,8,9])
+    console.log(newArr)
+
+    //数组反转
+    let className=['tom','bob','nike'];
+    console.log(_.reserve(className))
+    console.log(className)
+    // 数组的翻转不是纯函数，因为会改变原数组。这里的reserve是使用了数组的reverse，所以也不是纯函数
+</code></pre>
+<h3 id="纯函数的好处">纯函数的好处</h3>
+<h4 id="可缓存">可缓存</h4>
+<ul>
+<li>因为对于相同的输入始终有相同的结果，那么可以把纯函数的结果缓存起来，可以提高性能。</li>
+</ul>
+<pre><code class="language-js">    const _ = require('lodash');
+    /* _.memoize(func, [resolver]):创建一个会缓存 func 结果的函数。 如果提供了 resolver ，就用 resolver 的返回值作为 key 缓存函数的结果。 默认情况下用第一个参数作为缓存的 key。 func 在调用时 this 会绑定在缓存函数上。*/
+
+    //计算两个数字的和
+    function add(m,n){
+        console.log('once')
+        return m+n
+    }
+
+    let fn=_.memoize(add);
+
+    console.log(fn(4,5));
+    console.log(fn(4,5));
+    console.log(fn(4,5));
+    // 输出的once只执行了一次，因为其结果被缓存下来了
+</code></pre>
+<ul>
+<li>模拟<code>_.memoize</code></li>
+</ul>
+<pre><code class="language-js">    const _ = require('lodash');
+
+    function add(m,n){
+        console.log('once')
+        return m+n
+    }
+
+    function memoize (f) {
+        let cache = {}
+        return function () {
+        // arguments是一个伪数组，所以要进行字符串的转化
+        let key = JSON.stringify(arguments)
+        console.log(key)
+        // 如果缓存中有值就把值赋值，没有值就调用f函数并且把参数传递给它
+        cache[key] = cache[key] || f.apply(f,arguments)
+        console.log(cache)
+        return cache[key]
+        }
+    }
+    
+    let getAreaWithMemory1 = memoize(add)
+    console.log(getAreaWithMemory1(4,5))
+    /*  输出
+        {&quot;0&quot;:4,&quot;1&quot;:5}
+        once
+        { '{&quot;0&quot;:4,&quot;1&quot;:5}': 9 }
+        9  
+    */
+</code></pre>
+<h3 id="可测试">可测试</h3>
+<ul>
+<li>纯函数让测试更加的方便</li>
+</ul>
+<h3 id="并行处理">并行处理</h3>
+<ul>
+<li>
+<p>多线程环境下并行操作共享的内存数据很可能会出现意外情况。纯函数不需要访问共享的内存数据，所以在并行环境下可以任意运行纯函数</p>
+</li>
+<li>
+<p>虽然JS是单线程，但是ES6以后有一个Web Worker，可以开启一个新线程</p>
+</li>
+</ul>
+<h2 id="柯里化">柯里化</h2>
+<blockquote>
+<p>柯里化（Currying）是把接受多个参数的函数变换成接受一个单一参数(最初函数的第一个参数)的函数，并且返回接受余下的参数且返回结果的新函数的技术。 当函数有多个参数的时候，我们可以对函数进行改造。我们可以调用一个函数，只传递部分的参数（这部分参数以后永远不变），然后让这个函数返回一个新的函数。新的函数传递剩余的参数，并且返回相应的结果。</p>
+</blockquote>
+<pre><code class="language-js">    // 下面这段代码是解决了不纯的函数的问题，但是里面出现了硬编码
+    function checkAge (age) { 
+        let mini = 18
+        return age &gt;= mini 
+    }
+
+
+    // 普通的纯函数
+    function checkAge (min, age) {
+        return age &gt;= min
+    }
+    console.log(checkAge(18, 20))  //true
+    console.log(checkAge(18, 24))  //true
+    console.log(checkAge(20, 24))  //true
+    // 经常使用18，这段代码是重复的。避免重复
+    function checkAge (min) {
+        return function (age) {
+            return age &gt;= min
+        }
+    }
+
+    let checkAge18 = checkAge(18)
+    let checkAge20 = checkAge(20)
+
+    console.log(checkAge18(20)) //true
+    console.log(checkAge18(24)) //true
+</code></pre>
+<h3 id="lodash中的柯里化-curry">Lodash中的柯里化 —— curry()</h3>
+<ul>
+<li>功能：创建一个函数，该函数接收一个或多个 func的参数，如果 func 所需要的参数都被提供则执行 func 并返回执行的结果。否则继续返回该函数并等待接收剩余的参数。</li>
+<li>参数：需要柯里化的函数</li>
+<li>返回值：柯里化后的函数</li>
+</ul>
+<pre><code class="language-js">    //案例
+    const _ = require('lodash');
+    function getSum(a,b,c){
+        return a+b+c
+    }
+
+    const curried=_.curry(getSum)
+
+    console.log(curried(1,2,3))
+    console.log(curried(1)(2)(3))
+    console.log(curried(1)(2,3))
+</code></pre>
+<h3 id="柯里化的实现">柯里化的实现</h3>
+<ul>
+<li>实现一个柯里化转换函数要进行分析</li>
+</ul>
+<p>1.入参出参：调用传递一个纯函数的参数，完成之后返回一个柯里化函数</p>
+<p>2.入参情况分析：</p>
+<ul>
+<li>
+<p>如果curried调用传递的参数和getSum函数参数个数相同，那么立即执行并返回调用结果</p>
+</li>
+<li>
+<p>如果curried调用传递的参数是getSum函数的部分参数，那么需要返回一个新的函数，并且等待接收getSum的其他参数</p>
+</li>
+</ul>
+<p>3 重点关注：</p>
+<ul>
+<li>获取调用的参数</li>
+<li>判断个数是否相同</li>
+</ul>
+<pre><code class="language-js">
+    function getSum (a, b, c) {
+         return a + b + c
+    }
+
+    // 模拟柯里化函数
+    function curry (func) {
+    // 取名字是为了下面实参小于形参的时候用的
+    return function curriedFn(...args) {
+        // 判断实参和形参的个数
+        if(args.length &lt; func.length) {
+        return function() {
+            // 等待传递的剩余参数，如果剩余函数的参数加上之前的参数等于形参，那么就返回func
+            // 第一部分参数在args里面，第二部分参数在arguments里面，要将两个合并并且展开传递（使用...）
+            // concat函数要合并两个数组，arguments为伪数组，所以用Array.from进行转换
+            return curriedFn(...args.concat(Array.from(arguments)))
+        }
+        }
+        // 如果实参大于等于形参的个数
+        // args是剩余参数，是个数组形式，而返回的时候要展开（使用...）
+        return func(...args)
+    }
+    }
+
+
+    // test
+    const curriedTest = curry(getSum)
+
+    console.log(curriedTest(1, 2, 3))  // 6
+    console.log(curriedTest(1)(2, 3))  // 6
+    console.log(curriedTest(1, 2)(3))  // 6
+</code></pre>
+<h4 id="总结">总结</h4>
+<ul>
+<li>柯里化可以让我们给一个函数传递较少的参数得到一个已经记住了某些固定参数的新函数（比如match函数新生成了haveSpace函数，里面使用了闭包，记住了我们给传递的正则表达式的参数）</li>
+<li>这是一种对函数参数的'缓存'（使用了闭包）</li>
+<li>让函数变的更灵活，让函数的粒度更小</li>
+<li>可以把多元函数转换成一元函数，可以组合使用函数产生强大的功能</li>
+</ul>
+<h2 id="函数组合">函数组合</h2>
+<blockquote>
+<p>如果一个函数要经过多个函数处理才能得到最终值，这个时候可以把中间过程的函数合并成一个函数。函数组合默认是<strong>从右到左</strong>执行</p>
+</blockquote>
+<pre><code class="language-js">    //例子：有一个数组，需要获取到数组最后一个元素
+    function reverse(array){
+        return array.reverse()
+    }
+
+    function first(array){
+        return array[0]
+    }
+
+    //es5
+
+    /* function getFirst(f,n){
+        return function(value){
+            return f(n(value))
+        }
+    }
+    */
+
+    //es6
+    const getFirst=(f,n)=&gt;value=&gt;f(n(value));
+
+    let compose=getFirst(first,reverse);
+
+    console.log(compose([1,2,3,4,5]))  //5
+</code></pre>
+<h3 id="组合函数模拟">组合函数模拟</h3>
+<ul>
+<li>有一个数组，需要获取到数组中最后一个元素并换成大写</li>
+</ul>
+<pre><code class="language-js">    const reverse = arr =&gt; arr.reverse();
+    const first = arr =&gt; arr[0];
+    const toUpper = s =&gt; s.toUpperCase();
+
+    function compose (...args) {
+    // 返回的函数，有一个传入的初始参数即value
+    return function (value) {
+        // ...args是执行的函数的数组，从右向左执行那么数组要进行reverse翻转
+        // reduce: 对数组中的每一个元素，去执行我们提供的一个函数，并将其汇总成一个单个结果
+        // reduce的第一个参数是一个回调函数，第二个参数是acc的初始值，这里acc的初始值就是value
+
+        // reduce第一个参数的回调函数需要两个参数，第一个参数是汇总的一个结果，第二个参数是如果处理汇总的结果的函数并返回一个新的值
+        // fn指的是数组中的每一个元素（即函数），来处理参数acc，完成之后下一个数组元素处理的是上一个数组的结果acc
+        return args.reverse().reduce(function (acc, fn) {
+        return fn(acc)
+        }, value)
+    }
+    }
+
+
+    //test
+    const fTest = compose(toUpper, first, reverse)
+    console.log(fTest(['one', 'two', 'three'])) // THREE
+
+
+    // ES6的写法（函数都变成箭头函数）
+    const compose = (...args) =&gt; value =&gt; args.reverse().reduce((acc, fn) =&gt; fn(acc), value)
+</code></pre>
+<h3 id="函数组合-结合律">函数组合-结合律</h3>
+<blockquote>
+<p>什么是函数组合结合律？</p>
+</blockquote>
+<ul>
+<li>下面三个情况结果一样，我们既可以把 g 和 h 组合，还可以把 f 和 g 组合</li>
+</ul>
+<pre><code class="language-js">    //伪代码
+    // 结合律（associativity） 
+    let f = compose(f, g, h) 
+    let associative = compose(compose(f, g), h) == compose(f, compose(g, h)) 
+    // true
+</code></pre>
+<ul>
+<li>实际案例</li>
+</ul>
+<pre><code class="language-js">    const _ = require('lodash');
+    // 方式一
+    const f = _.flowRight(_.toUpper, _.first, _.reverse)
+    // 方式二
+    const f = _.flowRight(_.flowRight(_.toUpper, _.first), _.reverse)
+    // 方式三
+    const f = _.flowRight(_.toUpper, _.flowRight(_.first,  _.reverse))
+
+    // 无论上面那种写法，下面都输出THREE这个相同的结果
+    console.log(f(['one', 'two', 'three'])) // THREE
+</code></pre>
+<h3 id="如何测试函数组合">如何测试函数组合</h3>
+<blockquote>
+<p>如果我们运行的结果和我们的预期不一致，我们怎么调试呢？我们怎么能知道中间运行的结果呢？</p>
+</blockquote>
+<ul>
+<li>下面这个输入NEVER SAY DIE要对应输出nerver-say-die</li>
+</ul>
+<pre><code class="language-js">    const _ = require('lodash')
+
+    // 这里split函数需要传入两个参数，且我们最后调用的时候要传入字符串，所以字符串要在第二个位置传入，这里我们需要自己封装一个split函数
+    // _.split(string, separator)
+
+    // 将多个参数转成一个参数，用到函数的柯里化
+    const split = _.curry((sep, str) =&gt; _.split(str, sep))
+
+    // 大写变小写，用到toLower()，因为这个函数只有一个参数，所以可以在函数组合中直接使用
+
+    // 这里join方法也需要两个参数，第一个参数是数组，第二个参数是分隔符，数组也是最后的时候才传递，也需要交换
+    const join = _.curry((sep, array) =&gt; _.join(array, sep))
+
+    const f = _.flowRight(join('-'), _.toLower, split(' '))
+
+    console.log(f('NEVER SAY DIE')) //n-e-v-e-r-,-s-a-y-,-d-i-e
+</code></pre>
+<p>但是最后的结果却不是我们想要的，那么我们怎么调试呢？</p>
+<pre><code class="language-js">
+    // NEVER SAY DIE --&gt; nerver-say-die
+
+    const _ = require('lodash')
+    
+    const split = _.curry((sep, str) =&gt; _.split(str, sep))
+    const join = _.curry((sep, array) =&gt; _.join(array, sep))
+
+    // 我们需要对中间值进行打印，并且知道其位置，用柯里化输出一下
+    const log = _.curry((tag, v) =&gt; {
+        console.log(tag, v)
+        return v
+    })
+
+    // 从右往左在每个函数后面加一个log，并且传入tag的值，就可以知道每次结果输出的是什么
+    const f = _.flowRight(join('-'), log('after toLower:'), _.toLower, log('after split:'), split(' '))
+    // 从右到左
+    //第一个log：after split: [ 'NEVER', 'SAY', 'DIE' ] 正确
+    //第二个log: after toLower: never,say,die  转化成小写字母的时候，同时转成了字符串，这里出了问题
+    console.log(f('NEVER SAY DIE')) //n-e-v-e-r-,-s-a-y-,-d-i-e
+
+
+    // 修改方式，利用数组的map方法，遍历数组的每个元素让其变成小写 
+    // 这里的map需要两个参数，第一个是数组，第二个是回调函数，需要柯里化
+    const map = _.curry((fn, array) =&gt; _.map(array, fn))
+
+    const f1 = _.flowRight(join('-'), map(_.toLower), split(' '))
+    console.log(f1('NEVER SAY DIE')) // never-say-die
+</code></pre>
+<h3 id="fp模块">FP模块</h3>
+<blockquote>
+<p>函数组合的时候用到很多的函数需要柯里化处理，我们每次都处理那些函数有些麻烦，所以lodash中有一个FP模块</p>
+</blockquote>
+<ul>
+<li>
+<p>lodash 的 fp 模块提供了实用的对函数式编程友好的方法</p>
+</li>
+<li>
+<p>提供了不可变 auto-curried iteratee-first data-last （函数之先，数据之后）的方法</p>
+</li>
+</ul>
+<pre><code class="language-js">    const fp=require('lodash/fp');
+
+    // 函数置先，数据置后
+    console.log(fp.map(fp.toUpper,['a','b','c','d']))
+
+    //规则置前，数据置后
+
+    console.log(fp.split(' ')('hello word'))
+    console.log(fp.split(' ','hello word'))
+</code></pre>
+<h2 id="point-free">Point Free</h2>
+<blockquote>
+<p><code>Point Free</code>是一种编程风格，具体的实现是函数的组合。Point Free： 我们可以把数据处理的过程定义成与数据无关的合成运算，不需要用到代表数据的那个参数，只要把简单的运算步骤合成到一起，在使用这种模式之前我们需要定义一些辅助的基本运算函数。</p>
+</blockquote>
+<ul>
+<li>
+<p>不需要指明处理的数据</p>
+</li>
+<li>
+<p>只需要合成运算过程</p>
+</li>
+<li>
+<p>需要定义一些辅助的基本运算函数</p>
+</li>
+<li>
+<p>例子1</p>
+</li>
+</ul>
+<pre><code class="language-js">    /*将Hello   World 转化为 hello_world  */
+    const fp=require('lodash/fp');
+
+    const f=fp.flowRight(fp.replace(/\s+/g,'_'),fp.toLower);
+
+    console.log(f('Hello World')) //hello_world 
+</code></pre>
+<ul>
+<li>例子2</li>
+</ul>
+<pre><code class="language-js">    //world wild web --&gt;W. W. W
+    //思路：
+    //把一个字符串中的额首字母提取并转换成大写，使用. 作为分隔符
+    const fp = require('lodash/fp')
+
+    const firstLetterToUpper = fp.flowRight(fp.join('. '), fp.map(fp.first), fp.map(fp.toUpper), fp.split(' '))
+    console.log(firstLetterToUpper('world wild web')) //W. W. W
+
+    // 上面的代码进行了两次的遍历，性能较低
+    // 优化
+    const firstLetterToUpper = fp.flowRight(fp.join('. '), fp.map(fp.flowRight(fp.first, fp.toUpper)), fp.split(' '))
+    console.log(firstLetterToUpper('world wild web')) //W. W. W
+</code></pre>
+<h2 id="functor">Functor</h2>
+<h3 id="为什么要学函子">为什么要学函子？</h3>
+<blockquote>
+<p>函子(representative functor)是范畴论里的概念，指从任意范畴到集合范畴的一种特殊函子。<br>
+我们没有办法避免副作用，但是我们尽可能的将副作用控制在可控的范围内，我们可以通过函子去处理副作用，我们也可以通过函子去处理异常，异步操作等。</p>
+</blockquote>
+<h3 id="什么是functor">什么是Functor</h3>
+<ul>
+<li>
+<p>容器：包含值和值的变形关系(这个变形关系就是函数)</p>
+</li>
+<li>
+<p>函子：是一个特殊的容器，通过一个普通的对象来实现，该对象具有 map 方法，map方法可以运行一个函数对值进行处理(变形关系)</p>
+</li>
+</ul>
+<pre><code class="language-js">    class Container{
+        constructor(value){
+            // 这个函子的值是保存在内部的，不对外公布
+            // _下划线的成员都是私有成员，外部无法访问，值是初始化的传的参数
+            this._value=value
+        }
+        //有一个对外的方法map，接收一个函数（纯函数），来处理这个值
+        map(fn){
+            // 返回一个新的函子，把fn处理的值返回给函子，由新的函子来保存
+            return new Container(fn(this._value))
+        }
+    }
+    // 创建一个函子的对象
+    let r=new Container(5)
+            .map(n=&gt;n+1)
+            .map(n=&gt;n*n)
+
+    // 返回了一个container函子对象，里面有值是36，不对外公布
+    console.log(r) //Container { _value: 36 }
+</code></pre>
+<ul>
+<li>上面还是面向对象的编程思想，要修改成函数式编程的思想，需要避免使用<code>new</code></li>
+</ul>
+<pre><code class="language-js">    class Container {
+    //使用类的静态方法，of替代了new Container的作用
+    static of (value) {
+        return new Container(value)
+    }
+    constructor (value) {
+        this._value = value
+    }
+    
+    map (fn) {
+        return Container.of(fn(this._value))
+    }
+    }
+
+    const r = Container.of(5)
+                .map(x=&gt;x+2) // 7
+                .map(x=&gt; x**2) // 49
+
+    console.log(r) // Container { _value: 49 }
+</code></pre>
+<h3 id="总结-2">总结</h3>
+<ul>
+<li>函数式编程的运算不直接操作值，而是由函子完成</li>
+<li>函子就是一个实现了 map 契约的对象</li>
+<li>我们可以把函子想象成一个盒子，这个盒子里封装了一个值</li>
+<li>想要处理盒子中的值，我们需要给盒子的 map 方法传递一个处理值的函数（纯函数），由这个函数来对值进行处理</li>
+<li>最终 map 方法返回一个包含新值的盒子（函子）</li>
+</ul>
+<hr>
+<ul>
+<li>遗留问题：在上面说的函子中，如果value是null undefined，怎么办？</li>
+</ul>
+<pre><code class="language-js">    Container.of(null)
+    .map(x=&gt;x.toUpper) // 报错，使得函数不纯
+</code></pre>
+<ul>
+<li>下面这些函子就是处理不同问题的函数</li>
+</ul>
+<h3 id="mybe函子">MyBe函子</h3>
+<blockquote>
+<p>MayBe 函子的作用就是可以对外部的空值情况做处理（控制副作用在允许的范围）</p>
+</blockquote>
+<pre><code class="language-js">    class MayBe {
+    static of (value) {
+        return new MayBe(value)
+    }
+    constructor (value) {
+        this._value = value
+    }
+
+    map(fn) {
+        // 判断一下value的值是不是null和undefined，如果是就返回一个value为null的函子，如果不是就执行函数
+        return this.isNothing() ? MayBe.of(null) : MayBe.of(fn(this._value))
+    }
+
+    // 定义一个判断是不是null或者undefined的函数，返回true/false
+    isNothing() {
+        return this._value === null || this._value === undefined
+    }
+    }
+
+    const r = MayBe.of('hello world')
+    .map(x =&gt; x.toUpperCase())
+
+    console.log(r) //MayBe { _value: 'HELLO WORLD' }
+
+
+    // 如果输入的是null，是不会报错的
+    const rnull = MayBe.of(null)
+    .map(x =&gt; x.toUpperCase())
+    console.log(rnull) //MayBe { _value: null }
+</code></pre>
+<ul>
+<li>但是这里有一个问题就是，如果map中间有好几步，最后返回是null，并不知道是哪一个步骤返回的。解决这个问题，需要看下一个函子。</li>
+</ul>
+<h3 id="either函子">Either函子</h3>
+<ul>
+<li>Either 两者中的任何一个，类似于 if...else...的处理</li>
+<li>当出现问题的时候，Either函子会给出提示的有效信息，</li>
+<li>异常会让函数变的不纯，Either 函子可以用来做异常处理</li>
+</ul>
+<pre><code class="language-js">// 因为是二选一，所以要定义left和right两个函子
+
+class Left {
+  static of (value) {
+    return new Left(value)
+  }
+
+  constructor (value) {
+    this._value = value
+  }
+
+  map (fn) {
+    return this
+  }
+}
+
+class Right {
+  static of (value) {
+    return new Right(value)
+  }
+
+  constructor (value) {
+    this._value = value
+  }
+
+  map (fn) {
+    return Right.of(fn(this._value))
+  }
+}
+
+let r1 = Right.of(12).map(x =&gt; x + 2)
+let r2 = Left.of(12).map(x =&gt; x + 2)
+console.log(r1) // Right { _value: 14 }
+console.log(r2) // Left { _value: 12 }
+// 为什么结果会不一样？因为Left返回的是当前对象，并没有使用fn函数
+
+// 那么这里如何处理异常呢？
+// 我们定义一个字符串转换成对象的函数
+function parseJSON(str) {
+  // 对于可能出错的环节使用try-catch
+  // 正常情况使用Right函子
+  try{
+    return Right.of(JSON.parse(str))
+  }catch (e) {
+  // 错误之后使用Left函子，并返回错误信息
+    return Left.of({ error: e.message })
+  }
+}
+
+let rE = parseJSON('{name:xm}')
+console.log(rE) // Left { _value: { error: 'Unexpected token n in JSON at position 1' } }
+let rR = parseJSON('{&quot;name&quot;:&quot;xm&quot;}')
+console.log(rR) // Right { _value: { name: 'xm' } }
+
+console.log(rR.map(x =&gt; x.name.toUpperCase())) // Right { _value: 'XM' }
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://lonjinup.github.io/xcx-keep-alive/" class="post-title gt-a-link">
+                    小程序自定义TabBar以及keep-alive
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="0fdde3b6-a87f-4594-9b7f-25d151ba858f";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<style>
+.gt-bg-theme-color-second{ background: none!important;}
+</style>
+
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

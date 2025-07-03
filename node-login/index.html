@@ -1,0 +1,395 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>简化本地Vue项目登录流程：用Node脚本一键获取Token | 陇锦</title>
+
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1751543015276">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://lonjinup.github.io/aboutme" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1751543015276" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    简化本地Vue项目登录流程：用Node脚本一键获取Token
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-11-16 ·
+                    </time>
+                    
+                        <a href="https://lonjinup.github.io/vWMtMYt9m/" class="post-tags">
+                            # 工具/教程
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <blockquote>
+<p>最近公司有个项目是基于<code>vue</code>开发的，但部分老页面是前后端不分离的；比如登录页面。由于后端也没有相关登录接口，所以每次在本地启动服务后，需要到测试环境登陆；然后手动复制几个<code>cookie</code>粘贴到本地启动的页面中，整个过程比较繁；所以用<code>node</code>写个脚本去简化一下流程。</p>
+</blockquote>
+<h2 id="优化前">优化前</h2>
+<ul>
+<li>本地<code>npm run serve</code>启动服务</li>
+<li>登录测试环境<code>https://test.xxxx.com/login</code></li>
+<li>打开调试，找到相关cookie，复制</li>
+<li>打开本地启动的页面并打开调试；粘贴复制的cookie，刷新页面</li>
+</ul>
+<p>当然，以下是你整个脚本的逐步解释：</p>
+<h2 id="优化过程">优化过程</h2>
+<h3 id="安装puppeteer和readline">安装Puppeteer和readline</h3>
+<blockquote>
+<p><strong>Puppeteer:</strong><br>
+<a href="https://pptr.dev/">Puppeteer</a> 是一个由 Google 开发的 Node.js 库，用于控制 headless 浏览器（无图形用户界面的浏览器）。它提供了一套高级的 API，允许开发者通过程序方式操控浏览器的行为，包括导航、表单提交、截图、生成 PDF 等功能。Puppeteer通常用于执行自动化测试、屏幕截图、搜索引擎爬虫等任务。在本例中，我们使用 Puppeteer 模拟用户登录过程，获取登录后的 Cookies。<br>
+<strong>readline:</strong><br>
+<a href="https://nodejs.org/api/readline.html">readline</a> 是 Node.js 内置的模块之一，提供了一个接口来从可读流（如 <code>process.stdin</code>）读取数据。它通常用于从终端接收用户输入，使得我们可以以交互的方式与用户进行通信。在本例中，我们使用 readline 创建了一个接口，以便用户能够在终端中输入账号和密码。</p>
+</blockquote>
+<p>这两个模块的结合使用使得我们可以通过 <code>Puppeteer</code> 控制浏览器完成登录，而 <code>readline</code> 则使得用户能够在终端中直接输入账号和密码。</p>
+<p>安装并引入模块</p>
+<pre><code class="language-shell">npm i puppeteer@20.0.0
+npm i readline
+</code></pre>
+<p>引入 <code>puppeteer</code>、<code>readline</code> 和 <code>fs</code>：</p>
+<pre><code class="language-javascript">const puppeteer = require('puppeteer')
+const readline = require('readline')
+const fs = require('fs')
+</code></pre>
+<h3 id="定义登录函数">定义登录函数</h3>
+<p>我们定义一个名为 <code>login</code> 的异步函数，用于模拟用户登录和获取 cookies。</p>
+<pre><code class="language-javascript">/**
+ * 登录
+ * @param {string} url 登录页面url
+ * @param {string} usernameSelector 登录页面用户名输入框的ID
+ * @param {string} passwordSelector 登录页面密码输入框的ID
+ * @param {string} username  账号
+ * @param {string} password 密码
+ */
+async function login(url, usernameSelector, passwordSelector, username, password) {
+    // ...
+}
+</code></pre>
+<h3 id="启动浏览器">启动浏览器</h3>
+<p>在 <code>login</code> 函数中，使用 <code>puppeteer.launch()</code> 启动一个 headless 浏览器实例，然后通过<code>page.goto</code>打开我们传入的url。</p>
+<pre><code class="language-javascript">const browser = await puppeteer.launch({ headless: true })
+const page = await browser.newPage()
+await page.goto(url, { waitUntil: 'load' })
+</code></pre>
+<h3 id="输入用户名和密码">输入用户名和密码</h3>
+<p>使用 <code>page.type()</code> 模拟输入用户名和密码，其中第一个参数为输入框的选择器。登录完成后，我们再通过<code>page.click</code>去点击登录按钮。</p>
+<pre><code class="language-javascript">await page.type(usernameSelector, username)
+await page.type(passwordSelector, password)
+
+await page.click('#_btnLogin')
+await page.waitForNavigation({ waitUntil: 'load' })
+
+</code></pre>
+<h3 id="获取-cookies">获取 Cookies</h3>
+<p>使用 <code>page.cookies()</code> 获取页面的 cookies，并将我们需要的<code>token</code>提取出来。我们这里就随便以<code>APITOKEN</code> 和 <code>bpmftoken</code> 为例子；<br>
+提取后我们就可以使用<code>browser.close()</code>关闭浏览器。</p>
+<pre><code class="language-javascript">const cookies = await page.cookies()
+const tokens = {}
+for (const cookie of cookies) {
+    cookie.name === 'APITOKEN' &amp;&amp; (tokens.APITOKEN = cookie.value)
+    cookie.name === 'bpmftoken' &amp;&amp; (tokens.bpmftoken = cookie.value)
+}
+
+browser.close()
+</code></pre>
+<h3 id="写入tokens到文件">写入Tokens到文件</h3>
+<p>将获取到的<code>tokens</code>写入<code>JSON</code>文件并关闭终端。</p>
+<pre><code class="language-javascript">const tokenJSON = JSON.stringify(tokens, null, 2)
+const filePath = './src/config/tokens.json'
+
+fs.writeFile(filePath, tokenJSON, (err) =&gt; {
+    if (err) throw err
+    console.log('token已写入，请执行 npm run serve')
+    process.exit(1)
+});
+</code></pre>
+<h3 id="访问终端输入数据">访问终端输入数据</h3>
+<p>使用 <code>readline</code> 模块创建一个接口，获取用户输入的账号和密码。</p>
+<pre><code class="language-javascript">const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+let username = null;
+let password = null;
+
+const url = 'https://xxxx..com/login'; //登录页面
+const usernameSelector = '#_txtUid'; //用户名输入框ID
+const passwordSelector = '#_txtPwd'; //密码输入框ID
+
+rl.question('请输入账号:', (answer) =&gt; {
+    username = answer
+    rl.question('请输入密码:', (answer) =&gt; {
+        password = answer
+        rl.close()
+        login(url, usernameSelector, passwordSelector, username, password)
+    });
+});
+</code></pre>
+<p>终端执行下面命令即可实现获取token。</p>
+<pre><code class="language-shell">node login.js
+</code></pre>
+<p>然后在项目中通过读取<code>/src/config/tokens.json</code>中的内容去手动写入<code>token</code>即可。</p>
+<p>完整代码如下：</p>
+<pre><code class="language-javascript">const puppeteer = require('puppeteer')
+const readline = require('readline')
+const fs = require('fs')
+
+async function login(url, usernameSelector, passwordSelector, username, password) {
+    const browser = await puppeteer.launch({ headless: true })
+    const page = await browser.newPage()
+    try {
+        await page.goto(url, { waitUntil: 'load' })
+        try {
+            await page.type(usernameSelector, username)
+            await page.type(passwordSelector, password)
+        } catch (error) {
+            console.log(error)
+        }
+
+        await page.click('#_btnLogin')
+        await page.waitForNavigation({ waitUntil: 'load' })
+        console.log('登录成功')
+        await page.waitForTimeout(500)
+
+        const cookies = await page.cookies()
+        const tokens = {}
+        for (const cookie of cookies) {
+            cookie.name === 'APITOKEN' &amp;&amp; (tokens.APITOKEN = cookie.value)
+            cookie.name === 'bpmftoken' &amp;&amp; (tokens.bpmftoken = cookie.value)
+        }
+
+        await browser.close()
+
+        const tokenJSON = JSON.stringify(tokens, null, 2)
+        const filePath = './src/config/tokens.json'
+        fs.writeFile(filePath, tokenJSON, (err) =&gt; {
+            if (err) throw err;
+            console.log('token已写入, 请执行npm run serve')
+            process.exit(1)
+        });
+
+    } catch (error) {
+        console.error('Error:', error)
+        await browser.close()
+        process.exit(1)
+    }
+}
+
+
+let username = null;
+let password = null;
+const url = 'https://xxxx..com/login'; //登录页面
+const usernameSelector = '#_txtUid'; //用户名输入框ID
+const passwordSelector = '#_txtPwd'; //密码输入框ID
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+rl.question('请输入账号(默认GP00164，直接回车): ', (answer) =&gt; {
+    username = answer || 'GP00164';
+    rl.question('请输入密码: (默认GP00164，直接回车)', (answer) =&gt; {
+        password = answer || 'Xxzx2023@123'
+        rl.close()
+        login(url, usernameSelector, passwordSelector, username, password)
+    })
+})
+</code></pre>
+<h2 id="总结">总结</h2>
+<blockquote>
+<p>这样我们在本地开发过程中就不需要手动复制<code>token</code>，直接运行<code>node login.js</code>即可。<br>
+当然<code>Puppeteer</code>可以做很多事情，比如自动化测试、屏幕截图和生成 PDF、爬虫、性能测试、表单自动填写等等，更多API可以查看<a href="https://pptr.dev/">官网</a>学习。</p>
+</blockquote>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://lonjinup.github.io/node-http/" class="post-title gt-a-link">
+                    【node学习-03】核心模块http
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="0fdde3b6-a87f-4594-9b7f-25d151ba858f";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<style>
+.gt-bg-theme-color-second{ background: none!important;}
+</style>
+
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

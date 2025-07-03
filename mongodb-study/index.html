@@ -1,0 +1,432 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>【node学习-05】mongoDB基础 | 陇锦</title>
+
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1751543015276">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://lonjinup.github.io/aboutme" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1751543015276" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    【node学习-05】mongoDB基础
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-11-21 ·
+                    </time>
+                    
+                        <a href="https://lonjinup.github.io/nodejs/" class="post-tags">
+                            # node
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="mongodb基础">mongoDB基础</h1>
+<h2 id="简介">简介</h2>
+<p><a href="https://www.mongodb.com/try/download/community">mongoDB</a>是一种基于分布式文件存储的数据库，由 C++ 语言编写。由 MongoDB 自身提供的高性能数据存储，以及第三方提供的各种数据库管理工具，包括用于查询和分析的 MongoDB 自带的 shell 工具。</p>
+<h2 id="特点">特点</h2>
+<ul>
+<li>高性能：MongoDB 是一个高性能的 NoSQL 数据库，是当前最流行的<code>非关系型</code>数据库之一。</li>
+<li>易用性：MongoDB 是一个基于文档的数据库，不需要关系型数据库的 SQL 语言，即使对数据库的操作也不需要关系型数据库的 DDL 语言。</li>
+<li>灵活性：MongoDB 是一个基于文档的数据库，可以存储各种类型的数据，包括文档、数组、对象、二进制数据等。</li>
+<li>高可用性：MongoDB 是一个高可用性的数据库，可以保证数据的安全性和可用性。</li>
+<li>低成本：MongoDB 是一个开源的数据库，使用 C++ 编写，因此具有较高的开发效率，部署方便，成本低廉。</li>
+<li>高扩展性：MongoDB 是一个分布式数据库，可以水平扩展，即可以将数据复制到多台服务器上，实现数据的高可用性。</li>
+</ul>
+<h3 id="非关系型数据库和关系型数据库的区别">非关系型数据库和关系型数据库的区别</h3>
+<ul>
+<li>非关系型数据库：非关系型数据库不仅仅是指数据库的存储结构，而是指数据库的存储结构和数据库的操作方式。</li>
+<li>关系型数据库：关系型数据库是指数据库的存储结构和数据库的操作方式。</li>
+</ul>
+<h3 id="关系型数据库和非关系型数据库的优缺点">关系型数据库和非关系型数据库的优缺点</h3>
+<ul>
+<li>关系型数据库的优点：关系型数据库的优点是可以实现关系型数据库的查询，数据更新，数据删除等操作，并且这些操作都是事务性的，即要么全部成功，要么全部失败。</li>
+<li>关系型数据库的缺点：关系型数据库的缺点是关系型数据库的查询性能不高，因为关系型数据库的查询是基于表的连接查询，而非关系型数据库的查询是基于文档的嵌套查询</li>
+</ul>
+<h3 id="mongodb使用场景">mongoDB使用场景</h3>
+<ul>
+<li>存储海量数据</li>
+<li>存储动态数据</li>
+<li>存储大量的结构化和非结构化数据</li>
+<li>存储高并发数据</li>
+<li>存储大量的静态数据</li>
+<li>存储大量的半结构化数据</li>
+<li>存储大量的非结构化数据</li>
+<li>存储大量的关系数据</li>
+<li>存储大量的文档数据</li>
+</ul>
+<h2 id="安装">安装</h2>
+<blockquote>
+<p><code>mongoDB</code>版本号奇数为测试版本，偶数为稳定版本，而且在3.2版本之后不再支持32位系统，所以建议安装64位的系统。由于不同操作系统安装方式略有不同，建议google一下或者进入<a href="https://www.mongodb.com/try/download/community">mongoDB官网</a>进行安装。同时推荐下载<code>Navicat Premium</code>来进行数据库的管理。</p>
+</blockquote>
+<h2 id="mongodb的基础概念">MongoDB的基础概念</h2>
+<h3 id="数据存储结构及存储库">数据存储结构及存储库</h3>
+<p>在 MongoDB 中，数据存储结构主要由集合（Collection）和文档（Document）组成。这种非关系型数据库的设计灵感来源于 JSON 文件格式，因此非常灵活，适用于处理各种不同形式的数据。</p>
+<h4 id="集合">集合</h4>
+<p>集合是 MongoDB 中的一种数据组织方式，类似于关系数据库中的表。不同的是，集合并不要求其中的文档具有相同的结构，可以容纳各种形式和类型的数据。集合的命名通常采用小写字母，避免使用特殊字符和空格。</p>
+<h5 id="示例">示例</h5>
+<p>假设我们有一个博客应用，其中包含一个集合名为 &quot;articles&quot;，用于存储所有文章的数据。每篇文章可以具有不同的字段，例如标题、作者、内容等。示例创建集合的命令如下：</p>
+<pre><code class="language-bash">db.createCollection(&quot;articles&quot;)
+</code></pre>
+<h4 id="文档">文档</h4>
+<p>文档是 MongoDB 存储数据的基本单元，类似于关系数据库中的行。每个文档都是一个 JSON 风格的对象，可以包含各种字段和值。在一个集合中，文档的结构可以是不同的，这使得 MongoDB 能够轻松地适应变化多端的数据需求。</p>
+<p>当我们使用 MongoDB 存储数据时，文档的表示方式与 JSON 非常相似。以下是文档的 JSON 格式示例：</p>
+<pre><code class="language-json">// 在 &quot;articles&quot; 集合中插入一篇文章的文档
+db.articles.insert({
+  &quot;title&quot;: &quot;MongoDB Basics&quot;,
+  &quot;author&quot;: &quot;John Doe&quot;,
+  &quot;content&quot;: &quot;An introduction to MongoDB and its key concepts.&quot;,
+  &quot;tags&quot;: [&quot;NoSQL&quot;, &quot;Database&quot;]
+})
+</code></pre>
+<p>在这个示例中，我们创建了一个名为 &quot;articles&quot; 的集合，并向该集合插入了一篇文章的文档。文档的结构以 JSON 格式表示，包含了标题、作者、内容和标签等字段。</p>
+<p>MongoDB 的灵活性使得文档可以根据实际需求自由定义字段，而集合则提供了一个容纳不同文档的容器。这种方式使得 MongoDB 适用于处理各种数据结构和数据变化的场景。</p>
+<p>通过集合和文档，MongoDB 提供了一种直观且强大的方式来存储和组织数据，适应不同数据结构和变化。这种灵活性是 MongoDB 的一项关键特性，使其成为处理各种数据场景的理想选择。</p>
+<h3 id="常用-mongodb-指令">常用 MongoDB 指令</h3>
+<p>这是一些常用的 MongoDB 命令，方便大家熟悉 MongoDB 的使用。</p>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mongo</code></td>
+<td>连接到 MongoDB 数据库</td>
+</tr>
+<tr>
+<td><code>show dbs</code></td>
+<td>显示所有数据库</td>
+</tr>
+<tr>
+<td><code>use db_name</code></td>
+<td>切换到指定的数据库</td>
+</tr>
+<tr>
+<td><code>db</code></td>
+<td>显示当前数据库</td>
+</tr>
+<tr>
+<td><code>db.dropDatabase()</code></td>
+<td>删除当前数据库</td>
+</tr>
+<tr>
+<td><code>show collections</code></td>
+<td>显示当前数据库中的所有集合</td>
+</tr>
+<tr>
+<td><code>db.createCollection(name)</code></td>
+<td>创建一个新的集合</td>
+</tr>
+<tr>
+<td><code>db.collectionName.insert(document)</code></td>
+<td>在指定集合中插入文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find()</code></td>
+<td>查询指定集合中的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.update(query, update)</code></td>
+<td>更新指定集合中符合条件的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.remove(query)</code></td>
+<td>删除指定集合中符合条件的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.drop()</code></td>
+<td>删除指定集合</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find().sort({field: 1})</code></td>
+<td>按指定字段升序排序文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find().sort({field: -1})</code></td>
+<td>按指定字段降序排序文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find().limit(n)</code></td>
+<td>限制查询结果返回的文档数量</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find().skip(n)</code></td>
+<td>跳过指定数量的文档，返回剩余的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find({field: value})</code></td>
+<td>查询指定字段等于给定值的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find({field: { $gt: value }})</code></td>
+<td>查询指定字段大于给定值的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find({field: { $lt: value }})</code></td>
+<td>查询指定字段小于给定值的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.find({field: /pattern/})</code></td>
+<td>使用正则表达式查询指定字段的文档</td>
+</tr>
+<tr>
+<td><code>db.collectionName.aggregate(pipeline)</code></td>
+<td>执行聚合操作（例如，分组、筛选、排序）</td>
+</tr>
+<tr>
+<td><code>db.collectionName.ensureIndex({field: 1})</code></td>
+<td>创建索引以加速查询</td>
+</tr>
+<tr>
+<td><code>db.collectionName.getIndexes()</code></td>
+<td>查看集合的索引</td>
+</tr>
+</tbody>
+</table>
+<h2 id="基本的增删改查">基本的增删改查</h2>
+<p>MongoDB 是一个基于文档的数据库，这意味着，与关系型数据库相比，MongoDB 中的数据存储更加灵活。</p>
+<p>首先我们创建一个名字为<code>mytest</code>的数据库：</p>
+<pre><code class="language-bash">use mytest
+</code></pre>
+<p>并且创造一个名字为<code>user</code>的集合：</p>
+<pre><code class="language-bash">db.createCollection(&quot;user&quot;)
+</code></pre>
+<h4 id="增">增</h4>
+<p>在<code>user</code>集合中增加单条数据：</p>
+<pre><code class="language-bash">db.user.insertOne({name: 'lonjin', age: 18})
+</code></pre>
+<p>在<code>user</code>集合中增加多条数据：</p>
+<pre><code class="language-bash">db.user.insertMany([
+    {name: 'lonjin2', age: 22},
+    {name: 'lonjin3', age: 33}
+])
+</code></pre>
+<h4 id="查">查</h4>
+<p>在<code>user</code>集合中查询所有数据：</p>
+<pre><code class="language-bash">db.user.find()
+</code></pre>
+<p>在<code>user</code>集合中查询指定条件的数据：</p>
+<pre><code class="language-bash">db.user.find({age: 18})
+</code></pre>
+<p>在<code>user</code>集合中查询指定条件的数据（查询age等于18的数据）：</p>
+<pre><code class="language-bash">db.user.find({age: 18})
+</code></pre>
+<p>在<code>user</code>集合中查询<code>age</code>大于18的数据：</p>
+<pre><code class="language-bash">db.user.find({age: {$gt: 18}})
+</code></pre>
+<p>在<code>user</code>集合中查询<code>age</code>大于18的数据：</p>
+<pre><code class="language-bash">db.user.find({age: {$gt: 18}})
+</code></pre>
+<p>在<code>user</code>集合中查询<code>age</code>大于18的数据，并且只输出符合条件的一条数据：</p>
+<pre><code class="language-bash">db.user.findOne({age: {$gt: 18}})
+</code></pre>
+<h4 id="改">改</h4>
+<p>在<code>user</code>集合中修改<code>name</code>为<code>lonjin</code>，设置他的<code>age</code>为16的数据：</p>
+<pre><code class="language-bash">db.user.updateOne({name: 'lonjin'}, {$set:{age: 16}})
+</code></pre>
+<p>在<code>user</code>集合中修改<code>age</code>大于14的数据，将<code>name</code>改为<code>tom</code>：</p>
+<pre><code class="language-bash">db.user.updateMany({age: {$gt: 14}}, {$set:{name: 'tom'}})
+</code></pre>
+<h4 id="删除">删除</h4>
+<p>在<code>user</code>集合中删除<code>age</code>为<code>16</code>的数据：</p>
+<pre><code class="language-bash">db.user.deleteOne({age: 16})
+
+</code></pre>
+<p>在<code>user</code>集合中删除<code>age</code>大于32的数据：</p>
+<pre><code class="language-bash">db.user.deleteMany({age: {$gt: 32}})
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://lonjinup.github.io/node-04/" class="post-title gt-a-link">
+                    【node学习-04】创建Express项目
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="0fdde3b6-a87f-4594-9b7f-25d151ba858f";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<style>
+.gt-bg-theme-color-second{ background: none!important;}
+</style>
+
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

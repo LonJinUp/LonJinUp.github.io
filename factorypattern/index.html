@@ -1,0 +1,419 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>JavaScript设计模式-策略模式 | 陇锦</title>
+
+<link rel="shortcut icon" href="https://lonjinup.github.io/favicon.ico?v=1751543015276">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://lonjinup.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            陇锦
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://lonjinup.github.io/aboutme" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1751543015276" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    JavaScript设计模式-策略模式
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-03-16 ·
+                    </time>
+                    
+                        <a href="https://lonjinup.github.io/su-x11Ukj/" class="post-tags">
+                            # JavaScript
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="javascript中策略模式">JavaScript中策略模式</h1>
+<h2 id="什么是策略模式">什么是策略模式</h2>
+<blockquote>
+<p>策略模式是一种简单却常用的设计模式，它的应用场景非常广泛。该模式定义了一系列算法，并将每个算法封装起来，使它们可以相互替换，且算法的变化不会影响使用算法的客户。策略模式属于对象行为模式，它通过对算法进行封装，把使用算法的责任和算法的实现分割开来，并委派给不同的对象对这些算法进行管理。<br>
+该模式<strong>主要解决</strong>在有多种算法相似的情况下，使用 <code>if...else</code> 所带来的复杂和难以维护。它的<strong>优点</strong>是算法可以自由切换，同时可以避免多重<code>if...else</code>判断，且具有良好的扩展性。</p>
+</blockquote>
+<h2 id="案例1">案例1</h2>
+<blockquote>
+<p>在做电商系统时候很多情况下会根据商品来单独计算他们的价格，比如预售价、双十一价格、正常价等，我们可能会这么写：</p>
+</blockquote>
+<pre><code class="language-js">function getPrice(price, status) {
+    if (status == 'default') {
+        return price
+    } else if (status == 'pre-sale') {
+        return price * 0.8
+    } else if (status == 'doubleOneOne') {
+        return price / 2
+    }
+}
+console.log(getPrice(100, 'doubleOneOne')) // 50
+</code></pre>
+<p>上面代码使用了比较多的<code>if...else</code>来进行不同情况下的判断，同时把计算逻辑放到了<code>getPirce</code>方法里面，导致方法比较臃肿，不易维护。可以把不同情况下的逻辑抽离出来，一方面方便维护，另一方面可以提高代码复用率。</p>
+<pre><code class="language-js">function defaultPrice(price) {
+    return price;
+}
+
+function preSale(price) {
+    return price * 0.8;
+}
+
+function doubleOneOne(price) {
+    return price / 2;
+}
+
+function getPrice(price, status) {
+    if (status == 'default') {
+        return defaultPrice(price)
+    } else if (status == 'pre-sale') {
+        return preSale(price)
+    } else if (status == 'doubleOneOne') {
+        return doubleOneOne(price);
+    }
+}
+
+console.log(getPrice(100, 'pre-sale')) //80
+</code></pre>
+<p>上面代码虽然把计算逻辑单独抽离出来了，但是美中不足的地方就是还是有很多<code>if...else</code>，不够优雅，仔细观察，我们可以把各种情况当作<code>key</code>，然后去映射对应的方法，这样<code>getPrice</code>方法就相当纯粹了，后期增加不同的活动，单独维护映射关系以及计算方法即可。</p>
+<pre><code class="language-js">function defaultPrice(price) {
+    return price;
+}
+
+function preSale(price) {
+    return price * 0.8;
+}
+
+function doubleOneOne(price) {
+    return price / 2;
+}
+
+const priceList = {
+    'default': defaultPrice,
+    'pre-sale': preSale,
+    'doubleOneOne': doubleOneOne,
+};
+
+function getPrice(price, status) {
+    return priceList[status](price);
+}
+
+console.log(getPrice(100, 'doubleOneOne')); //50
+</code></pre>
+<h2 id="案例2">案例2</h2>
+<p>先举个项目中常见的例子：表单验校，这个在我们开发中几乎都会遇到，对于表单中的各种值，在提交时会根据用户输入的值进行规则验校，如果不符合规则就提示用户，增加产品体验。下面就写一个基础的表单来示范：</p>
+<pre><code class="language-html">&lt;form id='forgot-password-wrapper' action=&quot;&quot; method=&quot;post&quot;&gt;
+        &lt;label for=&quot;mobile&quot;&gt;手机号&lt;/label&gt;
+        &lt;input type=&quot;number&quot; id=&quot;mobile&quot; name=&quot;mobile&quot;&gt;
+        &lt;label for=&quot;code&quot;&gt;验证码&lt;/label&gt;
+        &lt;input type=&quot;text&quot; id=&quot;code&quot; name=&quot;code&quot;&gt;
+        &lt;label for=&quot;password&quot;&gt;新密码&lt;/label&gt;
+        &lt;input type=&quot;password&quot; id=&quot;password&quot; name=&quot;password&quot;&gt;
+        &lt;label for=&quot;passwordAgain&quot;&gt;新密码&lt;/label&gt;
+        &lt;input type=&quot;password&quot; id=&quot;passwordAgain&quot; name=&quot;passwordAgain&quot;&gt;
+        &lt;button id='push'&gt;确认&lt;/button&gt;
+&lt;/form&gt;
+&lt;script&gt;
+    const forgotPasswordForm = document.getElementById('forgot-password-wrapper')
+    forgotPasswordForm.onsubmit = (e)=&gt;{
+        e.preventDefault()
+        const mobile = document.getElementById('mobile').value
+        const code = document.getElementById('code').value
+        const password = document.getElementById('password').value
+        const passwordAgain = document.getElementById('passwordAgain').value
+        const mobileReg = /^[1][3,4,5,7,8,9][0-9]{9}$/
+
+        if(mobile === null || mobile === ''){
+            console.log('请输入手机号')
+            return false;
+        }else if(!mobileReg.test(mobile)){
+            console.log('请输入正确的手机号')
+            return false;
+        }else if(code === '' || code === null){
+            console.log('请输入验证码')
+            return false;
+        }else if(code.length != 6){
+            console.log('请输入6位数验证码')
+            return false;
+        }else if(password === '' || password === null){
+            console.log('请输密码')
+            return false;
+        }else if(passwordAgain === '' || passwordAgain === null){
+            console.log('请再次输密码')
+            return false;
+        }else if(passwordAgain != password){
+            console.log('两次输入密码不一致')
+            return false;
+        }else{
+            alert('提交成功')
+        }
+    }
+&lt;/script&gt;
+</code></pre>
+<ul>
+<li>可以看到，我们需要很多<code>if...else</code>来进行各种情况的判断，而且我们每增加一种，都需要动表单提交的内部代码，而且复用性几乎为0。下面我们可以使用策略模式改变一下：</li>
+</ul>
+<pre><code class="language-html"> &lt;form id='forgot-password-wrapper' action=&quot;&quot; method=&quot;post&quot;&gt;
+    &lt;label for=&quot;mobile&quot;&gt;手机号&lt;/label&gt;
+    &lt;input type=&quot;number&quot; id=&quot;mobile&quot; name=&quot;mobile&quot;&gt;
+    &lt;label for=&quot;code&quot;&gt;验证码&lt;/label&gt;
+    &lt;input type=&quot;text&quot; id=&quot;code&quot; name=&quot;code&quot;&gt;
+    &lt;label for=&quot;password&quot;&gt;新密码&lt;/label&gt;
+    &lt;input type=&quot;password&quot; id=&quot;password&quot; name=&quot;password&quot;&gt;
+    &lt;label for=&quot;passwordAgain&quot;&gt;新密码&lt;/label&gt;
+    &lt;input type=&quot;password&quot; id=&quot;passwordAgain&quot; name=&quot;passwordAgain&quot;&gt;
+    &lt;button id='push'&gt;确认&lt;/button&gt;
+&lt;/form&gt;
+&lt;script&gt;
+    /* 单独抽离规则 */
+    const rules = {
+        isEmpty: (val, message)=&gt;{
+            if(val === '' || val == null) return message
+        },
+        checkLength: (val, message, minLength, maxLength)=&gt;{
+            if(String(val).length &lt; minLength || String(val).length &gt; maxLength) return message
+        },
+        checkMobile: (val, message)=&gt;{
+            const mobileReg = /^[1][3,4,5,7,8,9][0-9]{9}$/
+            if(!mobileReg.test(val)) return message
+        },
+        isEqual: (val, message, valAgain)=&gt;{
+            if(val != valAgain) return message
+        }
+    }
+
+     /* 表单验校封装 */
+    const checkFrom = {
+        mobile: (val)=&gt;{
+            const mobileIsEmpty = rules.isEmpty(val, '请输入手机号')
+            const mobileIsLegitimate = rules.checkMobile(val, '请输入正确的手机号')
+            const message = mobileIsEmpty || mobileIsLegitimate
+            if(message) return message
+        },
+        code: (val)=&gt;{
+            const codeIsEmpty = rules.isEmpty(val, '请输入验证码')
+            const codeLength = rules.checkLength(val, '请输入6位数验证码', 6, 6)
+            const message = codeIsEmpty || codeLength
+            if(message) return message
+        },
+        password: (val, valAgain)=&gt;{
+            const passwordIsEmpty = rules.isEmpty(val, '请输入密码')
+            const passwordCheckLength = rules.checkLength(val, '请输入8-10位密码', 8, 10)
+            const passwordAgainIsEmpty = rules.isEmpty(valAgain, '请再次输入密码')
+            const passwordAgainCheckLength = rules.checkLength(valAgain, '再次确认密码请输入8-10位', 8, 10)
+            const passwirdIsEqual = rules.isEqual(val, '两次输入密码不一致', valAgain)
+            const message = passwordIsEmpty || passwordCheckLength || passwordAgainIsEmpty || passwordAgainCheckLength || passwirdIsEqual
+            if(message) return message
+        }
+    }
+
+    /* 表单提交 */
+    const forgotPasswordForm = document.getElementById('forgot-password-wrapper')
+    forgotPasswordForm.onsubmit = (e)=&gt;{
+        e.preventDefault()
+        /* 获取value */
+        const mobile = document.getElementById('mobile').value
+        const code = document.getElementById('code').value
+        const password = document.getElementById('password').value
+        const passwordAgain = document.getElementById('passwordAgain').value
+        /* 规则验校 */
+        const checkMobile = checkFrom.mobile(mobile)
+        const checkCode = checkFrom.code(code)
+        const checkPassword = checkFrom.password(password, passwordAgain)
+        const message = checkMobile || checkCode || checkPassword
+
+        if(message){
+            alert(message)
+        }else{
+            alert('提交成功')
+        }
+    }
+&lt;/script&gt;
+</code></pre>
+<p>从代码数量上来看，可能感觉比之前还要多，但是极大的提高了代码的复用性，我们可以把<code>rules</code>和<code>checkFrom</code>单独封装，在使用的地方直接引用，随着<code>rules</code>的不断增加、<code>checkFrom</code>的扩展，我们在处理各种验校就方便多了。</p>
+<h2 id="总结">总结</h2>
+<p>在实际业务中，如果遇到<strong>多重条件嵌套</strong>问题时候，就应该考虑使用策略模式来进行优化，这样可以提高代码复用性、可读性，易于维护。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://lonjinup.github.io/vue-ji-chu-zheng-li/" class="post-title gt-a-link">
+                    vue基础整理
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'db2f457cc3883b93aadf',
+    clientSecret: '8c89802acb4c16969d407de1d7bcee30a0d51886',
+    repo: 'lonjinup.github.io',
+    owner: 'LonJinUp',
+    admin: ['LonJinUp'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">记录学习 记录生活</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/long-jin-48-31" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://lonjinup.github.io/" target="_blank">LonJin</a>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="0fdde3b6-a87f-4594-9b7f-25d151ba858f";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<style>
+.gt-bg-theme-color-second{ background: none!important;}
+</style>
+
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://lonjinup.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
